@@ -2,6 +2,42 @@
   <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
   <label [for]="inputId">Dateien wählen</label>
 
+  <div class="btn-group mt-2" ngbDropdown>
+    <button type="button" class="btn btn-outline-primary" ngbDropdownToggle aria-label="Bank für Export-Hilfe auswählen">
+      <i class="fa-solid fa-building-columns me-2" aria-hidden="true"></i>{{ selectedBank }}
+    </button>
+    <div ngbDropdownMenu aria-label="Bank auswählen">
+      <button ngbDropdownItem *ngFor="let bank of banks" (click)="selectedBank = bank">{{ bank }}</button>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="showExportHelp = true">
+      <i class="fa-regular fa-circle-question me-2" aria-hidden="true"></i>Export-Hilfe
+    </button>
+  </div>
+
+  <div *ngIf="showExportHelp" (click)="closeExportHelp()">
+    <div class="modal-backdrop fade show"></div>
+    <section class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="exportHelpTitle" (click)="$event.stopPropagation()">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="exportHelpTitle" class="modal-title fs-5">{{ selectedBank }}: Umsätze als CSV exportieren</h2>
+            <button type="button" class="btn-close" aria-label="Schließen" (click)="closeExportHelp()"></button>
+          </div>
+          <div class="modal-body">
+            <p>Datei aus dem Banking laden:</p>
+            <ol>
+              <li *ngFor="let step of exportSteps">{{ step }}</li>
+            </ol>
+            <p class="mb-0">Achte darauf, wirklich <strong>CSV</strong> auszuwählen. PDF-Kontoauszüge können hier nicht ausgewertet werden.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="closeExportHelp()">Verstanden</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div class="file-list" *ngIf="storedFiles.length > 0">
     <div class="file-item" *ngFor="let file of storedFiles">
       <span class="file-name" [title]="file.fileName">{{ file.fileName }}</span>

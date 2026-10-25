@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
 
@@ -19,6 +19,9 @@ interface FileTimelineEntry {
 })
 export class FileSelectorComponent {
   @Input() public big: boolean = false;
+  readonly banks = ['Sparkasse', 'ING', 'N26', 'DKB'];
+  selectedBank = 'Sparkasse';
+  showExportHelp = false;
   private readonly maxFileNameLength = 26;
   private timelineCacheKey: string = '';
   private timelineCache: FileTimelineEntry[] = [];
@@ -27,6 +30,44 @@ export class FileSelectorComponent {
     private importService: ImportService,
     protected dataState: DataState
   ) {}
+
+  get exportSteps(): string[] {
+    switch (this.selectedBank) {
+      case 'ING':
+        return [
+          'Melde dich an, wähle dein Konto und öffne die Umsätze des Kontos, welches du analysieren möchtest.',
+          'Scrolle ganz nach unten und klicke so oft auf „Weiter in die Vergangenheit“, bis alle gewünschten Umsätze angezeigt werden.',
+          'Klicke auf „Exportieren“, wähle „CSV (Excel)“ und dann „Jetzt exportieren“.'
+        ];
+      case 'N26':
+        return [
+          'Melde dich in der N26 Web-App an und wähle auf „Home“ dein Konto oder Space.',
+          'Öffne „Downloads“ und trage unter „Kontoaktivität“ den gewünschten Zeitraum ein.',
+          'Wähle CSV als Format und klicke auf „Herunterladen“.'
+        ];
+      case 'DKB':
+        return [
+          'Melde dich im DKB-Web-Banking an und öffne dein Girokonto.',
+          'Rufe die Umsatzübersicht auf und wähle den gewünschten Zeitraum.',
+          'Öffne „Export“ oder „Herunterladen“ und wähle CSV, falls das Format angeboten wird.'
+        ];
+      default:
+        return [
+          'Melde dich im Online-Banking deiner lokalen Sparkasse an und öffne „Umsätze“ für dein Konto.',
+          'Wähle den gewünschten Zeitraum und aktualisiere die Umsatzanzeige.',
+          'Öffne „Exportieren" und wähle das Excel (CSV-CAMT V2).'
+        ];
+    }
+  }
+
+  closeExportHelp(): void {
+    this.showExportHelp = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeExportHelp();
+  }
 
   get storedFiles(): Array<{ fileName: string; content: string; uploadedAt: string }> {
     return this.importService.getFilesFromLocalStorage();
