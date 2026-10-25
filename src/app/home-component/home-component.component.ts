@@ -67,6 +67,10 @@ export class HomeComponentComponent {
     return labels[this.dataState.currentFilter.type];
   }
 
+  get isMiscCategorySelected(): boolean {
+    return this.dataState.currentFilter.category?.name.trim().toLocaleLowerCase('de-DE') === 'sonstiges';
+  }
+
   hasSelectedMonth(): boolean {
     return (
       this.dataState.currentFilter.from !== undefined &&
