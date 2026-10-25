@@ -273,7 +273,7 @@
   position: relative;
   height: 6px;
   border-radius: 999px;
-  background: #e9eef3;
+  background: var(--app-border);
   overflow: hidden;
 }
 
@@ -283,10 +283,10 @@
   inset: 0;
   background: repeating-linear-gradient(
     45deg,
-    rgba(167, 179, 192, 0.35),
-    rgba(167, 179, 192, 0.35) 4px,
-    rgba(233, 238, 243, 0.65) 4px,
-    rgba(233, 238, 243, 0.65) 8px
+    rgba(49, 91, 82, 0.14),
+    rgba(49, 91, 82, 0.14) 4px,
+    rgba(225, 232, 228, 0.7) 4px,
+    rgba(225, 232, 228, 0.7) 8px
   );
 }
 
@@ -295,7 +295,7 @@
   top: 0;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #2f80ed, #56ccf2);
+  background: linear-gradient(90deg, var(--app-primary), #5b8f7f);
 }
 
 .file-range-labels {
