@@ -2,7 +2,7 @@
   <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
   <label [for]="inputId">Dateien wählen</label>
 
-  <div class="btn-group mt-2 bank-export-button-group" ngbDropdown>
+  <div class="btn-group d-flex w-fit-content mx-auto mt-2 bank-export-button-group" ngbDropdown>
     <button type="button" class="btn btn-outline-primary bank-select-toggle" ngbDropdownToggle aria-label="Bank für Export-Hilfe auswählen">
       <i class="fa-solid fa-building-columns me-2" aria-hidden="true"></i>{{ selectedBank }}
     </button>
