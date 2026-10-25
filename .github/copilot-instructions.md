@@ -1,8 +1,8 @@
-# FinanceAnalyser - Copilot Instructions
+# Finanz Uhu - Copilot Instructions
 
 ## Architecture Overview
 
-FinanceAnalyser ist eine datenschutzfreundliche Angular-Anwendung (v18) zur lokalen Analyse von CSV-Finanzdaten. Die App verarbeitet Daten vollständig im Browser ohne Server-Backend.
+Finanz Uhu ist eine datenschutzfreundliche Angular-Anwendung (v18) zur lokalen Analyse von CSV-Finanzdaten. Die App verarbeitet Daten vollständig im Browser ohne Server-Backend.
 
 ### Core Data Flow
 1. **CSV Import**: `ImportService` erkennt automatisch Bankformate (SpkImporter, IngImporter, N26Importer, DkbImporter)

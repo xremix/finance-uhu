@@ -1,7 +1,7 @@
 ---
 name: excel-import-type
 version: 1.0.0
-description: Add support for a new Excel file import type in FinanceAnalyser by creating a dedicated importer and wiring it into the existing ImportService pipeline.
+description: Add support for a new Excel file import type in Finanz Uhu by creating a dedicated importer and wiring it into the existing ImportService pipeline.
 ---
 
 # Excel Import Type Skill
