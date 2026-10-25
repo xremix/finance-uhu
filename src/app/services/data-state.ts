@@ -358,10 +358,18 @@ export class DataState {
   }
 
   resetMonth() {
-    const transactionsWithDate = this._transactions.filter((t) => t.bookingDate);
+    const transactionsWithDate = this._transactions.filter(
+      (transaction) => transaction.bookingDate instanceof Date && !Number.isNaN(transaction.bookingDate.getTime())
+    );
     if (transactionsWithDate.length > 0) {
-      this.currentFilter.to = transactionsWithDate[0].bookingDate;
-      this.currentFilter.from = transactionsWithDate[transactionsWithDate.length - 1].bookingDate;
+      let earliest = transactionsWithDate[0].bookingDate;
+      let latest = earliest;
+      for (const transaction of transactionsWithDate.slice(1)) {
+        if (transaction.bookingDate < earliest) earliest = transaction.bookingDate;
+        if (transaction.bookingDate > latest) latest = transaction.bookingDate;
+      }
+      this.currentFilter.from = new Date(earliest);
+      this.currentFilter.to = new Date(latest);
       this.refresh();
     }
   }
