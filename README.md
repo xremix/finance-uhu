@@ -4,9 +4,19 @@ The privacy-friendly tool to analyze your financial files on your computer.
 
 Try out the [Demo](https://xremix.github.io/finance-uhu/) with the [Demo CSV](https://raw.githubusercontent.com/xremix/finance-uhu/main/demo.csv) and see the functionality of the App.
 
-![Finance Uhu landing page](./Screenshot.png)
+## Screenshots
 
-![Finance Uhu dashboard with sample transactions](./Screenshot2.png)
+### Startseite
+
+![Finanz Uhu Startseite](./docs/screenshots/startseite.png)
+
+### Demo-Datei mit ausgewählter Kategorie „Essen & Trinken“
+
+![Dashboard mit der Beispiel-CSV und ausgewählter Kategorie Essen & Trinken](./docs/screenshots/essen-und-trinken.png)
+
+### Alle Buchungen
+
+![Beispielbuchungen aus der Demo-CSV im Bereich Alle Buchungen](./docs/screenshots/alle-buchungen.png)
 
 ## Getting Started
 
