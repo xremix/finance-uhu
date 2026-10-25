@@ -23,14 +23,15 @@
 }
 
 .insight-summary {
+  position: relative;
   display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr) 1rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   align-items: center;
   width: 100%;
   gap: 0.35rem 0.7rem;
   min-height: 10.25rem;
-  padding: 1rem 1.1rem;
+  padding: 1rem 3.75rem 1rem 1.1rem;
   border: 0;
   border-radius: inherit;
   color: inherit;
@@ -39,6 +40,11 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.insight-summary:hover {
+  background: var(--app-surface-muted);
 }
 
 .insight-summary:focus-visible {
@@ -104,16 +110,26 @@
 }
 
 .insight-chevron {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-  align-self: center;
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
   color: var(--app-muted);
+  background: var(--app-surface-muted);
   font-size: 0.7rem;
-  transition: transform 150ms ease;
+  transform: translateY(-50%);
+  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease;
 }
 
 .insight-chevron.is-expanded {
-  transform: rotate(180deg);
+  color: var(--app-primary);
+  background: #edf3f0;
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .insight-details-panel {

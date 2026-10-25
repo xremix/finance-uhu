@@ -104,12 +104,11 @@
 }
 
 .balance-kpi-trigger {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	position: relative;
+	display: block;
 	width: 100%;
 	min-height: 10.25rem;
-	padding: 1rem 1.25rem;
+	padding: 1rem 3.75rem 1rem 1.25rem;
 	border: 0;
 	border-radius: inherit;
 	color: inherit;
@@ -129,22 +128,25 @@
 }
 
 .balance-kpi-chevron {
+	position: absolute;
+	top: 50%;
+	right: 1rem;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	flex: 0 0 auto;
 	width: 2rem;
 	height: 2rem;
-	margin-left: 1rem;
 	border-radius: 50%;
 	color: var(--app-muted);
 	background: var(--app-surface-muted);
+	transform: translateY(-50%);
 	transition: transform 150ms ease, color 150ms ease, background-color 150ms ease;
 
 	&.is-expanded {
 		color: var(--app-primary);
 		background: #edf3f0;
-		transform: rotate(180deg);
+		transform: translateY(-50%) rotate(180deg);
 	}
 }
 

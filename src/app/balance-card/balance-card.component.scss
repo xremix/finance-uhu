@@ -22,7 +22,7 @@
   gap: 1rem;
   width: 100%;
   min-height: 10.25rem;
-  padding: 1rem;
+  padding: 1rem 3.75rem 1rem 1rem;
   border: 0;
   border-radius: inherit;
   overflow: hidden;
@@ -34,6 +34,10 @@
 
 .balance-summary:hover {
   background: linear-gradient(115deg, #fff 0%, #f7fbf9 54%, #eaf4ef 100%);
+}
+
+.balance-summary:hover::after {
+  background: linear-gradient(90deg, rgba(247, 251, 249, 0.98) 0%, rgba(247, 251, 249, 0.94) 34%, rgba(241, 248, 244, 0.78) 53%, rgba(226, 241, 233, 0.42) 73%, rgba(226, 241, 233, 0.08) 100%);
 }
 
 .balance-summary::before {
@@ -81,12 +85,26 @@
 }
 
 .balance-chevron {
-  position: relative;
+  position: absolute;
   z-index: 3;
-  align-self: flex-start;
-  margin-left: auto;
+  top: 50%;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
   color: var(--app-muted);
+  background: var(--app-surface-muted);
   font-size: 0.75rem;
+  transform: translateY(-50%);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.balance-chevron.is-expanded {
+  color: var(--app-primary);
+  background: #edf3f0;
 }
 
 .balance-history-panel {
