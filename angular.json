@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "FinanceAnalyser": {
+    "finance-uhu": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/finance-analyser",
+            "outputPath": "dist/finance-uhu",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -74,10 +74,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "FinanceAnalyser:build:production"
+              "buildTarget": "finance-uhu:build:production"
             },
             "development": {
-              "buildTarget": "FinanceAnalyser:build:development"
+              "buildTarget": "finance-uhu:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -85,7 +85,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "FinanceAnalyser:build"
+            "buildTarget": "finance-uhu:build"
           }
         },
         "test": {

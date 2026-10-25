@@ -1,8 +1,8 @@
-# FinanceAnalyser
+# Finance Uhu
 
 The privacy-friendly tool to analyze your financial files on your computer.
 
-Try out the [Demo](https://xremix.github.io/FinanceAnalyser/) with the [Demo CSV](https://raw.githubusercontent.com/xremix/FinanceAnalyser/main/demo.csv) and see the functionality of the App.
+Try out the [Demo](https://xremix.github.io/finance-uhu/) with the [Demo CSV](https://raw.githubusercontent.com/xremix/finance-uhu/main/demo.csv) and see the functionality of the App.
 
 ![Finance Uhu landing page](./Screenshot.png)
 

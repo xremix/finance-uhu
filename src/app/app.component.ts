@@ -13,7 +13,7 @@ import { legalContact } from './legal-contact';
 
 })
 export class AppComponent implements OnInit {
-  title = 'FinanceAnalyser';
+  title = 'Finanz Uhu';
   protected readonly legalContact = legalContact;
     constructor(protected dataState: DataState,
       private importService: ImportService,

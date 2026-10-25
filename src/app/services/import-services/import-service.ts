@@ -461,7 +461,7 @@ export class ImportService {
     }
 
     return fileWindow.showSaveFilePicker({
-      suggestedName: 'financeanalyser-settings.json',
+      suggestedName: 'finance-uhu-settings.json',
       types: [
         {
           description: 'JSON settings file',
