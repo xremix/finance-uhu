@@ -99,6 +99,135 @@
 	}
 }
 
+.balance-kpi-card {
+	min-height: 10.25rem;
+}
+
+.balance-kpi-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	min-height: 10.25rem;
+	padding: 1rem 1.25rem;
+	border: 0;
+	border-radius: inherit;
+	color: inherit;
+	background: transparent;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 150ms ease;
+
+	&:hover {
+		background: var(--app-surface-muted);
+	}
+
+	.metric-value {
+		margin-bottom: 0.1rem;
+	}
+}
+
+.balance-kpi-chevron {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 2rem;
+	height: 2rem;
+	margin-left: 1rem;
+	border-radius: 50%;
+	color: var(--app-muted);
+	background: var(--app-surface-muted);
+	transition: transform 150ms ease, color 150ms ease, background-color 150ms ease;
+
+	&.is-expanded {
+		color: var(--app-primary);
+		background: #edf3f0;
+		transform: rotate(180deg);
+	}
+}
+
+.balance-details {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.balance-detail {
+	display: grid;
+	grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0;
+	padding: 1rem;
+	border: 1px solid var(--app-border);
+	border-radius: 0.75rem;
+	background: var(--app-surface-muted);
+}
+
+.balance-details-panel .card-body {
+	padding: 1.25rem;
+}
+
+.balance-detail-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 0.7rem;
+	font-size: 0.75rem;
+}
+
+.balance-detail-income .balance-detail-icon {
+	color: var(--app-success);
+	background: #eaf4ee;
+}
+
+.balance-detail-expense .balance-detail-icon {
+	color: var(--app-danger);
+	background: #f9eded;
+}
+
+.balance-detail-copy {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.balance-detail-label {
+	margin: 0;
+	color: var(--app-ink-strong);
+	font-size: 0.9rem;
+	font-weight: 650;
+}
+
+.balance-detail-hint {
+	margin-top: 0.15rem;
+	color: var(--app-muted);
+	font-size: 0.75rem;
+}
+
+.balance-detail-value {
+	color: var(--app-success);
+	font-size: 1rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+.balance-detail-expense .balance-detail-value {
+	color: var(--app-danger);
+}
+
+.booking-card .card-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 10.25rem;
+}
+
 .tutorial-grid,
 .feature-grid {
 	display: grid;
@@ -168,6 +297,13 @@
 	.tutorial-grid,
 	.feature-grid {
 		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 575px) {
+	.balance-details {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
 	}
 }
 

@@ -110,41 +110,30 @@
         {{ dataState.currentFilter.category?.name || 'Alle Kategorien' }} · {{ typeFilterLabel }}
       </p>
     </div>
-    <app-spending-insight (openTransactions)="showInsightTransactions()"></app-spending-insight>
   </section>
 
   <section class="row g-3 mb-3" aria-label="Kennzahlen">
-    <div class="col-6 col-xl-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
-          <div class="metric-label">Einnahmen</div>
-          <div class="metric-value text-success">{{ incomeTotal | currency:'EUR':'symbol':'1.0-0' }}</div>
-          <div class="metric-hint">{{ amountLabel }}</div>
-        </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card metric-card balance-kpi-card">
+        <button type="button" class="balance-kpi-trigger" [attr.aria-expanded]="expandedKpi === 'balance'"
+          aria-controls="balanceKpiDetailsPanel" (click)="toggleKpiDetails('balance')">
+          <span>
+            <span class="metric-label d-block">Saldo</span>
+            <span class="metric-value d-block" [class.text-success]="netTotal >= 0" [class.text-danger]="netTotal < 0">
+              {{ netTotal | currency:'EUR':'symbol':'1.0-0' }}
+            </span>
+            <span class="metric-hint">{{ amountLabel }} · ohne Sparen</span>
+          </span>
+          <span class="balance-kpi-chevron" [class.is-expanded]="expandedKpi === 'balance'" aria-hidden="true">
+            <i class="fa-solid fa-chevron-down"></i>
+          </span>
+          <span class="visually-hidden">{{ expandedKpi === 'balance' ? 'Details ausblenden' : 'Einnahmen- und Ausgabendetails anzeigen' }}</span>
+        </button>
       </div>
     </div>
-    <div class="col-6 col-xl-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
-          <div class="metric-label">Ausgaben</div>
-          <div class="metric-value text-danger">{{ expenseTotal | currency:'EUR':'symbol':'1.0-0' }}</div>
-          <div class="metric-hint">{{ amountLabel }} · ohne Sparen</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-xl-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
-          <div class="metric-label">Saldo</div>
-          <div class="metric-value" [class.text-success]="netTotal >= 0" [class.text-danger]="netTotal < 0">
-            {{ netTotal | currency:'EUR':'symbol':'1.0-0' }}
-          </div>
-          <div class="metric-hint">{{ amountLabel }} · ohne Sparen</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-xl-3">
-      <div class="card metric-card h-100">
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card metric-card booking-card">
         <div class="card-body">
           <div class="metric-label">Buchungen</div>
           <div class="metric-value">{{ dataState.selectedTransactions.length }}</div>
@@ -152,9 +141,64 @@
         </div>
       </div>
     </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <app-spending-insight [expanded]="expandedKpi === 'spending'"
+        (toggleDetails)="toggleKpiDetails('spending')"
+        (openTransactions)="showInsightTransactions()"></app-spending-insight>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <app-balance-card [expanded]="expandedKpi === 'account'"
+        (toggleDetails)="toggleKpiDetails('account')"></app-balance-card>
+    </div>
   </section>
 
-  <app-balance-card></app-balance-card>
+  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'balance'" aria-label="Saldo: Einnahmen und Ausgaben im gewählten Zeitraum">
+    <div class="col-12">
+      <section class="card balance-details-panel" id="balanceKpiDetailsPanel" aria-labelledby="balanceKpiDetailsTitle">
+        <div class="card-body">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+            <div>
+              <h2 id="balanceKpiDetailsTitle" class="section-title mb-1">Einnahmen und Ausgaben</h2>
+              <p class="text-muted small mb-0">{{ amountLabel }} · Ausgaben ohne Sparbuchungen</p>
+            </div>
+          </div>
+          <div class="balance-details balance-details--full-width">
+            <div class="balance-detail balance-detail-income">
+              <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-down"></i></span>
+              <span class="balance-detail-copy">
+                <span class="balance-detail-label">Einnahmen</span>
+                <span class="balance-detail-hint">{{ amountLabel }}</span>
+              </span>
+              <strong class="balance-detail-value">{{ incomeTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
+            </div>
+            <div class="balance-detail balance-detail-expense">
+              <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-up"></i></span>
+              <span class="balance-detail-copy">
+                <span class="balance-detail-label">Ausgaben</span>
+                <span class="balance-detail-hint">{{ amountLabel }} · ohne Sparen</span>
+              </span>
+              <strong class="balance-detail-value">{{ expenseTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'spending'" aria-label="Details zum Ausgabenvergleich">
+    <div class="col-12">
+      <app-spending-insight [detailsOnly]="true" (toggleDetails)="toggleKpiDetails('spending')"
+        (openTransactions)="showInsightTransactions()"></app-spending-insight>
+    </div>
+  </section>
+
+  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'account'" aria-label="Kontostandverlauf und Details">
+    <div class="col-12">
+      <app-balance-card [detailsOnly]="true" (closeDetails)="expandedKpi = null"></app-balance-card>
+    </div>
+  </section>
 
   <section class="card filter-panel mb-3" aria-labelledby="filterTitle">
     <div class="card-body">

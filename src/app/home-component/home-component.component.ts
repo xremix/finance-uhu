@@ -12,6 +12,11 @@ import { Transaction } from '../models/transaction';
 export class HomeComponentComponent {
   public tabs: string[] = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss'];
   public activeTab: string = this.tabs[0];
+  public expandedKpi: 'balance' | 'spending' | 'account' | null = null;
+
+  toggleKpiDetails(kpi: 'balance' | 'spending' | 'account'): void {
+    this.expandedKpi = this.expandedKpi === kpi ? null : kpi;
+  }
 
   onTabKeydown(event: KeyboardEvent) {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
@@ -31,6 +36,7 @@ export class HomeComponentComponent {
   public sankeyType: 'expense' | 'income' = 'expense';
 
   showInsightTransactions(): void {
+    this.expandedKpi = null;
     this.activeTab = 'Alle Buchungen';
     setTimeout(() => document.getElementById('detail-tabpanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }

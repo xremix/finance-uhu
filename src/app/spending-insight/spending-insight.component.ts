@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
@@ -30,6 +30,9 @@ interface SpendingInsight {
 })
 export class SpendingInsightComponent implements OnInit {
   @Output() openTransactions = new EventEmitter<void>();
+  @Output() toggleDetails = new EventEmitter<void>();
+  @Input() expanded = false;
+  @Input() detailsOnly = false;
   insight?: SpendingInsight;
 
   constructor(
@@ -49,12 +52,13 @@ export class SpendingInsightComponent implements OnInit {
   }
 
   get summaryLabel(): string {
+    const action = this.expanded ? 'Details ausblenden' : 'Details anzeigen';
     if (!this.insight || this.insight.status === 'insufficient') {
-      return 'Ausgaben-Check: zu wenig Verlauf für einen Vergleich. Details anzeigen';
+      return `Ausgaben-Check: zu wenig Verlauf für einen Vergleich. ${action}`;
     }
     const change = Math.round(Math.abs(this.insight.change));
     const direction = { higher: 'mehr', lower: 'weniger', steady: 'Abweichung' }[this.insight.status];
-    return `Ausgaben-Check: ${change} € ${direction} als üblich. Details anzeigen`;
+    return `Ausgaben-Check: ${change} € ${direction} als üblich. ${action}`;
   }
 
   showTransactions(category?: Category): void {

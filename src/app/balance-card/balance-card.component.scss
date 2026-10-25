@@ -1,35 +1,134 @@
+:host {
+  display: block;
+}
+
+.balance-card {
+  min-height: 10.25rem;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+.balance-card > .card-body {
+  position: relative;
+  min-height: 10.25rem;
+  padding: 0;
+}
+
 .balance-summary {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
-  padding: 0;
+  min-height: 10.25rem;
+  padding: 1rem;
   border: 0;
-  background: none;
+  border-radius: inherit;
+  overflow: hidden;
+  background: linear-gradient(115deg, #fff 0%, #fbfdfc 58%, #f2f8f5 100%);
   color: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.balance-figures {
-  flex: 0 0 auto;
+.balance-summary:hover {
+  background: linear-gradient(115deg, #fff 0%, #f7fbf9 54%, #eaf4ef 100%);
 }
 
-.balance-sparkline {
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: 420px;
-  margin-left: auto;
+.balance-summary::before {
+  position: absolute;
+  z-index: 0;
+  top: -4rem;
+  right: -1rem;
+  width: 58%;
+  height: 190%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(63, 154, 118, 0.16) 0%, rgba(63, 154, 118, 0.06) 42%, transparent 72%);
+  content: '';
   pointer-events: none;
 }
 
+.balance-summary::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.97) 34%, rgba(255, 255, 255, 0.87) 53%, rgba(255, 255, 255, 0.5) 73%, rgba(255, 255, 255, 0.12) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.balance-figures {
+  position: relative;
+  z-index: 3;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.balance-sparkline {
+  position: absolute;
+  z-index: 1;
+  inset: -0.5rem -0.25rem -0.25rem 0;
+  width: calc(100% + 0.25rem);
+  height: calc(100% + 0.75rem);
+  filter: drop-shadow(0 3px 7px rgba(49, 91, 82, 0.16));
+  pointer-events: none;
+}
+
+.balance-sparkline apx-chart {
+  display: block;
+  width: 100%;
+}
+
 .balance-chevron {
+  position: relative;
+  z-index: 3;
+  align-self: flex-start;
+  margin-left: auto;
   color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
+.balance-history-panel {
+  margin-bottom: 0;
+}
+
+.balance-card--empty .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.balance-empty-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.balance-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.8rem;
+  color: var(--app-primary);
+  background: #edf3f0;
+}
+
+.balance-empty-copy {
+  min-width: 0;
+}
+
+.balance-empty-copy .btn-link {
+  font-weight: 600;
 }
 
 .balance-table-wrapper {
   max-height: 360px;
-  overflow-y: auto;
+  overflow: auto;
   border-top: 1px solid var(--app-border);
 
   thead th {
@@ -40,6 +139,7 @@
 }
 
 .balance-table {
+  min-width: 27rem;
   font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
 
