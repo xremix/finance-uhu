@@ -6,17 +6,17 @@ Try out the [Demo](https://xremix.github.io/finance-uhu/) with the [Demo CSV](ht
 
 ## Screenshots
 
-### Startseite
+### Landing page
 
-![Finanz Uhu Startseite](./docs/screenshots/startseite.png)
+![Finance Uhu landing page](./docs/screenshots/startseite.png)
 
-### Demo-Datei mit ausgewählter Kategorie „Essen & Trinken“
+### Dashboard with the sample CSV and Food & Drink selected
 
-![Dashboard mit der Beispiel-CSV und ausgewählter Kategorie Essen & Trinken](./docs/screenshots/essen-und-trinken.png)
+![Dashboard with the sample CSV and the Food & Drink category selected](./docs/screenshots/essen-und-trinken.png)
 
-### Alle Buchungen
+### All transactions
 
-![Beispielbuchungen aus der Demo-CSV im Bereich Alle Buchungen](./docs/screenshots/alle-buchungen.png)
+![Sample transactions from the demo CSV in the All Transactions section](./docs/screenshots/alle-buchungen.png)
 
 ## Getting Started
 
