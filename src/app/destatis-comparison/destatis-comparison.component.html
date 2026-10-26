@@ -1,0 +1,81 @@
+<section class="destatis-comparison" aria-labelledby="destatisComparisonTitle">
+  <header class="comparison-heading">
+    <div>
+      <p class="eyebrow mb-1">Destatis · EVS 2023</p>
+      <h2 id="destatisComparisonTitle" class="section-title mb-1">Vergleich der Haushaltsausgaben</h2>
+      <p class="text-muted mb-0">
+        Deine durchschnittlichen Monatsausgaben im gewählten Zeitraum im Vergleich zum Durchschnitt deutscher Haushalte 2023.
+      </p>
+    </div>
+    <div class="heading-actions">
+      <div class="household-size-control">
+        <label class="household-size-label" for="destatisHouseholdSize">Haushaltsgröße</label>
+        <select
+          id="destatisHouseholdSize"
+          class="form-select form-select-sm"
+          [value]="selectedHouseholdSize"
+          (change)="setHouseholdSize($any($event.target).value)">
+          <option *ngFor="let option of householdSizeOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+      <a class="source-link" [href]="sourceUrl" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        Destatis-Quelle
+      </a>
+    </div>
+  </header>
+
+  <div class="comparison-notice" role="note">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <span>
+      Der Vergleichswert ist ein Durchschnitt pro Haushalt der gewählten Größe, nicht pro Person. Verglichen werden nur Ausgaben aus den unten
+      angezeigten zugeordneten Kategorien. Einnahmen, Sparen, Umbuchungen und nicht zugeordnete Kategorien bleiben außen vor.
+      Die Zuordnung ist näherungsweise.
+    </span>
+  </div>
+
+  <div class="table-responsive" *ngIf="rows.length; else emptyState">
+    <table class="table comparison-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Destatis-Kategorie</th>
+          <th scope="col" class="text-end">Dein Monatsdurchschnitt</th>
+          <th scope="col" class="text-end">Haushaltsdurchschnitt</th>
+          <th scope="col" class="text-end">Abweichung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows; trackBy: trackById">
+          <th scope="row">
+            <span class="comparison-category">{{ row.label }}</span>
+            <small class="comparison-mapping">
+              Verwendete Kategorien: {{ row.usedCategories.join(', ') }}
+            </small>
+          </th>
+          <td class="text-end amount-cell">{{ row.monthlySpending | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
+          <td class="text-end benchmark-cell">{{ row.benchmark | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
+          <td class="text-end difference-cell" [class.is-above]="row.difference > 0" [class.is-below]="row.difference < 0">
+            <strong>{{ row.difference > 0 ? '+' : '' }}{{ row.difference | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</strong>
+            <small>{{ row.differencePercent > 0 ? '+' : '' }}{{ row.differencePercent | number:'1.0-0':'de-DE' }}%</small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="comparison-empty" role="status">
+      <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+      <strong>Keine vergleichbaren Ausgaben in diesem Zeitraum</strong>
+      <span>Lade eine Datei mit Ausgaben in einer unterstützten Kategorie, um den Vergleich zu sehen.</span>
+    </div>
+  </ng-template>
+
+  <p class="comparison-footnote mb-0">
+    Deine Ausgaben werden über den gewählten Zeitraum pro Monat gemittelt. Kategorien-, Buchungsart- und Suchfilter ändern diesen Vergleich nicht.
+    <span>
+      Quelle: Statistisches Bundesamt (Destatis), EVS 2023. Eigene Zuordnung und Berechnung;
+      <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>.
+    </span>
+  </p>
+</section>

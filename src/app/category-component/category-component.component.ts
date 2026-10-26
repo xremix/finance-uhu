@@ -18,7 +18,10 @@ export class CategoryComponentComponent {
 
   protected get calculatedTotal() {
     const transactionValues = this.activeTransactions.map(t => t.amount);
-    return transactionValues.reduce((a, b) => a + b, 0);
+    const total = transactionValues.reduce((a, b) => a + b, 0);
+    // Transactions are denominated in cents. Normalize floating point noise
+    // so repeated template checks cannot produce slightly different values.
+    return Math.round((total + Number.EPSILON) * 100) / 100;
   }
   
   protected get activeTransactions() {

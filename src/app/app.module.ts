@@ -32,6 +32,7 @@ import { ImpressumComponent } from './impressum/impressum.component';
 import { DatenschutzComponent } from './datenschutz/datenschutz.component';
 import { SpendingInsightComponent } from './spending-insight/spending-insight.component';
 import { BalanceCardComponent } from './balance-card/balance-card.component';
+import { DestatisComparisonComponent } from './destatis-comparison/destatis-comparison.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { BalanceCardComponent } from './balance-card/balance-card.component';
     DailyIncomeExpenseChartComponent,
     SankeyChartComponent,
     BalanceCardComponent,
+    DestatisComparisonComponent,
     OwlLoaderComponent
 ],
   providers: [

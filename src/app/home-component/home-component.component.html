@@ -333,5 +333,14 @@
       </app-sankey-chart>
     </div>
 
+    <app-destatis-comparison
+      *ngIf="activeTab == 'Deutschlandvergleich'"
+      [transactions]="dataState.allTransactions"
+      [categories]="dataState.categories"
+      [from]="dataState.currentFilter.from"
+      [to]="dataState.currentFilter.to"
+      [months]="dataState.selectedMonthAmountInDataRangeFilter">
+    </app-destatis-comparison>
+
   </div>
 </div>

@@ -10,7 +10,7 @@ import { Transaction } from '../models/transaction';
   styleUrl: './home-component.component.scss',
 })
 export class HomeComponentComponent {
-  public tabs: string[] = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss'];
+  public tabs: string[] = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
   public activeTab: string = this.tabs[0];
   public expandedKpi: 'balance' | 'spending' | 'account' | null = null;
 

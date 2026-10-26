@@ -1,0 +1,193 @@
+.destatis-comparison {
+  padding: 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: 1rem;
+  background: var(--app-surface);
+  box-shadow: 0 0.35rem 1.1rem rgba(31, 54, 48, 0.06);
+}
+
+.comparison-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.85rem;
+}
+
+.household-size-control {
+  min-width: 12rem;
+}
+
+.household-size-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.household-size-control .form-select {
+  border-color: var(--app-border);
+  color: var(--app-ink);
+  background-color: var(--app-surface);
+}
+
+.comparison-heading .eyebrow {
+  color: var(--app-primary);
+  font-size: 0.74rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--app-primary);
+  font-size: 0.875rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.source-link:hover,
+.source-link:focus-visible {
+  color: var(--app-primary-hover);
+}
+
+.comparison-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #d8e5de;
+  border-radius: 0.75rem;
+  color: var(--app-primary-hover);
+  background: #f4f8f5;
+  font-size: 0.86rem;
+}
+
+.comparison-notice i {
+  margin-top: 0.15rem;
+  color: var(--app-primary);
+}
+
+.comparison-table {
+  --bs-table-bg: transparent;
+  color: var(--app-ink);
+}
+
+.comparison-table thead th {
+  padding: 0.8rem 0.75rem;
+  border-bottom-color: var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.comparison-table tbody th,
+.comparison-table tbody td {
+  padding: 0.9rem 0.75rem;
+  border-bottom-color: var(--app-border);
+}
+
+.comparison-table tbody tr:last-child th,
+.comparison-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-category,
+.comparison-mapping,
+.difference-cell small {
+  display: block;
+}
+
+.comparison-category {
+  color: var(--app-ink-strong);
+  font-weight: 650;
+}
+
+.comparison-mapping,
+.difference-cell small {
+  margin-top: 0.2rem;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 450;
+}
+
+.amount-cell {
+  color: var(--app-ink-strong);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.benchmark-cell {
+  color: var(--app-muted);
+  white-space: nowrap;
+}
+
+.difference-cell {
+  white-space: nowrap;
+}
+
+.difference-cell.is-above {
+  color: #a94f4a;
+}
+
+.difference-cell.is-below {
+  color: var(--app-primary);
+}
+
+.comparison-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 2.25rem 1rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.comparison-empty i {
+  color: var(--app-primary);
+  font-size: 1.5rem;
+}
+
+.comparison-empty strong {
+  color: var(--app-ink-strong);
+}
+
+.comparison-footnote {
+  margin-top: 0.75rem;
+  color: var(--app-muted);
+  font-size: 0.77rem;
+}
+
+.comparison-footnote span {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 767.98px) {
+  .destatis-comparison {
+    padding: 1rem 0.75rem;
+  }
+
+  .comparison-table thead th,
+  .comparison-table tbody th,
+  .comparison-table tbody td {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+}
