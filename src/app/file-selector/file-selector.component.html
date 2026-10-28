@@ -14,6 +14,14 @@
     </button>
   </div>
 
+  <div class="demo-data-action">
+    <button type="button" class="btn btn-link btn-sm demo-data-button" [disabled]="isLoadingDemoData"
+      [attr.aria-busy]="isLoadingDemoData" (click)="loadDemoData()">
+      <i [class]="isLoadingDemoData ? 'fa-solid fa-spinner fa-spin me-2' : 'fa-solid fa-flask me-2'" aria-hidden="true"></i>
+      {{ isLoadingDemoData ? 'Beispieldaten werden geladen…' : 'Mit Beispieldaten testen' }}
+    </button>
+  </div>
+
   <div *ngIf="showExportHelp" (click)="closeExportHelp()">
     <div class="modal-backdrop fade show"></div>
     <section class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="exportHelpTitle" (click)="$event.stopPropagation()">

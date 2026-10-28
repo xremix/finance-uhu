@@ -22,6 +22,7 @@ export class FileSelectorComponent {
   readonly banks = ['Sparkasse', 'ING', 'N26', 'DKB'];
   selectedBank = 'Sparkasse';
   showExportHelp = false;
+  isLoadingDemoData = false;
   private readonly maxFileNameLength = 26;
   private timelineCacheKey: string = '';
   private timelineCache: FileTimelineEntry[] = [];
@@ -91,6 +92,28 @@ export class FileSelectorComponent {
     } catch (error) {
       console.error('Error loading file:', error);
       alert('Fehler beim Laden der Datei. Bitte überprüfen Sie das Dateiformat.');
+    }
+  }
+
+  async loadDemoData(): Promise<void> {
+    if (this.isLoadingDemoData) return;
+    this.isLoadingDemoData = true;
+
+    try {
+      const demoUrl = new URL('assets/demo.csv', document.baseURI);
+      const response = await fetch(demoUrl);
+      if (!response.ok) {
+        throw new Error('Could not load demo CSV (' + response.status + ').');
+      }
+
+      const csv = await response.text();
+      const demoFile = new File([csv], 'Finance-Uhu-Demo.csv', { type: 'text/csv' });
+      await this.importService.addOrReplaceFile(demoFile);
+    } catch (error) {
+      console.error('Error loading demo data:', error);
+      alert('Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.');
+    } finally {
+      this.isLoadingDemoData = false;
     }
   }
 
