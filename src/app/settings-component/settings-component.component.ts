@@ -218,6 +218,22 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
     }
   }
 
+  public async deleteAllLocalData(): Promise<void> {
+    const confirmed = confirm(
+      'Möchtest du wirklich alle lokal gespeicherten Daten löschen? Dazu gehören importierte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung. Die verknüpfte Einstellungsdatei selbst wird nicht gelöscht.'
+    );
+    if (!confirmed) return;
+
+    try {
+      await this.importService.clearAllLocalData();
+      this.hasUnsavedChanges = false;
+      window.location.reload();
+    } catch (error) {
+      console.error('Could not clear all local app data:', error);
+      alert('Die lokalen Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.');
+    }
+  }
+
   private mergeCategoriesWithDefaults(currentCategories: Category[], defaultCategoriesToMerge: BaseCategory[]): boolean {
     let hasChanges = false;
 

@@ -21,6 +21,16 @@ export class ImportService {
   private readonly categoriesFileStoreName = 'fileHandles';
   private readonly categoriesFileHandleKey = 'categoriesFileHandle';
   private readonly filesStorageKey = 'files';
+  private readonly localStorageKeys = [
+    'categories',
+    'categoriesLastSaved',
+    'files',
+    'fileContent',
+    'additionalFiles',
+    'manualBalance',
+    'searchTerm',
+    'showAverage',
+  ];
 
   private typeStoredFile(fileName: string, content: string) {
     return {
@@ -229,6 +239,30 @@ export class ImportService {
     localStorage.removeItem(this.filesStorageKey);
     this.balanceService.clearManualBalance();
     this.dataState.resetState();
+  }
+
+  public async clearAllLocalData(): Promise<void> {
+    await this.deleteCategoriesFileDatabase();
+
+    for (const key of this.localStorageKeys) {
+      localStorage.removeItem(key);
+    }
+
+    this.balanceService.clearManualBalance();
+    this.dataState.resetState();
+    this.dataState.categories = defaultCategories.map(mapBaseCategoryToCategory);
+    this.dataState.currentFilter.from = new Date(0);
+    this.dataState.currentFilter.to = new Date();
+    this.dataState.currentFilter.category = undefined;
+    this.dataState.currentFilter.type = 'all';
+    this.dataState.currentFilter.searchTerm = '';
+    this.dataState.showAverage = false;
+
+    // The showAverage setter persists a value; remove it again with the rest
+    // so the next visit starts with a clean local state.
+    for (const key of this.localStorageKeys) {
+      localStorage.removeItem(key);
+    }
   }
 
   private upsertStoredFile(fileName: string, fileContent: string): void {
@@ -537,6 +571,17 @@ export class ImportService {
       console.error('Error while reading stored categories file handle:', error);
       return null;
     }
+  }
+
+  private async deleteCategoriesFileDatabase(): Promise<void> {
+    if (typeof indexedDB === 'undefined') return;
+
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(this.categoriesFileDbName);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error ?? new Error('Could not delete the linked file handle.'));
+      request.onblocked = () => reject(new Error('The linked file handle database is still open in another tab.'));
+    });
   }
 
   public categorisAsJson(): string {

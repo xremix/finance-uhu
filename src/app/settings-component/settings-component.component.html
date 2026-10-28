@@ -38,6 +38,11 @@
                         <button ngbDropdownItem (click)="fillCategoriesWithDefaults()">
                             <i class="fa-solid fa-wand-magic-sparkles me-2" aria-hidden="true"></i>App-Standardeinstellungen nachladen
                         </button>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Lokaler Speicher</h6>
+                        <button ngbDropdownItem class="text-danger" (click)="deleteAllLocalData()">
+                            <i class="fa-solid fa-trash-can me-2" aria-hidden="true"></i>Alle lokalen Daten löschen
+                        </button>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary" (click)="saveState()">
