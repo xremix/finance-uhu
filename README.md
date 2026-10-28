@@ -4,6 +4,10 @@ The privacy-friendly tool to analyze your financial files on your computer.
 
 Try out the [Demo](https://xremix.github.io/finance-uhu/) with the [Demo CSV](https://raw.githubusercontent.com/xremix/finance-uhu/main/demo.csv) and see the functionality of the App.
 
+The demo contains 190 fictional bookings for a person living alone in Berlin from July to September 2023. It assumes a monthly net salary of €2,600 from Mustermann GmbH, €995 rent including heating and service charges, and a €350 monthly savings transfer. Electricity payments go to E.ON Energie Deutschland. These amounts are illustrative assumptions.
+
+Spending loosely follows the [Destatis EVS 2023 figures for one-person households](https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Einkommen-Konsum-Lebensbedingungen/Konsumausgaben-Lebenshaltungskosten/Tabellen/privater-konsum-haushaltsgroesse-evs.html). The bookings cover 35 default categories, including recurring bills, savings, car costs, travel, gifts, pets and second-hand purchases. An €89.90 Amazon purchase and matching return demonstrate the reconciled-transactions view. Booking names follow the app's default category keywords, and no CSV line contains the substring "mode" (case-insensitive). All bookings and account identifiers are synthetic.
+
 ## Screenshots
 
 ### Landing page
