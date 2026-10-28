@@ -22,6 +22,10 @@
     border-bottom-left-radius: 0;
   }
 
+  .bank-export-button-group > .export-help-button {
+    border-radius: 0 var(--bs-btn-border-radius) var(--bs-btn-border-radius) 0 !important;
+  }
+
   .inputfile+label {
     font-size: 1.25em;
     font-weight: 700;
@@ -51,6 +55,10 @@
 
 .bank-export-button-group {
   width: fit-content;
+}
+
+.modal-body {
+  text-align: left;
 }
 
 .file-list {
