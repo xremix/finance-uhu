@@ -261,8 +261,8 @@
     (triggerRefresh)="refreshPage()">
   </app-daily-income-expense-chart>
 
-  <div class="overflow-x-hidden  overflow-x-scroll">
-  <ul class="nav nav-tabs" style="width: 100%; min-width: 840px;" role="tablist" aria-label="Detailansichten" (keydown)="onTabKeydown($event)">
+  <div class="overflow-x-auto">
+  <ul class="nav nav-tabs detail-tabs" role="tablist" aria-label="Detailansichten" (keydown)="onTabKeydown($event)">
     <li class="nav-item" role="presentation" *ngFor="let tab of tabs; let i = index">
       <button type="button" class="nav-link" role="tab" [id]="'tab-' + i" [ngClass]="{'active': tab == activeTab}"
         [attr.aria-selected]="tab == activeTab" aria-controls="detail-tabpanel" [attr.tabindex]="tab == activeTab ? 0 : -1"
@@ -345,6 +345,44 @@
       [to]="dataState.currentFilter.to"
       [months]="dataState.selectedMonthAmountInDataRangeFilter">
     </app-destatis-comparison>
+
+    <section *ngIf="activeTab === negativeBalanceTab" aria-labelledby="negativeBalanceTitle">
+      <ng-container *ngIf="negativeBalanceDays as days">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          <h2 id="negativeBalanceTitle" class="section-title mb-0">Tage mit negativem Kontostand</h2>
+          <span class="small text-muted">{{ days.length }} {{ days.length === 1 ? 'Tag' : 'Tage' }} im Zeitraum</span>
+        </div>
+        <p class="small text-muted mb-3">
+          Kontosaldo am Tagesende im gewählten Zeitraum, berechnet aus dem erfassten Kontostand und allen geladenen Buchungen.
+          Kategorien-, Buchungsart- und Suchfilter beeinflussen den Kontosaldo nicht.
+        </p>
+
+        <div class="table-responsive" *ngIf="days.length; else noNegativeBalances">
+          <table class="table align-middle negative-balance-table mb-0">
+            <caption class="visually-hidden">Alle Tage mit negativem Kontosaldo im gewählten Zeitraum, neueste zuerst.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Tag</th>
+                <th scope="col" class="text-end">Kontosaldo am Tagesende</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let day of days; trackBy: trackByBalanceDate">
+                <th scope="row">{{ day.date | date:'EEE, dd.MM.yyyy':'':'de-DE' }}</th>
+                <td class="text-end">{{ day.balance | currency:'EUR':'symbol':'1.2-2':'de-DE' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #noNegativeBalances>
+          <p class="negative-balance-empty mb-0" role="status">
+            <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i>
+            Im gewählten Zeitraum gab es keine Tage mit negativem Kontosaldo.
+          </p>
+        </ng-template>
+      </ng-container>
+    </section>
 
   </div>
 </div>

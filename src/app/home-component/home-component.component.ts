@@ -1,18 +1,47 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck } from '@angular/core';
 import { CategoryService } from '../services/category-service';
 import { DataState, DateFilter } from '../services/data-state';
 import { DateService } from '../services/date-service';
 import { Transaction } from '../models/transaction';
+import { DailyBalance } from '../models/balance';
+import { BalanceService } from '../services/balance-service';
 
 @Component({
   selector: 'app-home-component',
   templateUrl: './home-component.component.html',
   styleUrl: './home-component.component.scss',
 })
-export class HomeComponentComponent {
-  public tabs: string[] = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
-  public activeTab: string = this.tabs[0];
+export class HomeComponentComponent implements DoCheck {
+  readonly negativeBalanceTab = 'Tage im Minus';
+  private readonly standardTabs = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
+  private readonly tabsWithBalance = [...this.standardTabs, this.negativeBalanceTab];
+  public activeTab: string = 'Kategorien';
   public expandedKpi: 'balance' | 'spending' | 'account' | null = null;
+
+  get tabs(): readonly string[] {
+    return this.balanceService.anchor ? this.tabsWithBalance : this.standardTabs;
+  }
+
+  ngDoCheck(): void {
+    if (this.activeTab === this.negativeBalanceTab && !this.balanceService.anchor) {
+      this.activeTab = this.standardTabs[0];
+    }
+  }
+
+  get negativeBalanceDays(): DailyBalance[] {
+    const from = new Date(this.dataState.currentFilter.from);
+    const to = new Date(this.dataState.currentFilter.to);
+    from.setHours(0, 0, 0, 0);
+    to.setHours(23, 59, 59, 999);
+
+    return this.balanceService.getDailyBalances()
+      .filter(day => day.balance < 0 && day.date >= from && day.date <= to)
+      .reverse();
+  }
+
+  trackByBalanceDate(_index: number, day: DailyBalance): number {
+    return day.date.getTime();
+  }
 
   toggleKpiDetails(kpi: 'balance' | 'spending' | 'account'): void {
     this.expandedKpi = this.expandedKpi === kpi ? null : kpi;
@@ -24,13 +53,14 @@ export class HomeComponentComponent {
       return;
     }
     event.preventDefault();
-    const current = this.tabs.indexOf(this.activeTab);
+    const tabs = this.tabs;
+    const current = tabs.indexOf(this.activeTab);
     let next = current;
-    if (event.key === 'ArrowRight') next = (current + 1) % this.tabs.length;
-    if (event.key === 'ArrowLeft') next = (current - 1 + this.tabs.length) % this.tabs.length;
+    if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
+    if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
     if (event.key === 'Home') next = 0;
-    if (event.key === 'End') next = this.tabs.length - 1;
-    this.activeTab = this.tabs[next];
+    if (event.key === 'End') next = tabs.length - 1;
+    this.activeTab = tabs[next];
     setTimeout(() => document.getElementById('tab-' + next)?.focus());
   }
   public sankeyType: 'expense' | 'income' = 'expense';
@@ -45,7 +75,8 @@ export class HomeComponentComponent {
     protected dataState: DataState,
     protected categoryService: CategoryService,
     protected dateService: DateService,
-    private cds: ChangeDetectorRef
+    private cds: ChangeDetectorRef,
+    private balanceService: BalanceService
   ) {}
 
   get balancedTransactions(): Transaction[] {

@@ -317,3 +317,54 @@
   background: var(--app-surface);
   box-shadow: var(--app-shadow);
 }
+
+.detail-tabs {
+  flex-wrap: nowrap;
+  width: max-content;
+  min-width: 100%;
+
+  .nav-link {
+    white-space: nowrap;
+  }
+}
+
+.negative-balance-table {
+  --bs-table-bg: transparent;
+
+  th,
+  td {
+    padding: 0.8rem 1rem;
+    border-color: var(--app-border);
+  }
+
+  thead th {
+    color: var(--app-muted);
+    font-size: 0.8rem;
+    font-weight: 650;
+  }
+
+  tbody th {
+    color: var(--app-ink);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    color: var(--app-danger);
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+.negative-balance-empty {
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  background: var(--app-surface-muted);
+  color: var(--app-muted);
+
+  i {
+    color: var(--app-success);
+  }
+}
