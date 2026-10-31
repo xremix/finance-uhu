@@ -3,8 +3,14 @@ import { CategoryService } from '../services/category-service';
 import { DataState, DateFilter } from '../services/data-state';
 import { DateService } from '../services/date-service';
 import { Transaction } from '../models/transaction';
+import { Category } from '../models/category';
 import { DailyBalance } from '../models/balance';
 import { BalanceService } from '../services/balance-service';
+
+interface NegativeBalanceMonth {
+  month: Date;
+  days: DailyBalance[];
+}
 
 @Component({
   selector: 'app-home-component',
@@ -13,7 +19,8 @@ import { BalanceService } from '../services/balance-service';
 })
 export class HomeComponentComponent implements DoCheck {
   readonly negativeBalanceTab = 'Tage im Minus';
-  private readonly standardTabs = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Tägliche Ein- und Ausgaben', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
+  readonly spendingTrendsTab = 'Ausgaben-Trends';
+  private readonly standardTabs = ['Kategorien', this.spendingTrendsTab, 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Tägliche Ein- und Ausgaben', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
   private readonly tabsWithBalance = [...this.standardTabs, this.negativeBalanceTab];
   public activeTab: string = 'Kategorien';
   public expandedKpi: 'balance' | 'spending' | 'account' | null = null;
@@ -43,6 +50,23 @@ export class HomeComponentComponent implements DoCheck {
     return day.date.getTime();
   }
 
+  get negativeBalanceMonths(): NegativeBalanceMonth[] {
+    const months = new Map<number, NegativeBalanceMonth>();
+    for (const day of this.negativeBalanceDays) {
+      const month = new Date(day.date.getFullYear(), day.date.getMonth(), 1);
+      const key = month.getTime();
+      if (!months.has(key)) {
+        months.set(key, { month, days: [] });
+      }
+      months.get(key)!.days.push(day);
+    }
+    return [...months.values()];
+  }
+
+  trackByBalanceMonth(_index: number, group: NegativeBalanceMonth): number {
+    return group.month.getTime();
+  }
+
   toggleKpiDetails(kpi: 'balance' | 'spending' | 'account'): void {
     this.expandedKpi = this.expandedKpi === kpi ? null : kpi;
   }
@@ -67,6 +91,16 @@ export class HomeComponentComponent implements DoCheck {
 
   showInsightTransactions(): void {
     this.expandedKpi = null;
+    this.activeTab = 'Alle Buchungen';
+    setTimeout(() => document.getElementById('detail-tabpanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
+  showTrendTransactions(category: Category, from: Date, to: Date): void {
+    this.expandedKpi = null;
+    this.dataState.resetFilter();
+    this.dataState.filterByRange(from, to);
+    this.dataState.filterByType('expense');
+    this.dataState.filterByCategory(category);
     this.activeTab = 'Alle Buchungen';
     setTimeout(() => document.getElementById('detail-tabpanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }

@@ -1,0 +1,74 @@
+<section class="trend-view" aria-labelledby="spendingTrendsTitle">
+  <div class="trend-heading">
+    <div>
+      <h2 id="spendingTrendsTitle" class="section-title mb-1">Schleichende Veränderungen bei deinen Ausgaben</h2>
+      <p class="trend-intro mb-0">
+        Verglichen wird der Median der monatlichen Kategorieausgaben. Einzelne große Käufe fallen dadurch weniger ins Gewicht; die Balken zeigen den Monatsverlauf. Ein noch laufender Monat wird ausgeblendet.
+      </p>
+    </div>
+    <span class="trend-period" *ngIf="periodDescription">{{ periodDescription }}</span>
+  </div>
+
+  <div class="trend-note" *ngIf="months.length > 0 && !hasEnoughMonths" role="status">
+    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+    <span *ngIf="hasMissingMonths">Ein Monat enthält keine importierten Buchungen. Lade fehlende Umsätze nach, damit die Trendanalyse keine Datenlücke als Ausgabenrückgang deutet.</span>
+    <span *ngIf="!hasMissingMonths">Für einen belastbaren Vergleich mit geglätteten Ausreißern werden mindestens sechs Buchungsmonate benötigt. Der bisherige Verlauf ist bereits sichtbar.</span>
+  </div>
+
+  <div class="trend-empty" *ngIf="months.length === 0" role="status">
+    <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
+    <div>
+      <strong>Keine vollständigen Buchungsmonate gefunden</strong>
+      <p class="mb-0">Lade Umsätze aus einem früheren Zeitraum, um Ausgabenentwicklungen zu vergleichen.</p>
+    </div>
+  </div>
+
+  <div class="trend-empty" *ngIf="months.length > 0 && trends.length === 0" role="status">
+    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+    <div>
+      <strong>Keine ausreichend großen Kategorieausgaben im Zeitraum</strong>
+      <p class="mb-0">Für den Vergleich werden Kategorien mit mindestens 25 € Ausgaben berücksichtigt.</p>
+    </div>
+  </div>
+
+  <div class="trend-list" *ngIf="trends.length > 0">
+    <article class="trend-row" *ngFor="let trend of trends; trackBy: trackByCategory" [class.trend-row--higher]="trend.direction === 'higher'" [class.trend-row--lower]="trend.direction === 'lower'">
+      <div class="trend-category">
+        <span class="trend-category-name">{{ trend.category.name }}</span>
+        <span class="trend-parent" *ngIf="trend.parentLabel">{{ trend.parentLabel }}</span>
+      </div>
+
+      <div class="trend-sparkline" role="img" [attr.aria-label]="chartAriaLabel(trend)">
+        <div class="trend-bar-column" *ngFor="let month of trend.months; let i = index; trackBy: trackByMonth" [class.trend-bar-column--recent]="i >= months.length - recentMonthCount">
+          <span class="trend-bar-value" *ngIf="month.hasImportedTransactions && month.amount > 0">{{ month.amount | currency:'EUR':'symbol':'1.0-0' }}</span>
+          <span class="trend-bar-value" *ngIf="!month.hasImportedTransactions">–</span>
+          <div class="trend-bar" [style.height.%]="month.barHeight" [class.trend-bar--recent]="i >= months.length - recentMonthCount" [class.trend-bar--missing]="!month.hasImportedTransactions" [attr.title]="month.hasImportedTransactions ? month.label + ': ' + (month.amount | currency:'EUR':'symbol':'1.0-0') : month.label + ': keine Buchungen importiert'"></div>
+          <span class="trend-bar-label">{{ month.label }}</span>
+        </div>
+      </div>
+
+      <div class="trend-comparison" *ngIf="hasEnoughMonths; else noComparison">
+        <span class="trend-amounts">
+          <span class="trend-amount trend-amount--baseline">{{ trend.baseline | currency:'EUR':'symbol':'1.0-0' }}</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          <span class="trend-amount" [class.text-danger]="trend.direction === 'higher'" [class.text-success]="trend.direction === 'lower'">{{ trend.recent | currency:'EUR':'symbol':'1.0-0' }}</span>
+        </span>
+        <span class="trend-change" [class.text-danger]="trend.direction === 'higher'" [class.text-success]="trend.direction === 'lower'" [class.trend-change--steady]="trend.direction === 'steady'">
+          <ng-container *ngIf="trend.baseline === 0 && trend.direction === 'higher'">+{{ trend.change | currency:'EUR':'symbol':'1.0-0' }}</ng-container>
+          <ng-container *ngIf="trend.baseline > 0 && trend.direction === 'higher'">+{{ trend.changePercent | number:'1.0-0' }}%</ng-container>
+          <ng-container *ngIf="trend.direction === 'lower'">{{ trend.changePercent | number:'1.0-0' }}%</ng-container>
+          <ng-container *ngIf="trend.direction === 'steady'">Stabil</ng-container>
+        </span>
+        <span class="trend-explanation">{{ trend.explanation }} · {{ trend.baselineTransactionCount | number:'1.0-1' }} → {{ trend.recentTransactionCount | number:'1.0-1' }} Buchungen/Monat</span>
+      </div>
+
+      <ng-template #noComparison>
+        <span class="trend-explanation trend-explanation--alone">{{ trend.months.length }} Monate Verlauf · {{ trend.explanation }}</span>
+      </ng-template>
+
+      <button type="button" class="btn btn-sm btn-outline-primary trend-action" (click)="requestTransactions(trend)" [disabled]="!baselineStart || !recentEnd">
+        Buchungen ansehen
+      </button>
+    </article>
+  </div>
+</section>

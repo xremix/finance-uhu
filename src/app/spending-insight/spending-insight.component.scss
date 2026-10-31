@@ -174,3 +174,18 @@
 .driver-action {
   padding: 0.15rem 0.25rem;
 }
+
+@media (max-width: 767px) {
+  .spending-insight,
+  .insight-summary {
+    min-height: 5.75rem;
+  }
+
+  .insight-summary {
+    padding: 0.625rem 3.75rem 0.625rem 1rem;
+  }
+
+  .insight-change {
+    margin-top: 0.25rem;
+  }
+}

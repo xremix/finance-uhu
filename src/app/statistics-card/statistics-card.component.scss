@@ -1,3 +1,13 @@
+:host {
+  display: block;
+}
+
+.monthly-statistics {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--app-border);
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -31,5 +41,19 @@
   strong {
     color: var(--app-ink-strong);
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (max-width: 575px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stats-column + .stats-column {
+    padding-top: 0.75rem;
+    padding-left: 0;
+    border-top: 1px solid var(--app-border);
+    border-left: 0;
   }
 }

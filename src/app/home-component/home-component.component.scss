@@ -296,6 +296,24 @@
 }
 
 @media (max-width: 767px) {
+	.kpi-grid {
+		--bs-gutter-y: 0.5rem;
+	}
+
+	.balance-kpi-card,
+	.balance-kpi-trigger,
+	.booking-card .card-body {
+		min-height: 5.75rem;
+	}
+
+	.balance-kpi-trigger {
+		padding: 0.625rem 3.75rem 0.625rem 1rem;
+	}
+
+	.booking-card .card-body {
+		padding: 0.625rem 1rem;
+	}
+
 	.tutorial-grid,
 	.feature-grid {
 		grid-template-columns: 1fr;
@@ -354,6 +372,12 @@
     font-weight: 650;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  .negative-balance-month th {
+    background: var(--app-surface-muted);
+    color: var(--app-ink-strong);
+    font-weight: 650;
   }
 }
 

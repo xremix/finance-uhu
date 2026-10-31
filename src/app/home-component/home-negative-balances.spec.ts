@@ -59,6 +59,29 @@ describe('HomeComponentComponent negative daily balances', () => {
     expect(component.negativeBalanceDays.map(day => day.date.getDate())).toEqual([9, 8]);
   });
 
+  it('groups negative days by month and year, keeping the newest months and days first', () => {
+    state.currentFilter.from = new Date(2023, 0, 1);
+    state.currentFilter.to = new Date(2024, 0, 31);
+    spyOn(balanceService, 'getDailyBalances').and.returnValue([
+      { date: new Date(2022, 11, 31), balance: -10, change: 0 },
+      { date: new Date(2023, 0, 2), balance: -20, change: 0 },
+      { date: new Date(2023, 11, 30), balance: -30, change: 0 },
+      { date: new Date(2023, 11, 31), balance: -40, change: 0 },
+      { date: new Date(2024, 0, 1), balance: 0, change: 0 },
+      { date: new Date(2024, 0, 2), balance: -50, change: 0 },
+    ]);
+
+    expect(component.negativeBalanceMonths.map(group => ({
+      year: group.month.getFullYear(),
+      month: group.month.getMonth(),
+      days: group.days.map(day => [day.date.getDate(), day.balance]),
+    }))).toEqual([
+      { year: 2024, month: 0, days: [[2, -50]] },
+      { year: 2023, month: 11, days: [[31, -40], [30, -30]] },
+      { year: 2023, month: 0, days: [[2, -20]] },
+    ]);
+  });
+
   it('uses actual account balances regardless of category, type, search or average settings', () => {
     state.currentFilter.category = { name: 'Miete' } as DataState['categories'][number];
     state.currentFilter.type = 'income';
@@ -81,6 +104,7 @@ describe('HomeComponentComponent negative daily balances', () => {
 
     expect(component.tabs).toContain(component.negativeBalanceTab);
     expect(component.negativeBalanceDays).toEqual([]);
+    expect(component.negativeBalanceMonths).toEqual([]);
   });
 
   it('updates tab availability after adding or removing a manual balance', () => {

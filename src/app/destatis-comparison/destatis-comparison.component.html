@@ -48,9 +48,12 @@
         <tr *ngFor="let row of rows; trackBy: trackById">
           <th scope="row">
             <span class="comparison-category">{{ row.label }}</span>
-            <small class="comparison-mapping">
-              Verwendete Kategorien: {{ row.usedCategories.join(', ') }}
-            </small>
+            <div class="comparison-mapping">
+              <span>Verwendete Kategorien</span>
+              <ul class="comparison-category-tags" aria-label="Verwendete eigene Kategorien">
+                <li class="comparison-category-tag" *ngFor="let category of row.usedCategories">{{ category }}</li>
+              </ul>
+            </div>
           </th>
           <td class="text-end amount-cell">{{ row.monthlySpending | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
           <td class="text-end benchmark-cell">{{ row.benchmark | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>

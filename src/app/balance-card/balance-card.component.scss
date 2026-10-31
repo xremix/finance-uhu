@@ -182,3 +182,25 @@
   gap: 0.75rem;
   margin: 0.75rem 0;
 }
+
+@media (max-width: 767px) {
+  .balance-card,
+  .balance-card > .card-body,
+  .balance-summary {
+    min-height: 5.75rem;
+  }
+
+  .balance-summary {
+    padding: 0.625rem 3.75rem 0.625rem 1rem;
+  }
+
+  .balance-card--empty .card-body {
+    padding: 0.625rem 1rem;
+  }
+
+  .balance-sparkline {
+    height: 10.25rem;
+    transform: scaleY(0.6);
+    transform-origin: top;
+  }
+}

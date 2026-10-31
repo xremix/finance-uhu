@@ -1,42 +1,40 @@
-<div class="card chart-card mt-3">
-  <div class="card-body">
-    <div class="chart-card-header">
-      <div>
-        <h2 class="section-title mb-0">Monatswerte</h2>
-        <p class="chart-subtitle mb-0">
-          {{ statistics.monthsWithData }} von {{ statistics.totalMonths }} Monat{{ statistics.totalMonths !== 1 ? 'en' : '' }} mit Daten
-        </p>
+<section class="monthly-statistics" aria-labelledby="monthlyStatisticsTitle">
+  <div class="chart-card-header">
+    <div>
+      <h3 id="monthlyStatisticsTitle" class="section-title mb-0">Monatswerte</h3>
+      <p class="chart-subtitle mb-0">
+        {{ statistics.monthsWithData }} von {{ statistics.totalMonths }} Monat{{ statistics.totalMonths !== 1 ? 'en' : '' }} mit Daten
+      </p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stats-column">
+      <div class="stats-heading text-success">Einnahmen</div>
+      <div class="stats-row">
+        <span>Durchschnitt</span>
+        <strong [title]="'Nur Monate mit Daten: ' + (statistics.averageIncomeWithData | currency:'EUR':'symbol':'1.0-0')">
+          {{ statistics.averageIncome | currency:'EUR':'symbol':'1.0-0' }}
+        </strong>
+      </div>
+      <div class="stats-row">
+        <span>Median</span>
+        <strong>{{ statistics.medianIncome | currency:'EUR':'symbol':'1.0-0' }}</strong>
       </div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stats-column">
-        <div class="stats-heading text-success">Einnahmen</div>
-        <div class="stats-row">
-          <span>Durchschnitt</span>
-          <strong [title]="'Nur Monate mit Daten: ' + (statistics.averageIncomeWithData | currency:'EUR':'symbol':'1.0-0')">
-            {{ statistics.averageIncome | currency:'EUR':'symbol':'1.0-0' }}
-          </strong>
-        </div>
-        <div class="stats-row">
-          <span>Median</span>
-          <strong>{{ statistics.medianIncome | currency:'EUR':'symbol':'1.0-0' }}</strong>
-        </div>
+    <div class="stats-column">
+      <div class="stats-heading text-danger">Ausgaben</div>
+      <div class="stats-row">
+        <span>Durchschnitt</span>
+        <strong [title]="'Nur Monate mit Daten: ' + (statistics.averageExpenseWithData | currency:'EUR':'symbol':'1.0-0')">
+          {{ statistics.averageExpense | currency:'EUR':'symbol':'1.0-0' }}
+        </strong>
       </div>
-
-      <div class="stats-column">
-        <div class="stats-heading text-danger">Ausgaben</div>
-        <div class="stats-row">
-          <span>Durchschnitt</span>
-          <strong [title]="'Nur Monate mit Daten: ' + (statistics.averageExpenseWithData | currency:'EUR':'symbol':'1.0-0')">
-            {{ statistics.averageExpense | currency:'EUR':'symbol':'1.0-0' }}
-          </strong>
-        </div>
-        <div class="stats-row">
-          <span>Median</span>
-          <strong>{{ statistics.medianExpense | currency:'EUR':'symbol':'1.0-0' }}</strong>
-        </div>
+      <div class="stats-row">
+        <span>Median</span>
+        <strong>{{ statistics.medianExpense | currency:'EUR':'symbol':'1.0-0' }}</strong>
       </div>
     </div>
   </div>
-</div>
+</section>

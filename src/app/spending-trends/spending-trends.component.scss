@@ -1,0 +1,252 @@
+.trend-view {
+  color: var(--app-ink);
+}
+
+.trend-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trend-intro {
+  max-width: 46rem;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.trend-period {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  color: var(--app-muted);
+  background: var(--app-surface-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.trend-note,
+.trend-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  color: var(--app-muted);
+  background: var(--app-surface-muted);
+
+  > i {
+    margin-top: 0.15rem;
+    color: var(--app-primary);
+  }
+}
+
+.trend-empty {
+  strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--app-ink-strong);
+  }
+}
+
+.trend-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.trend-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.85fr) minmax(15rem, 1.6fr) minmax(13rem, 1.1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  background: var(--app-surface);
+}
+
+.trend-row--higher {
+  border-left: 3px solid var(--app-danger);
+}
+
+.trend-row--lower {
+  border-left: 3px solid var(--app-success);
+}
+
+.trend-category,
+.trend-comparison {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trend-category-name {
+  color: var(--app-ink-strong);
+  font-weight: 700;
+}
+
+.trend-parent {
+  margin-top: 0.15rem;
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trend-sparkline {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.25rem;
+  height: 4.1rem;
+  min-width: 0;
+}
+
+.trend-bar-column {
+  display: grid;
+  grid-template-rows: 0.9rem 1.9rem 0.9rem;
+  justify-items: center;
+  align-items: end;
+  min-width: 0;
+  height: 100%;
+  color: var(--app-muted);
+}
+
+.trend-bar-value,
+.trend-bar-label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.6rem;
+  line-height: 0.9rem;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.trend-bar-value {
+  align-self: end;
+  color: var(--app-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.trend-bar {
+  align-self: end;
+  width: min(100%, 1.15rem);
+  min-height: 0;
+  border-radius: 0.2rem 0.2rem 0 0;
+  background: #b6c5bf;
+}
+
+.trend-bar--recent {
+  background: var(--app-primary);
+}
+
+.trend-bar--missing {
+  min-height: 3px;
+  border: 1px dashed var(--app-muted);
+  background: transparent;
+}
+
+.trend-bar-label {
+  justify-self: center;
+  width: 100%;
+  text-align: center;
+}
+
+.trend-amounts {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  i {
+    color: var(--app-muted);
+    font-size: 0.65rem;
+  }
+}
+
+.trend-amount--baseline {
+  color: var(--app-muted);
+}
+
+.trend-change {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.trend-change--steady {
+  color: var(--app-muted);
+}
+
+.trend-explanation {
+  color: var(--app-muted);
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.trend-explanation--alone {
+  font-size: 0.8rem;
+}
+
+.trend-action {
+  white-space: nowrap;
+}
+
+@media (max-width: 991px) {
+  .trend-row {
+    grid-template-columns: minmax(8rem, 0.7fr) minmax(14rem, 1.3fr) minmax(11rem, 1fr);
+  }
+
+  .trend-action {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 650px) {
+  .trend-heading {
+    flex-direction: column;
+  }
+
+  .trend-period {
+    align-self: flex-start;
+  }
+
+  .trend-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.65rem;
+  }
+
+  .trend-category {
+    grid-column: 1;
+  }
+
+  .trend-comparison,
+  .trend-explanation--alone {
+    grid-column: 1 / -1;
+  }
+
+  .trend-sparkline {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .trend-comparison {
+    grid-row: 3;
+  }
+
+  .trend-action {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .trend-explanation--alone {
+    grid-row: 3;
+  }
+}

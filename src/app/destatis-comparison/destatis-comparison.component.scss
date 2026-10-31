@@ -127,6 +127,27 @@
   font-weight: 450;
 }
 
+.comparison-category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparison-category-tag {
+  max-width: 100%;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid #d8e5de;
+  border-radius: 999px;
+  color: var(--app-primary);
+  background: #edf3f0;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .amount-cell {
   color: var(--app-ink-strong);
   font-weight: 700;
