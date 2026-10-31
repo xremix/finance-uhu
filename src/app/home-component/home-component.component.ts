@@ -13,7 +13,7 @@ import { BalanceService } from '../services/balance-service';
 })
 export class HomeComponentComponent implements DoCheck {
   readonly negativeBalanceTab = 'Tage im Minus';
-  private readonly standardTabs = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
+  private readonly standardTabs = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Tägliche Ein- und Ausgaben', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
   private readonly tabsWithBalance = [...this.standardTabs, this.negativeBalanceTab];
   public activeTab: string = 'Kategorien';
   public expandedKpi: 'balance' | 'spending' | 'account' | null = null;

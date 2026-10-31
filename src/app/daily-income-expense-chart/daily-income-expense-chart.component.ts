@@ -1,22 +1,19 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
   ApexDataLabels,
   ApexYAxis,
   ApexXAxis,
-  ApexFill,
   ApexTooltip,
   ApexStroke,
   ApexLegend,
-  ChartComponent,
   NgApexchartsModule,
   ApexTitleSubtitle,
   ApexMarkers,
 } from 'ng-apexcharts';
 import { Transaction } from '../models/transaction';
 import { CommonModule } from '@angular/common';
-import { DataState } from '../services/data-state';
 import { chartColors, chartFontFamily, formatCompactCurrency, formatCurrency } from '../chart-theme';
 
 @Component({
@@ -27,13 +24,11 @@ import { chartColors, chartFontFamily, formatCompactCurrency, formatCurrency } f
   templateUrl: './daily-income-expense-chart.component.html',
   styleUrl: './daily-income-expense-chart.component.scss',
 })
-export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
+export class DailyIncomeExpenseChartComponent implements OnChanges {
   @Input() transactions: Transaction[] = [];
   @Output() triggerRefresh: EventEmitter<void> = new EventEmitter<void>();
 
-  @ViewChild('chart') chart!: ChartComponent;
   public chartOptions!: ChartOptions;
-  public isCollapsed = true;
 
   public categories: ApexXAxis = {
     categories: [],
@@ -51,8 +46,6 @@ export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
   ];
 
   private refresh() {
-    if (this.transactions.length === 0) return;
-
     // Get all unique dates from transactions and sort them
     const uniqueDates = [...new Set(this.transactions.map(t => t.bookingDate.toDateString()))]
       .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
@@ -67,7 +60,6 @@ export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
 
     // Calculate daily income
     const dailyIncome = uniqueDates.map(dateStr => {
-      const date = new Date(dateStr);
       return this.transactions
         .filter(t => t.bookingDate.toDateString() === dateStr && t.amount >= 0)
         .reduce((sum, t) => sum + t.amount, 0);
@@ -75,7 +67,6 @@ export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
 
     // Calculate daily expenses (positive values for display)
     const dailyExpenses = uniqueDates.map(dateStr => {
-      const date = new Date(dateStr);
       return this.transactions
         .filter(t => t.bookingDate.toDateString() === dateStr && t.amount < 0)
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
@@ -95,13 +86,6 @@ export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
     ];
 
     this.chartOptions.xaxis = this.categories;
-    
-    // Force chart update if visible and chart exists
-    if (!this.isCollapsed && this.chart) {
-      setTimeout(() => {
-        this.chart.updateSeries(this.series);
-      }, 50);
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -110,28 +94,7 @@ export class DailyIncomeExpenseChartComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnInit(): void {
-    // Initial refresh handled by ngOnChanges
-  }
-
-  toggleCollapse(): void {
-    this.isCollapsed = !this.isCollapsed;
-    
-    // Force chart to re-render when expanded
-    if (!this.isCollapsed) {
-      setTimeout(() => {
-        if (this.chart) {
-          this.chart.updateOptions({
-            chart: {
-              ...this.chartOptions.chart
-            }
-          });
-        }
-      }, 100);
-    }
-  }
-
-  constructor(private dataState: DataState, private cdr: ChangeDetectorRef) {
+  constructor() {
     const self = this;
     this.chartOptions = {
       legend: {

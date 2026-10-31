@@ -255,12 +255,6 @@
     </div>
   </div>
 
-  <!-- Daily Income/Expense Chart - Collapsible -->
-  <app-daily-income-expense-chart 
-    [transactions]="dataState.selectedTransactions" 
-    (triggerRefresh)="refreshPage()">
-  </app-daily-income-expense-chart>
-
   <div class="overflow-x-auto">
   <ul class="nav nav-tabs detail-tabs" role="tablist" aria-label="Detailansichten" (keydown)="onTabKeydown($event)">
     <li class="nav-item" role="presentation" *ngFor="let tab of tabs; let i = index">
@@ -314,6 +308,12 @@
       <h2 class="section-title mb-3">Monatliche Bilanz</h2>
       <app-monthy-billance [dates]="dataState.monthStarts" [transactions]="dataState.selectedTransactions"></app-monthy-billance>
     </div>
+
+    <app-daily-income-expense-chart
+      *ngIf="activeTab == 'Tägliche Ein- und Ausgaben'"
+      [transactions]="dataState.selectedTransactions"
+      (triggerRefresh)="refreshPage()">
+    </app-daily-income-expense-chart>
 
     <div *ngIf="activeTab == 'Ausgaben-Fluss'">
       <h2 class="section-title mb-3">Ausgaben-Fluss (Sankey Diagramm) <small class="text-muted fs-6" *ngIf="dataState.showAverage">Ø pro Monat</small></h2>

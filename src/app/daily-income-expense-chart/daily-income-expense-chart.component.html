@@ -1,43 +1,27 @@
-<div class="card chart-card mb-3">
-  <div class="card-body">
-    <div class="chart-card-header mb-0">
-      <div>
-        <h2 class="section-title mb-0">Tägliche Ein- und Ausgaben</h2>
-        <p class="chart-subtitle mb-0">Tagesgenauer Verlauf im gewählten Zeitraum</p>
-      </div>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-secondary"
-        (click)="toggleCollapse()"
-        [attr.aria-expanded]="!isCollapsed"
-        aria-controls="dailyChart">
-        <i class="fa-solid me-1" [class.fa-chevron-down]="isCollapsed" [class.fa-chevron-up]="!isCollapsed" aria-hidden="true"></i>
-        {{ isCollapsed ? 'Anzeigen' : 'Verbergen' }}
-      </button>
-    </div>
-
-    <div class="collapse pt-3" [class.show]="!isCollapsed" id="dailyChart">
-      <div *ngIf="series && series.length > 0 && series[0]?.data && series[0].data.length > 0 && categories?.categories && categories.categories.length > 0; else noDataTemplate">
-        <div role="img" aria-label="Liniendiagramm: tägliche Einnahmen und Ausgaben im gewählten Zeitraum. Einzelbuchungen stehen im Tab Alle Buchungen.">
-        <apx-chart
-          #chart
-          [series]="series"
-          [chart]="chartOptions.chart"
-          [xaxis]="chartOptions.xaxis"
-          [yaxis]="chartOptions.yaxis"
-          [dataLabels]="chartOptions.dataLabels"
-          [stroke]="chartOptions.stroke"
-          [markers]="chartOptions.markers"
-          [legend]="chartOptions.legend"
-          [tooltip]="chartOptions.tooltip"
-          [grid]="chartOptions.grid">
-        </apx-chart>
-        </div>
-      </div>
-
-      <ng-template #noDataTemplate>
-        <p class="text-center py-4 text-muted mb-0">Keine Daten für die tägliche Ansicht verfügbar</p>
-      </ng-template>
-    </div>
+<div class="chart-card-header mb-3">
+  <div>
+    <h2 class="section-title mb-0">Tägliche Ein- und Ausgaben</h2>
+    <p class="chart-subtitle mb-0">Tagesgenauer Verlauf im gewählten Zeitraum</p>
   </div>
 </div>
+
+<div *ngIf="series && series.length > 0 && series[0]?.data && series[0].data.length > 0 && categories?.categories && categories.categories.length > 0; else noDataTemplate">
+  <div role="img" aria-label="Liniendiagramm: tägliche Einnahmen und Ausgaben im gewählten Zeitraum. Einzelbuchungen stehen im Tab Alle Buchungen.">
+    <apx-chart
+      [series]="series"
+      [chart]="chartOptions.chart"
+      [xaxis]="chartOptions.xaxis"
+      [yaxis]="chartOptions.yaxis"
+      [dataLabels]="chartOptions.dataLabels"
+      [stroke]="chartOptions.stroke"
+      [markers]="chartOptions.markers"
+      [legend]="chartOptions.legend"
+      [tooltip]="chartOptions.tooltip"
+      [grid]="chartOptions.grid">
+    </apx-chart>
+  </div>
+</div>
+
+<ng-template #noDataTemplate>
+  <p class="text-center py-4 text-muted mb-0">Keine Daten für die tägliche Ansicht verfügbar</p>
+</ng-template>

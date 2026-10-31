@@ -21,12 +21,6 @@ describe('DailyIncomeExpenseChartComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should toggle collapse state', () => {
-    expect(component.isCollapsed).toBe(true);
-    component.toggleCollapse();
-    expect(component.isCollapsed).toBe(false);
-  });
-
   it('should process daily data correctly', () => {
     const mockTransactions = [
       {
