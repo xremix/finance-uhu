@@ -26,18 +26,10 @@ export interface UmsatzFile {
   persisted: boolean;
 }
 
-interface PlaintextCsvRecord {
-  fileName: string;
-  uploadedAt: string;
-  content: string;
-}
-
 interface EncryptedCsvRecord extends EncryptedCsvContent {
   fileName: string;
   uploadedAt: string;
 }
-
-type PersistedCsvRecord = PlaintextCsvRecord | EncryptedCsvRecord;
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +40,7 @@ export class ImportService {
   private readonly categoriesFileHandleKey = 'categoriesFileHandle';
   private activeFiles: UmsatzFile[] = [];
   private categoriesLastSaved: string | null = null;
+  private removedUnencryptedCsvRecords = false;
   private readonly legacyLocalStorageKeys = [
     'categories',
     'categoriesLastSaved',
@@ -354,6 +347,7 @@ export class ImportService {
   }
 
   public async loadFromIndexedDb(): Promise<void> {
+    this.removedUnencryptedCsvRecords = false;
     const load = async () => {
       this.activeFiles = await this.loadPersistedFiles();
       this.categoriesLastSaved = await this.storage.get<string>(APP_DATA_STORE, 'categoriesLastSaved') ?? null;
@@ -375,20 +369,25 @@ export class ImportService {
   }
 
   private async loadPersistedFiles(): Promise<UmsatzFile[]> {
-    const records = await this.storage.getAll<PersistedCsvRecord>(PERSISTED_FILES_STORE);
-    const files: UmsatzFile[] = [];
-    let hasPlaintextRecords = false;
+    const entries = await this.storage.getAllEntries<unknown>(PERSISTED_FILES_STORE);
+    const encryptedEntries = entries.filter(
+      (entry): entry is { key: IDBValidKey; value: EncryptedCsvRecord } => this.isEncryptedCsvRecord(entry.value)
+    );
 
-    for (const record of records) {
-      let content: string;
-      if ('content' in record) {
-        content = record.content;
-        hasPlaintextRecords = true;
-      } else if (record.encryptionVersion === 1) {
-        content = await this.csvEncryption.decrypt(record);
-      } else {
-        throw new Error(`Unsupported encrypted CSV format for ${record.fileName}.`);
-      }
+    if (encryptedEntries.length !== entries.length) {
+      await this.storage.replaceAll(
+        PERSISTED_FILES_STORE,
+        encryptedEntries.map((entry) => ({ key: entry.key, value: entry.value }))
+      );
+      this.clearLegacyLocalStorage();
+      this.removedUnencryptedCsvRecords = true;
+    }
+
+    const files: UmsatzFile[] = [];
+
+    for (const entry of encryptedEntries) {
+      const record = entry.value;
+      const content = await this.csvEncryption.decrypt(record);
       files.push({
         fileName: record.fileName,
         uploadedAt: record.uploadedAt,
@@ -397,11 +396,24 @@ export class ImportService {
       });
     }
 
-    if (hasPlaintextRecords) {
-      await this.writePersistedFiles(files);
-    }
-
     return files;
+  }
+
+  public didRemoveUnencryptedCsvRecords(): boolean {
+    return this.removedUnencryptedCsvRecords;
+  }
+
+  private isEncryptedCsvRecord(record: unknown): record is EncryptedCsvRecord {
+    if (typeof record !== 'object' || record === null) return false;
+
+    const candidate = record as Partial<EncryptedCsvRecord>;
+    return candidate.encryptionVersion === 1 &&
+      typeof candidate.fileName === 'string' &&
+      typeof candidate.uploadedAt === 'string' &&
+      candidate.iv instanceof Uint8Array &&
+      candidate.iv.byteLength === 12 &&
+      candidate.ciphertext instanceof ArrayBuffer &&
+      candidate.ciphertext.byteLength >= 16;
   }
 
   private clearLegacyLocalStorage(): void {

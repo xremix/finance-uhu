@@ -31,8 +31,15 @@ export class AppComponent implements OnInit {
     } catch (error) {
       console.error('Could not load stored browser data:', error);
       this.feedback.notify(
-        'Gespeicherte Dateien konnten nicht geladen oder entschlüsselt werden. Die gespeicherten Kopien wurden nicht geändert.',
+        'Verschlüsselte Dateien konnten nicht geladen oder entschlüsselt werden. Bitte prüfe den Browserspeicher.',
         'error'
+      );
+    }
+
+    if (this.importService.didRemoveUnencryptedCsvRecords()) {
+      this.feedback.notify(
+        'Ältere unverschlüsselte CSV-Kopien wurden gelöscht. Bitte importiere benötigte Dateien erneut.',
+        'warning'
       );
     }
   }

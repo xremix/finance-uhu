@@ -79,6 +79,26 @@ export class IndexedDbStorageService {
     });
   }
 
+  async getAllEntries<T>(storeName: string): Promise<Array<{ key: IDBValidKey; value: T }>> {
+    const database = await this.openDatabase();
+    return new Promise<Array<{ key: IDBValidKey; value: T }>>((resolve, reject) => {
+      const transaction = database.transaction(storeName, 'readonly');
+      const entries: Array<{ key: IDBValidKey; value: T }> = [];
+      const request = transaction.objectStore(storeName).openCursor();
+
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) return;
+        entries.push({ key: cursor.key, value: cursor.value as T });
+        cursor.continue();
+      };
+      request.onerror = () => reject(request.error ?? transaction.error);
+      transaction.oncomplete = () => resolve(entries);
+      transaction.onerror = () => reject(transaction.error ?? new Error('Could not read browser storage.'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Could not read browser storage.'));
+    });
+  }
+
   async count(storeName: string): Promise<number> {
     const database = await this.openDatabase();
     return new Promise<number>((resolve, reject) => {
