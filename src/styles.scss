@@ -1,21 +1,21 @@
 // Keep Bootstrap components aligned with the app's shared visual foundation.
-$primary: #315b52;
-$secondary: #5b6a66;
-$success: #287a5c;
-$danger: #a8464b;
-$warning: #8f6024;
-$body-bg: #f5f7f5;
-$body-color: #20312f;
-$border-color: #e1e8e4;
-$font-family-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-$border-radius: 0.65rem;
-$border-radius-lg: 0.85rem;
-$card-border-color: #e1e8e4;
-$card-border-radius: 0.85rem;
-$card-cap-bg: #f8faf8;
-$box-shadow-sm: 0 0.125rem 0.5rem rgba(25, 47, 42, 0.06);
-
-@import 'bootstrap/scss/bootstrap';
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: #315b52,
+  $secondary: #5b6a66,
+  $success: #287a5c,
+  $danger: #a8464b,
+  $warning: #8f6024,
+  $body-bg: #f5f7f5,
+  $body-color: #20312f,
+  $border-color: #e1e8e4,
+  $font-family-sans-serif: (system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif),
+  $border-radius: 0.65rem,
+  $border-radius-lg: 0.85rem,
+  $card-border-color: #e1e8e4,
+  $card-border-radius: 0.85rem,
+  $card-cap-bg: #f8faf8,
+  $box-shadow-sm: 0 0.125rem 0.5rem rgba(25, 47, 42, 0.06)
+);
 
 html,
 body {
