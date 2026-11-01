@@ -52,11 +52,8 @@ export class DashboardStateService implements OnDestroy {
     const initialUrl = router.parseUrl(location.path(true) || '/');
     const initialFilters = this.decodeFilterFragment(initialUrl.fragment);
     this.subject = new BehaviorSubject(this.isDashboard(initialUrl)
-      ? this.decode(initialUrl.queryParams, initialFilters ?? initialUrl.queryParams)
+      ? this.decode(initialUrl.queryParams, initialFilters ?? {})
       : defaults());
-    if (router.navigated && this.isDashboard(initialUrl) && this.hasLegacyFilters(initialUrl.queryParams)) {
-      this.scheduleWrite(true);
-    }
     this.navigationSubscription = router.events.subscribe((event) => {
       if (!(event instanceof NavigationEnd)) return;
       if (this.ownNavigations.delete(event.urlAfterRedirects)) return;
@@ -64,8 +61,7 @@ export class DashboardStateService implements OnDestroy {
       if (!this.isDashboard(url)) return;
 
       const filters = this.decodeFilterFragment(url.fragment);
-      this.setState({ ...this.decode(url.queryParams, filters ?? url.queryParams), q: this.state.q });
-      if (this.hasLegacyFilters(url.queryParams)) this.scheduleWrite(true);
+      this.setState({ ...this.decode(url.queryParams, filters ?? {}), q: this.state.q });
     });
   }
 
@@ -112,7 +108,7 @@ export class DashboardStateService implements OnDestroy {
     const url = this.router.parseUrl(this.router.url);
     if (!this.isDashboard(url)) return;
     const params = { ...url.queryParams };
-    [...QUERY_KEYS, ...FILTER_KEYS].forEach((key) => delete params[key]);
+    QUERY_KEYS.forEach((key) => delete params[key]);
     url.queryParams = { ...params, ...this.encodeTab(this.state) };
     url.fragment = this.encodeFilterFragment(this.state);
     const target = this.router.serializeUrl(url);
@@ -172,10 +168,6 @@ export class DashboardStateService implements OnDestroy {
       }
     });
     return params;
-  }
-
-  private hasLegacyFilters(params: Params): boolean {
-    return FILTER_KEYS.some((key) => params[key] !== undefined);
   }
 
   private validDate(value: unknown): string | undefined {
