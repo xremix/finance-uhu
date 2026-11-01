@@ -2,8 +2,9 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataState } from '../services/data-state';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { DashboardStateService } from '../services/dashboard-state.service';
 
 @Component({
   selector: 'app-global-search',
@@ -14,18 +15,19 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 })
 export class GlobalSearchComponent implements OnDestroy {
   searchTerm: string = '';
-  private searchSubject = new Subject<string>();
+  private searchSubject = new Subject<string | null>();
+  private subscriptions = new Subscription();
 
-  constructor(public dataState: DataState) {
-    this.searchTerm = this.dataState.currentFilter.searchTerm;
-    
-    // Setup debounced search
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(searchTerm => {
-      this.dataState.filterBySearchTerm(searchTerm);
-    });
+  constructor(public dataState: DataState, viewState: DashboardStateService) {
+    this.subscriptions.add(this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      if (searchTerm !== null) this.dataState.filterBySearchTerm(searchTerm);
+    }));
+    this.subscriptions.add(viewState.state$.pipe(
+      distinctUntilChanged((previous, current) => previous.q === current.q)
+    ).subscribe(state => {
+      this.searchSubject.next(null);
+      this.searchTerm = state.q;
+    }));
   }
 
   onSearchChange() {
@@ -34,10 +36,12 @@ export class GlobalSearchComponent implements OnDestroy {
 
   clearSearch() {
     this.searchTerm = '';
-    this.searchSubject.next('');
+    this.searchSubject.next(null);
+    this.dataState.filterBySearchTerm('');
   }
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
     this.searchSubject.complete();
   }
 }

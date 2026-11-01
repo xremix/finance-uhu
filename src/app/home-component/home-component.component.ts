@@ -6,6 +6,7 @@ import { Transaction } from '../models/transaction';
 import { Category } from '../models/category';
 import { DailyBalance } from '../models/balance';
 import { BalanceService } from '../services/balance-service';
+import { DASHBOARD_TABS, DashboardStateService } from '../services/dashboard-state.service';
 
 interface NegativeBalanceMonth {
   month: Date;
@@ -20,9 +21,10 @@ interface NegativeBalanceMonth {
 export class HomeComponentComponent implements DoCheck {
   readonly negativeBalanceTab = 'Tage im Minus';
   readonly spendingTrendsTab = 'Ausgaben-Trends';
-  private readonly standardTabs = ['Kategorien', 'Alle Buchungen', 'Wiederkehrende Buchungen', this.spendingTrendsTab, 'Ausgeglichene Buchungen', 'Monatliche Bilanz', 'Tägliche Ein- und Ausgaben', 'Ausgaben-Fluss', 'Deutschlandvergleich'];
+  private readonly standardTabs: readonly string[] = DASHBOARD_TABS.filter(tab => tab.id !== 'negative-balance').map(tab => tab.label);
   private readonly tabsWithBalance = [...this.standardTabs, this.negativeBalanceTab];
-  public activeTab: string = 'Kategorien';
+  get activeTab(): string { return this.viewState.activeTab; }
+  set activeTab(tab: string) { this.viewState.selectTab(tab); }
   public expandedKpi: 'balance' | 'spending' | 'account' | null = null;
 
   get tabs(): readonly string[] {
@@ -30,7 +32,7 @@ export class HomeComponentComponent implements DoCheck {
   }
 
   ngDoCheck(): void {
-    if (this.activeTab === this.negativeBalanceTab && !this.balanceService.anchor) {
+    if (this.activeTab === this.negativeBalanceTab && !this.balanceService.anchor && !this.dataState.isLoading && this.dataState.hasLoadedData) {
       this.activeTab = this.standardTabs[0];
     }
   }
@@ -87,7 +89,8 @@ export class HomeComponentComponent implements DoCheck {
     this.activeTab = tabs[next];
     setTimeout(() => document.getElementById('tab-' + next)?.focus());
   }
-  public sankeyType: 'expense' | 'income' = 'expense';
+  get sankeyType(): 'expense' | 'income' { return this.viewState.state.flow; }
+  set sankeyType(flow: 'expense' | 'income') { this.viewState.update({ flow }); }
 
   showInsightTransactions(): void {
     this.expandedKpi = null;
@@ -110,7 +113,8 @@ export class HomeComponentComponent implements DoCheck {
     protected categoryService: CategoryService,
     protected dateService: DateService,
     private cds: ChangeDetectorRef,
-    private balanceService: BalanceService
+    private balanceService: BalanceService,
+    private viewState: DashboardStateService
   ) {}
 
   get balancedTransactions(): Transaction[] {

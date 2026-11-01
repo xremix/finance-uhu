@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, OnDestroy } from '@angular/core';
 import { Transaction } from '../models/transaction';
 import { DateService } from './date-service';
 import { Category  } from '../models/category';
@@ -6,6 +6,8 @@ import { BalanceAnchor } from '../models/balance';
 
 import { RecurringService, RecurringSeries } from './recurring-service';
 import { DuplicateService } from './duplicate-service';
+import { DashboardStateService, DashboardViewState, formatDateParameter } from './dashboard-state.service';
+import { Subscription } from 'rxjs';
 
 export interface DateFilter {
   from: Date;
@@ -24,20 +26,18 @@ export interface DataFilter {
 @Injectable({
   providedIn: 'root',
 })
-export class DataState {
-  private readonly searchTermStorageKey = 'searchTerm';
-  private readonly showAverageStorageKey = 'showAverage';
+export class DataState implements OnDestroy {
+  private readonly viewSubscription: Subscription;
+  private appliedFilters = '';
   private _transactions: Transaction[] = [];
   public recurringSeries: RecurringSeries[] = [];
   private recurringByTransaction = new Map<Transaction, RecurringSeries>();
   /** Recurring series with at least one booking matching the current filter */
   public selectedRecurringSeries: RecurringSeries[] = [];
 
-  private _showAverage: boolean = localStorage.getItem(this.showAverageStorageKey) === 'true';
-  get showAverage(): boolean { return this._showAverage; }
+  get showAverage(): boolean { return this.viewState.state.average; }
   set showAverage(value: boolean) {
-    this._showAverage = value;
-    localStorage.setItem(this.showAverageStorageKey, String(value));
+    this.viewState.update({ average: value });
   }
   public loadedSources: string[] = []; // Track loaded file sources
   /** Account balance found in the loaded files (e.g. ING header), if any */
@@ -52,9 +52,15 @@ export class DataState {
   constructor(
     private dateService: DateService, 
     private duplicateService: DuplicateService,
-    private recurringService: RecurringService
+    private recurringService: RecurringService,
+    private viewState: DashboardStateService
   ) {
-    this.currentFilter.searchTerm = this.loadSearchTerm();
+    this.viewSubscription = this.viewState.state$.subscribe((state) => {
+      const signature = JSON.stringify([state.from, state.to, state.category, state.type, state.q, state.average]);
+      if (signature === this.appliedFilters) return;
+      this.appliedFilters = signature;
+      this.applyViewState(state);
+    });
   }
 
   get hasLoadedData(): boolean {
@@ -83,6 +89,7 @@ export class DataState {
     this.monthStarts = this.months.map((m) => m.from);
     this.detectRecurring();
     this.duplicateService.setWasBalancedAfterwardsForAllTransaction(this._transactions);
+    this.applyViewState(this.viewState.state);
   }
 
   public addTransactions(newTransactions: Transaction[]): void {
@@ -102,7 +109,7 @@ export class DataState {
     this.duplicateService.setWasBalancedAfterwardsForAllTransaction(this._transactions);
     
     // Update selected transactions based on current filter
-    this.refresh();
+    this.applyViewState(this.viewState.state);
   }
 
   private detectRecurring() {
@@ -260,20 +267,37 @@ export class DataState {
     return terms.filter(term => term.length > 0);
   }
 
-  private loadSearchTerm(): string {
-    try {
-      return localStorage.getItem(this.searchTermStorageKey) ?? '';
-    } catch {
-      return '';
+  private applyViewState(state: Readonly<DashboardViewState>): void {
+    const datedTransactions = this._transactions.filter((transaction) =>
+      transaction.bookingDate instanceof Date && !Number.isNaN(transaction.bookingDate.getTime()));
+    const from = state.from
+      ? new Date(`${state.from}T00:00:00`)
+      : new Date(this.dateService.firstDate(datedTransactions) ?? 0);
+    const to = state.to
+      ? new Date(`${state.to}T00:00:00`)
+      : new Date(this.dateService.lastDate(datedTransactions) ?? new Date());
+    from.setHours(0, 0, 0, 0);
+    to.setHours(23, 59, 59, 999);
+
+    let category: Category | undefined;
+    let categories = this.categories;
+    for (const name of state.category) {
+      category = categories.find((candidate) => candidate.name === name);
+      if (!category) break;
+      categories = category.subCategories;
     }
+    this.currentFilter = { from, to, category, type: state.type, searchTerm: state.q };
+    this.refresh();
   }
 
-  private saveSearchTerm(searchTerm: string): void {
-    try {
-      localStorage.setItem(this.searchTermStorageKey, searchTerm);
-    } catch {
-      // Ignore storage errors (e.g. private mode or disabled storage)
+  private categoryPath(category: Category, categories = this.categories, parents: string[] = []): string[] | undefined {
+    for (const candidate of categories) {
+      const path = [...parents, candidate.name];
+      if (candidate === category) return path;
+      const nested = this.categoryPath(category, candidate.subCategories, path);
+      if (nested) return nested;
     }
+    return undefined;
   }
 
   private refresh() {
@@ -318,9 +342,7 @@ export class DataState {
   }
 
   filterByRange(from: Date, to: Date) {
-    this.currentFilter.from = from;
-    this.currentFilter.to = to;
-    this.refresh();
+    this.viewState.update({ from: formatDateParameter(from), to: formatDateParameter(to) });
   }
 
   filterByDateFilter(dateFilter: DateFilter) {
@@ -333,10 +355,8 @@ export class DataState {
       this.resetMonth();
     } else {
       // Set the filter to the selected month
-      this.currentFilter.from = dateFilter.from;
-      this.currentFilter.to = dateFilter.to;
+      this.filterByRange(dateFilter.from, dateFilter.to);
     }
-    this.refresh();
   }
 
   filterByDay(date: Date) {
@@ -349,43 +369,22 @@ export class DataState {
   }
 
   filterByCategory(category: Category) {
-    if (this.currentFilter.category === category) {
-      this.currentFilter.category = undefined;
-    } else {
-      this.currentFilter.category = category;
-    }
-    this.refresh();
+    this.viewState.update({ category: this.currentFilter.category === category ? [] : this.categoryPath(category) ?? [] });
   }
 
   resetMonth() {
-    const transactionsWithDate = this._transactions.filter(
-      (transaction) => transaction.bookingDate instanceof Date && !Number.isNaN(transaction.bookingDate.getTime())
-    );
-    if (transactionsWithDate.length > 0) {
-      let earliest = transactionsWithDate[0].bookingDate;
-      let latest = earliest;
-      for (const transaction of transactionsWithDate.slice(1)) {
-        if (transaction.bookingDate < earliest) earliest = transaction.bookingDate;
-        if (transaction.bookingDate > latest) latest = transaction.bookingDate;
-      }
-      this.currentFilter.from = new Date(earliest);
-      this.currentFilter.to = new Date(latest);
-      this.refresh();
-    }
+    this.viewState.update({ from: undefined, to: undefined });
   }
   resetFilter(resetSearchTerm: boolean = true) {
-    this.resetMonth();
-    this.resetCategory();
-    if (resetSearchTerm) {
-      this.currentFilter.searchTerm = '';
-      this.saveSearchTerm('');
-    }
-    this.refresh();
+    this.viewState.update({
+      from: undefined, to: undefined, category: [],
+      ...(resetSearchTerm ? { q: '' } : {}),
+    });
   }
   resetCategory() {
-    this.currentFilter.category = undefined;
-    this.refresh();
+    this.viewState.update({ category: [] });
   }
+  resetViewState(): void { this.viewState.reset(); }
   resetState() {
     this._transactions = [];
     this.selectedTransactions = [];
@@ -412,15 +411,12 @@ export class DataState {
   }
 
   filterByType(type: 'all' | 'income' | 'expense') {
-    this.currentFilter.type = type;
-    this.refresh();
+    this.viewState.update({ type });
   }
 
   filterBySearchTerm(searchTerm: string) {
-    this.currentFilter.searchTerm = searchTerm;
-    this.saveSearchTerm(searchTerm);
-    this.refresh();
+    this.viewState.update({ q: searchTerm });
   }
 
-
+  ngOnDestroy(): void { this.viewSubscription.unsubscribe(); }
 }

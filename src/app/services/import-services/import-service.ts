@@ -107,9 +107,6 @@ export class ImportService {
     this.dataState.fileBalanceAnchor = balanceAnchor;
     this.dataState.setTransactions(uniqueTransactions);
 
-    if (uniqueTransactions.length > 0) {
-      this.dataState.resetFilter(false);
-    }
   }
 
   private removeExactDuplicateTransactions(transactions: Transaction[]): Transaction[] {
@@ -251,15 +248,9 @@ export class ImportService {
     this.balanceService.clearManualBalance();
     this.dataState.resetState();
     this.dataState.categories = defaultCategories.map(mapBaseCategoryToCategory);
-    this.dataState.currentFilter.from = new Date(0);
-    this.dataState.currentFilter.to = new Date();
-    this.dataState.currentFilter.category = undefined;
-    this.dataState.currentFilter.type = 'all';
-    this.dataState.currentFilter.searchTerm = '';
-    this.dataState.showAverage = false;
+    this.dataState.resetViewState();
 
-    // The showAverage setter persists a value; remove it again with the rest
-    // so the next visit starts with a clean local state.
+    // Ensure a subsequent visit starts with a clean local state.
     for (const key of this.localStorageKeys) {
       localStorage.removeItem(key);
     }
