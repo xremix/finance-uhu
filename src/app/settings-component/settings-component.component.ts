@@ -3,6 +3,7 @@ import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
 import { defaultCategories } from '../default-categories';
 import { BaseCategory, Category, mapBaseCategoryToCategory } from '../models/category';
+import { UiFeedbackService } from '../services/ui-feedback.service';
 
 @Component({
   selector: 'app-settings-component',
@@ -21,9 +22,10 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   public hasUnsavedChanges: boolean = false;
   public supportsFileSync: boolean = false;
   public linkedSettingsFileName: string | null = null;
+  public isSaving = false;
   private initialCategoriesSnapshot: string = '';
   
-  constructor(protected dataState: DataState, private importService: ImportService) {}
+  constructor(protected dataState: DataState, private importService: ImportService, private feedback: UiFeedbackService) {}
 
   ngOnInit(): void {
     this.supportsFileSync = this.importService.supportsCategoriesFileSync();
@@ -64,98 +66,126 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   public getUnsavedChangesStatus(): boolean {
     return this.hasUnsavedChanges;
   }
-  public async save() {
-    const linkedFileSynced = await this.importService.saveCategoriesToLocalStorageAndLinkedFile(this.importService.categorisAsJson());
-    // Aktualisiere den Snapshot nach dem Speichern
-    this.initialCategoriesSnapshot = this.importService.categorisAsJson();
-    this.hasUnsavedChanges = false;
-
-    if (!linkedFileSynced) {
-      alert('Browser-Speicher wurde gespeichert, die verknüpfte Datei konnte aber nicht aktualisiert werden.');
-    }
+  public async save(): Promise<void> {
+    await this.saveState();
   }
-  public async saveState() {
-    const linkedFileSynced = await this.importService.saveCategoriesToLocalStorageAndLinkedFile(this.importService.categorisAsJson());
-    // Aktualisiere den Snapshot nach dem Speichern
-    this.initialCategoriesSnapshot = this.importService.categorisAsJson();
-    this.hasUnsavedChanges = false;
 
-    if (linkedFileSynced) {
-      alert('Saved');
-    } else {
-      alert('Im Browser gespeichert, aber die verknüpfte Datei konnte nicht aktualisiert werden.');
+  public async saveState(): Promise<void> {
+    if (this.isSaving) return;
+    this.isSaving = true;
+    try {
+      await this.performSettingsAction(async () => {
+        const json = this.importService.categorisAsJson();
+        const linkedFileSynced = await this.importService.saveCategoriesToLocalStorageAndLinkedFile(json);
+        this.markSaved(json);
+        this.feedback.notify(
+          linkedFileSynced
+            ? 'Einstellungen im Browser gespeichert.'
+            : 'Im Browser gespeichert. Die verknüpfte Datei konnte nicht aktualisiert werden. Bitte prüfe ihre Zugriffsberechtigung.',
+          linkedFileSynced ? 'success' : 'warning'
+        );
+      }, 'Die Einstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.');
+    } finally {
+      this.isSaving = false;
     }
   }
 
   public async saveDatabaseInFile(): Promise<void> {
     if (!this.supportsFileSync) {
-      alert('Die Browser-API für direkten Dateizugriff wird hier nicht unterstützt.');
+      this.feedback.notify('Dein Browser unterstützt das direkte Speichern in eine Datei nicht. Du kannst deine Einstellungen im Browser speichern.', 'warning');
       return;
     }
 
-    const saved = await this.importService.saveCategoriesToFile(this.importService.categorisAsJson());
-    if (!saved) {
-      alert('Speichern in Datei wurde abgebrochen oder ist fehlgeschlagen.');
-      return;
-    }
-
-    this.initialCategoriesSnapshot = this.importService.categorisAsJson();
-    this.hasUnsavedChanges = false;
-    await this.refreshLinkedFileInfo();
-    alert('Einstellungen wurden in Datei und Browser-Speicher gespeichert.');
+    await this.performSettingsAction(async () => {
+      const json = this.importService.categorisAsJson();
+      const saved = await this.importService.saveCategoriesToFile(json);
+      if (!saved) {
+        this.feedback.notify('Die Einstellungen wurden nicht in einer Datei gespeichert. Bitte prüfe die Dateiauswahl und die Zugriffsberechtigung.', 'warning');
+        return;
+      }
+      this.markSaved(json);
+      await this.refreshLinkedFileInfo();
+      this.feedback.notify('Einstellungen in der Datei und im Browser gespeichert.', 'success');
+    }, 'Die Einstellungen konnten nicht in der Datei gespeichert werden.');
   }
 
   public async loadSettingsFromFile(): Promise<void> {
     if (!this.supportsFileSync) {
-      alert('Die Browser-API für direkten Dateizugriff wird hier nicht unterstützt.');
+      this.feedback.notify('Dein Browser unterstützt das Laden verknüpfter Einstellungsdateien nicht.', 'warning');
       return;
     }
 
-    const loaded = await this.importService.loadCategoriesFromUserSelectedFile();
-    if (!loaded) {
-      alert('Laden aus Datei wurde abgebrochen oder ist fehlgeschlagen.');
-      return;
-    }
-
-    const loadedJson = this.importService.categorisAsJson();
-    this.importService.saveCategoriesToLocalStorage(loadedJson);
-    this.json = loadedJson;
-    this.initialCategoriesSnapshot = loadedJson;
-    this.hasUnsavedChanges = false;
-    await this.refreshLinkedFileInfo();
-    alert('Einstellungen wurden aus Datei geladen und Browser-Speicher überschrieben.');
+    await this.performSettingsAction(async () => {
+      const loaded = await this.importService.loadCategoriesFromUserSelectedFile();
+      if (!loaded) {
+        this.feedback.notify('Die Einstellungsdatei konnte nicht geladen werden. Bitte wähle eine gültige Einstellungsdatei und erlaube den Lesezugriff.', 'error');
+        return;
+      }
+      const loadedJson = this.importService.categorisAsJson();
+      this.importService.saveCategoriesToLocalStorage(loadedJson);
+      this.json = loadedJson;
+      this.markSaved(loadedJson);
+      await this.refreshLinkedFileInfo();
+      this.feedback.notify('Einstellungen aus der Datei geladen und im Browser gespeichert.', 'success');
+    }, 'Die Einstellungsdatei konnte nicht geladen werden.');
   }
 
   public async reloadSettingsFromLinkedFile(): Promise<void> {
     if (!this.supportsFileSync) {
-      alert('Die Browser-API für direkten Dateizugriff wird hier nicht unterstützt.');
+      this.feedback.notify('Dein Browser unterstützt das Laden verknüpfter Einstellungsdateien nicht.', 'warning');
       return;
     }
 
-    const loaded = await this.importService.loadCategoriesFromLinkedFile();
-    if (!loaded) {
-      alert('Die verknüpfte Einstellungsdatei konnte nicht geladen werden. Bitte Datei erneut auswählen.');
-      return;
-    }
+    await this.performSettingsAction(async () => {
+      const loaded = await this.importService.loadCategoriesFromLinkedFile();
+      if (!loaded) {
+        this.feedback.notify('Die verknüpfte Einstellungsdatei konnte nicht geladen werden. Bitte wähle sie erneut aus.', 'error');
+        return;
+      }
+      const loadedJson = this.importService.categorisAsJson();
+      this.json = loadedJson;
+      this.markSaved(loadedJson);
+      await this.refreshLinkedFileInfo();
+      this.feedback.notify('Einstellungen aus der verknüpften Datei neu geladen.', 'success');
+    }, 'Die verknüpfte Einstellungsdatei konnte nicht geladen werden.');
+  }
 
-    const loadedJson = this.importService.categorisAsJson();
-    this.json = loadedJson;
-    this.initialCategoriesSnapshot = loadedJson;
-    this.hasUnsavedChanges = false;
-    await this.refreshLinkedFileInfo();
-    alert('Einstellungen wurden aus der verknüpften Datei neu geladen.');
+  private markSaved(json: string): void {
+    this.initialCategoriesSnapshot = json;
+    this.checkForChanges();
+  }
+
+  private async performSettingsAction(action: () => Promise<void>, errorMessage: string): Promise<void> {
+    try {
+      await action();
+    } catch (error) {
+      if ((error as { name?: string } | null)?.name === 'AbortError') return;
+      console.error(errorMessage, error);
+      this.feedback.notify(errorMessage, 'error');
+    }
   }
 
   private async refreshLinkedFileInfo(): Promise<void> {
     this.linkedSettingsFileName = await this.importService.getLinkedCategoriesFileName();
   }
 
-  public addKeyWord(data: string[]) {
-    const keyword = prompt('Add new category', 'Category');
-    if (keyword) {
-      data.push(keyword);
-      this.markAsChanged();
+  public async addKeyWord(data: string[], categoryName: string, isExclude = false): Promise<void> {
+    const value = await this.feedback.requestText({
+      title: isExclude ? 'Ausschluss-Keyword hinzufügen' : 'Keyword hinzufügen',
+      message: `Kategorie: ${categoryName}`,
+      inputLabel: 'Suchbegriff',
+      placeholder: 'z. B. ein Händler oder ein Begriff im Verwendungszweck',
+      helpText: isExclude ? 'Buchungen mit diesem Begriff werden dieser Kategorie nicht zugeordnet.' : 'Buchungen mit diesem Begriff können dieser Kategorie automatisch zugeordnet werden.',
+      acceptLabel: 'Hinzufügen',
+    });
+    const keyword = value?.trim();
+    if (!keyword) return;
+    if (data.some((item) => item.toLowerCase() === keyword.toLowerCase())) {
+      this.feedback.notify('Dieses Keyword ist bereits vorhanden.');
+      return;
     }
+    data.push(keyword);
+    this.markAsChanged();
   }
   public removeKeyWord(data: string[], keyword: string) {
     const index = data.indexOf(keyword);
@@ -165,25 +195,34 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
     }
   }
 
-  public addCategory(category?: any[]) {
-    const name = prompt('Add new category', '');
-    var elementToAdd = category ? category : this.dataState.categories;
-      if (name) {
-        elementToAdd.push({
-          name: name,
-          type: 'expense',
-          keywords: [],
-          excludeKeywords: [],
-          subCategories: [],
-          isDefault: false,
-          icon: '',
-        });
-        this.markAsChanged();
-      }
+  public async addCategory(categories = this.dataState.categories, parentName?: string): Promise<void> {
+    const name = await this.feedback.requestText({
+      title: parentName ? 'Unterkategorie hinzufügen' : 'Neue Kategorie',
+      message: parentName ? `Unterkategorie von „${parentName}“` : undefined,
+      inputLabel: 'Name der Kategorie',
+      placeholder: 'z. B. Haustiere',
+      acceptLabel: 'Kategorie erstellen',
+    });
+    if (!name) return;
+    categories.push(mapBaseCategoryToCategory({
+      name,
+      type: 'expense',
+      keywords: [],
+      excludeKeywords: [],
+      subCategories: [],
+      isDefault: false,
+      icon: '',
+    }));
+    this.markAsChanged();
   }
 
-  public deleteCategory(category: Category) {
-    const confirmDelete = confirm(`Are you sure you want to delete the category "${category.name}"?`);
+  public async deleteCategory(category: Category): Promise<void> {
+    const confirmDelete = await this.feedback.requestConfirmation({
+      title: `„${category.name}“ löschen?`,
+      message: 'Die Kategorie und ihre Unterkategorien werden entfernt. Deine Umsatzdateien bleiben erhalten. Speichere anschließend die Einstellungen, um die Änderung zu übernehmen.',
+      acceptLabel: 'Kategorie löschen',
+      destructive: true,
+    });
     if (confirmDelete) {
       // Find the parent array containing this category
       let parentArray = this.dataState.categories;
@@ -219,9 +258,12 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   }
 
   public async deleteAllLocalData(): Promise<void> {
-    const confirmed = confirm(
-      'Möchtest du wirklich alle lokal gespeicherten Daten löschen? Dazu gehören importierte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung. Die verknüpfte Einstellungsdatei selbst wird nicht gelöscht.'
-    );
+    const confirmed = await this.feedback.requestConfirmation({
+      title: 'Alle lokalen Daten löschen?',
+      message: 'Importierte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung werden gelöscht. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Dieser Schritt kann nicht rückgängig gemacht werden.',
+      acceptLabel: 'Alle lokalen Daten löschen',
+      destructive: true,
+    });
     if (!confirmed) return;
 
     try {
@@ -230,7 +272,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
       window.location.reload();
     } catch (error) {
       console.error('Could not clear all local app data:', error);
-      alert('Die lokalen Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.');
+      this.feedback.notify('Die lokalen Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.', 'error');
     }
   }
 
@@ -321,18 +363,24 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
     return hasChanges;
   }
 
-  public editIcon(category: Category){
-    const icon = prompt('Edit icon', category.icon);
-    category.icon = icon ?? '';
+  public async editIcon(category: Category): Promise<void> {
+    const currentIcon = category.icon ?? '';
+    const icon = await this.feedback.requestIcon(currentIcon);
+    if (icon === null || icon === currentIcon) return;
+    category.icon = icon;
     this.markAsChanged();
   }
 
-  public renameCategory(category: Category) {
-    const newName = prompt('Kategorie umbenennen', category.name);
-    if (newName && newName.trim() !== '') {
-      category.name = newName.trim();
-      this.markAsChanged();
-    }
+  public async renameCategory(category: Category): Promise<void> {
+    const newName = await this.feedback.requestText({
+      title: 'Kategorie umbenennen',
+      inputLabel: 'Name der Kategorie',
+      initialValue: category.name,
+      acceptLabel: 'Umbenennen',
+    });
+    if (!newName || newName === category.name) return;
+    category.name = newName;
+    this.markAsChanged();
   }
 
   public toggleType(category: Category){

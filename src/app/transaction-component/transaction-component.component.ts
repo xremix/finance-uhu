@@ -3,6 +3,7 @@ import { Transaction } from '../models/transaction';
 import { RecurringSeries } from '../services/recurring-service';
 import { DataState } from '../services/data-state';
 import { CategoryService } from '../services/category-service';
+import { UiFeedbackService } from '../services/ui-feedback.service';
 
 @Component({
   selector: 'app-transaction-component',
@@ -15,7 +16,8 @@ export class TransactionComponentComponent implements OnInit {
   public recurring?: RecurringSeries;
   constructor(
     private dataState: DataState,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private feedback: UiFeedbackService
   ) { }
 
   ngOnInit(): void {
@@ -41,14 +43,16 @@ export class TransactionComponentComponent implements OnInit {
     return this.transaction.amount > 0 ? 'is-income' : 'is-expense';
   }
 
-  showMatchingKeywords(transaction: Transaction){
-    let keywords = this.categoryService.flatCategories.map((category) => {
-      const matchingKeyWords = this.categoryService.matchingKeywords(category, transaction);
-      return matchingKeyWords;
-    }).filter((keywords) => keywords.length > 0);
-
-    alert('The following key words matched:\n' + keywords);
-
-
+  async showMatchingKeywords(transaction: Transaction): Promise<void> {
+    const keywords = [...new Set(this.categoryService.flatCategories.flatMap((category) =>
+      this.categoryService.matchingKeywords(category, transaction)
+    ))];
+    await this.feedback.showDetails(
+      'Passende Keywords',
+      keywords.length
+        ? 'Diese Keywords passen zu der Buchung. Welche Kategorie verwendet wird, hängt auch von Ausschlüssen und der Priorität der Regeln ab.'
+        : 'Für diese Buchung wurde kein Keyword gefunden. Sie wurde einer Standardkategorie zugeordnet.',
+      keywords
+    );
   }
 }

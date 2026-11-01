@@ -1,0 +1,10 @@
+<aside class="notice-stack" aria-label="Meldungen">
+  <div *ngFor="let notice of feedback.notices; trackBy: trackNotice" class="app-notice" [ngClass]="'notice-' + notice.kind"
+    [attr.role]="notice.kind === 'error' || notice.kind === 'warning' ? 'alert' : 'status'">
+    <i [class]="icons[notice.kind]" aria-hidden="true"></i>
+    <span>{{ notice.message }}</span>
+    <button type="button" class="notice-close" aria-label="Meldung schließen" (click)="feedback.dismissNotice(notice.id)">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+</aside>

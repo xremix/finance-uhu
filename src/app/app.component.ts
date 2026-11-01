@@ -30,10 +30,6 @@ export class AppComponent implements OnInit {
     return this.dataState.hasLoadedData || this.dataState.isLoading || this.router.url.split(/[?#]/)[0] !== '/';
   }
 
-  openSettings() {
-    this.router.navigate(['settings']);
-  }
-
   skipToMain(event: Event) {
     event.preventDefault();
     document.getElementById('main-content')?.focus();

@@ -20,12 +20,14 @@
 
   <nav class="toolbar-actions me-4" aria-label="Hauptnavigation">
     <app-file-selector [big]="false"></app-file-selector>
-    <button type="button" (click)="openSettings()" class="top-nav-btn" title="Einstellungen öffnen" aria-label="Einstellungen öffnen">
+    <a routerLink="/settings" class="top-nav-btn" title="Einstellungen öffnen" aria-label="Einstellungen öffnen">
       <i class="fa-solid fa-gear" aria-hidden="true"></i>
       <span>Einstellungen</span>
-    </button>
+    </a>
   </nav>
 </header>
+
+<app-ui-notifications></app-ui-notifications>
 
 <main id="main-content" tabindex="-1" class="container" style="margin-top: 30px;">
   <div>

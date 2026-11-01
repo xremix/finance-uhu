@@ -10,7 +10,7 @@ export class AmountSortPipe implements PipeTransform {
       return transactions;
     }
 
-    return transactions.sort((a, b) => {
+    return [...transactions].sort((a, b) => {
       const amountA = a.amount;
       const amountB = b.amount;
 

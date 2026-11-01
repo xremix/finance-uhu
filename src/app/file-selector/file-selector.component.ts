@@ -1,6 +1,7 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
+import { UiFeedbackService } from '../services/ui-feedback.service';
 
 interface FileTimelineEntry {
   fileName: string;
@@ -29,7 +30,8 @@ export class FileSelectorComponent {
 
   constructor(
     private importService: ImportService,
-    protected dataState: DataState
+    protected dataState: DataState,
+    private feedback: UiFeedbackService
   ) {}
 
   get exportSteps(): string[] {
@@ -88,10 +90,11 @@ export class FileSelectorComponent {
 
     try {
       await this.importService.addOrReplaceFiles(Array.from(files));
-      input.value = '';
     } catch (error) {
       console.error('Error loading file:', error);
-      alert('Fehler beim Laden der Datei. Bitte überprüfen Sie das Dateiformat.');
+      this.feedback.notify('Die Datei konnte nicht geladen werden. Bitte prüfe das Dateiformat und versuche es erneut.', 'error');
+    } finally {
+      input.value = '';
     }
   }
 
@@ -111,19 +114,34 @@ export class FileSelectorComponent {
       await this.importService.addOrReplaceFile(demoFile);
     } catch (error) {
       console.error('Error loading demo data:', error);
-      alert('Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.');
+      this.feedback.notify('Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.', 'error');
     } finally {
       this.isLoadingDemoData = false;
     }
   }
 
-  removeFile(fileName: string): void {
-    this.importService.removeFile(fileName);
+  async removeFile(fileName: string): Promise<void> {
+    try {
+      await this.importService.removeFile(fileName);
+    } catch (error) {
+      console.error('Error removing file:', error);
+      this.feedback.notify('Die Datei konnte nicht entfernt werden. Bitte versuche es erneut.', 'error');
+    }
   }
 
-  clearFiles(): void {
-    if (confirm('Möchten Sie wirklich alle Dateien löschen?')) {
+  async clearFiles(): Promise<void> {
+    const confirmed = await this.feedback.requestConfirmation({
+      title: 'Alle Umsatzdateien entfernen?',
+      message: 'Alle im Browser gespeicherten Umsatzdateien werden entfernt. Du kannst sie anschließend erneut importieren. Deine Kategorien bleiben erhalten.',
+      acceptLabel: 'Alle Dateien entfernen',
+      destructive: true,
+    });
+    if (!confirmed) return;
+    try {
       this.importService.clearFiles();
+    } catch (error) {
+      console.error('Error clearing files:', error);
+      this.feedback.notify('Die Dateien konnten nicht entfernt werden. Bitte versuche es erneut.', 'error');
     }
   }
 

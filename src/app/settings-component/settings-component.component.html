@@ -45,8 +45,8 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" (click)="saveState()">
-                    <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>Speichern
+                <button type="button" class="btn btn-primary" (click)="saveState()" [disabled]="isSaving" [attr.aria-busy]="isSaving">
+                    <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>{{ isSaving ? 'Wird gespeichert…' : 'Speichern' }}
                 </button>
             </div>
         </div>
@@ -116,7 +116,7 @@
             </div>
 
             <div class="category-actions">
-                <button type="button" class="icon-btn" (click)="addCategory(category.subCategories)"
+                <button type="button" class="icon-btn" (click)="addCategory(category.subCategories, category.name)"
                     title="Unterkategorie hinzufügen" [attr.aria-label]="'Unterkategorie zu ' + category.name + ' hinzufügen'">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                 </button>
@@ -154,7 +154,7 @@
             <div class="keyword-group">
                 <div class="keyword-group-header">
                     <span class="filter-label mb-0">Einschließen</span>
-                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.keywords)">
+                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.keywords, category.name)">
                         <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
                     </button>
                 </div>
@@ -172,7 +172,7 @@
             <div class="keyword-group">
                 <div class="keyword-group-header">
                     <span class="filter-label mb-0">Ausschließen</span>
-                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.excludeKeywords)">
+                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.excludeKeywords, category.name, true)">
                         <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
                     </button>
                 </div>
