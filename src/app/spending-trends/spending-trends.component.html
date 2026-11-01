@@ -38,10 +38,11 @@
         <span class="trend-parent" *ngIf="trend.parentLabel">{{ trend.parentLabel }}</span>
       </div>
 
-      <div class="trend-sparkline" role="img" [attr.aria-label]="chartAriaLabel(trend)">
+      <div class="trend-sparkline" role="img" [attr.aria-label]="chartAriaLabel(trend)"
+        [style.grid-template-columns]="'repeat(' + trend.months.length + ', minmax(0, 1fr))'"
+        [style.max-width.rem]="trend.months.length * 2.65">
         <div class="trend-bar-column" *ngFor="let month of trend.months; let i = index; trackBy: trackByMonth" [class.trend-bar-column--recent]="i >= months.length - recentMonthCount">
-          <span class="trend-bar-value" *ngIf="month.hasImportedTransactions && month.amount > 0">{{ month.amount | currency:'EUR':'symbol':'1.0-0' }}</span>
-          <span class="trend-bar-value" *ngIf="!month.hasImportedTransactions">–</span>
+          <span class="trend-bar-value">{{ month.hasImportedTransactions ? formatAmount(month.amount) : '–' }}</span>
           <div class="trend-bar" [style.height.%]="month.barHeight" [class.trend-bar--recent]="i >= months.length - recentMonthCount" [class.trend-bar--missing]="!month.hasImportedTransactions" [attr.title]="month.hasImportedTransactions ? month.label + ': ' + (month.amount | currency:'EUR':'symbol':'1.0-0') : month.label + ': keine Buchungen importiert'"></div>
           <span class="trend-bar-label">{{ month.label }}</span>
         </div>

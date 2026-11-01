@@ -19,6 +19,7 @@ interface ComparisonRow {
   benchmark: number;
   difference: number;
   differencePercent: number;
+  differenceBarWidth: number;
 }
 
 @Component({
@@ -46,6 +47,7 @@ export class DestatisComparisonComponent implements OnChanges {
   ];
   selectedHouseholdSize: HouseholdSize = 'all';
   rows: ComparisonRow[] = [];
+  differenceScalePercent = 100;
 
   ngOnChanges(): void {
     this.rows = this.calculateRows();
@@ -87,7 +89,7 @@ export class DestatisComparisonComponent implements OnChanges {
       }
     }
 
-    return DESTATIS_BENCHMARKS_2023.flatMap((benchmark) => {
+    const rows = DESTATIS_BENCHMARKS_2023.flatMap((benchmark) => {
       const periodTotal = totals.get(benchmark.id) ?? 0;
       if (periodTotal === 0) return [];
 
@@ -104,6 +106,14 @@ export class DestatisComparisonComponent implements OnChanges {
         differencePercent: difference / benchmarkAmount * 100,
       }];
     });
+
+    // Use one symmetric percentage scale for every row, expanding it for large deviations.
+    const maxDifferencePercent = rows.reduce((maximum, row) => Math.max(maximum, Math.abs(row.differencePercent)), 100);
+    this.differenceScalePercent = Math.ceil(maxDifferencePercent / 50) * 50;
+    return rows.map((row) => ({
+      ...row,
+      differenceBarWidth: Math.abs(row.differencePercent) / this.differenceScalePercent * 50,
+    }));
   }
 
   private findCategoryPath(target: Category, categories: Category[], path: string[] = []): string[] | undefined {

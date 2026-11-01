@@ -169,7 +169,7 @@ export class SpendingTrendsComponent implements OnChanges {
       const recentTicket = this.median(recentItems.filter(item => item.count > 0).map(item => item.ticketTotal / item.count));
       const maxMonthlyAmount = Math.max(...monthlySpending.map(item => item.amount));
       monthlySpending.forEach(item => {
-        item.barHeight = maxMonthlyAmount === 0 ? 0 : Math.max(8, (item.amount / maxMonthlyAmount) * 100);
+        item.barHeight = item.amount === 0 ? 0 : Math.max(8, (item.amount / maxMonthlyAmount) * 100);
       });
 
       return {
@@ -275,10 +275,10 @@ export class SpendingTrendsComponent implements OnChanges {
   }
 
   private formatMonth(date: Date): string {
-    return date.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' });
+    return date.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
   }
 
-  private formatAmount(amount: number): string {
+  protected formatAmount(amount: number): string {
     return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
   }
 

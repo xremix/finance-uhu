@@ -60,6 +60,9 @@
           <td class="text-end difference-cell" [class.is-above]="row.difference > 0" [class.is-below]="row.difference < 0">
             <strong>{{ row.difference > 0 ? '+' : '' }}{{ row.difference | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</strong>
             <small>{{ row.differencePercent > 0 ? '+' : '' }}{{ row.differencePercent | number:'1.0-0':'de-DE' }}%</small>
+            <div class="difference-chart" aria-hidden="true">
+              <span class="difference-chart-bar" [style.width.%]="row.differenceBarWidth"></span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -76,6 +79,10 @@
 
   <p class="comparison-footnote mb-0">
     Deine Ausgaben werden über den gewählten Zeitraum pro Monat gemittelt. Kategorien-, Buchungsart- und Suchfilter ändern diesen Vergleich nicht.
+    <span *ngIf="rows.length">
+      Mini-Charts: Mitte = Haushaltsdurchschnitt, grün links = weniger, rot rechts = mehr Ausgaben.
+      Gleiche Skala für alle Kategorien: −{{ differenceScalePercent | number:'1.0-0':'de-DE' }} % bis +{{ differenceScalePercent | number:'1.0-0':'de-DE' }} %.
+    </span>
     <span>
       Quelle: Statistisches Bundesamt (Destatis), EVS 2023. Eigene Zuordnung und Berechnung;
       <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>.

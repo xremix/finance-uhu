@@ -171,6 +171,39 @@
   color: var(--app-primary);
 }
 
+.difference-chart {
+  position: relative;
+  width: 7rem;
+  height: 0.8rem;
+  margin: 0.45rem 0 0 auto;
+  border-radius: 0.25rem;
+  background: linear-gradient(to right, #edf3f0 50%, #f8eceb 50%);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -0.1rem;
+    bottom: -0.1rem;
+    left: 50%;
+    width: 1px;
+    background: var(--app-muted);
+  }
+}
+
+.difference-chart-bar {
+  position: absolute;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  left: 50%;
+  border-radius: 0.15rem;
+  background: currentColor;
+}
+
+.difference-cell.is-below .difference-chart-bar {
+  right: 50%;
+  left: auto;
+}
+
 .comparison-empty {
   display: grid;
   justify-items: center;
