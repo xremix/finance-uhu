@@ -263,7 +263,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   public async deleteAllLocalData(): Promise<void> {
     const confirmed = await this.feedback.requestConfirmation({
       title: 'Alle lokalen Daten löschen?',
-      message: 'Importierte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung werden gelöscht. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Dieser Schritt kann nicht rückgängig gemacht werden.',
+      message: 'Gespeicherte Umsatzdateien und der dazugehörige Verschlüsselungsschlüssel, eigene Kategorien, der manuelle Kontostand und die gespeicherte Dateiverknüpfung werden gelöscht. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Dieser Schritt kann nicht rückgängig gemacht werden.',
       acceptLabel: 'Alle lokalen Daten löschen',
       destructive: true,
     });

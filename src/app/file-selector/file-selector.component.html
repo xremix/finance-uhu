@@ -7,7 +7,11 @@
           [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
           [ngbTooltip]="newFilesPersistenceDescription" placement="top" container="body"
           triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
-          <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+          @if (saveNewFilesLocally) {
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          } @else {
+            <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+          }
         </button>
       </span>
       <label [for]="inputId" class="file-select-button">
@@ -71,7 +75,11 @@
                 [attr.aria-pressed]="file.persisted" [attr.aria-label]="getFilePersistenceDescription(file)"
                 [ngbTooltip]="getFilePersistenceDescription(file)" placement="top" container="body"
                 triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleFilePersistence(file)">
-                <i [class]="file.persisted ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+                @if (file.persisted) {
+                  <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                } @else {
+                  <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+                }
               </button>
             </span>
             <button type="button" class="file-remove-btn" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
@@ -105,7 +113,11 @@
               [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
               [ngbTooltip]="newFilesPersistenceDescription" placement="bottom" container="body"
               triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
-              <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+              @if (saveNewFilesLocally) {
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+              } @else {
+                <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+              }
             </button>
           </span>
           <label [for]="inputId" class="file-popover-btn" title="CSV-Dateien laden">
@@ -130,7 +142,11 @@
                       [attr.aria-pressed]="file.persisted" [attr.aria-label]="getFilePersistenceDescription(file)"
                       [ngbTooltip]="getFilePersistenceDescription(file)" placement="bottom" container="body"
                       triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleFilePersistence(file)">
-                      <i [class]="file.persisted ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+                      @if (file.persisted) {
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                      } @else {
+                        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+                      }
                     </button>
                   </span>
                   <button type="button" class="file-popover-remove" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
@@ -160,8 +176,8 @@
         <div class="file-popover-empty">Keine Dateien geladen</div>
       }
       <p class="file-popover-privacy">
-        <i class="fa-solid fa-lock" aria-hidden="true"></i>
-        <span>Umsatzdateien werden standardmäßig nicht gespeichert. Klicke beim Upload auf das Schloss oder aktiviere die Speicherung pro Datei.</span>
+        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+        <span>Umsatzdateien werden standardmäßig nicht dauerhaft gespeichert. Aktiviere beim Upload die verschlüsselte Speicherung oder schalte sie pro Datei ein.</span>
       </p>
     </div>
   </div>

@@ -10,7 +10,7 @@
         <p class="welcome-lead">Finanz Uhu macht aus deinem CSV-Umsatzexport von Sparkasse, ING, N26 oder DKB eine übersichtliche Finanzanalyse: Sieh, wofür du Geld ausgibst, welche Einnahmen eingehen und wie sich deine Finanzen entwickeln.</p>
         <app-file-selector [big]="true"></app-file-selector>
         <ul class="trust-list" aria-label="Datenschutz und Unterstützung">
-          <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Umsätze werden lokal im Browser verarbeitet</li>
+          <li><i class="fa-solid fa-laptop" aria-hidden="true"></i>Umsätze werden lokal im Browser verarbeitet</li>
           <li><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Sparkasse, ING, N26 &amp; DKB</li>
           <li><a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i>Open Source</a></li>
         </ul>
@@ -73,7 +73,7 @@
     </section>
     <section class="welcome-section" aria-labelledby="privacyTitle">
       <h2 id="privacyTitle" class="section-title">Private Finanzanalyse – du entscheidest über die Speicherung</h2>
-      <p>Deine CSV-Datei wird direkt in deinem Browser verarbeitet und nicht auf einen Server hochgeladen. Standardmäßig bleibt sie nur bis zum Neuladen oder Schließen der Seite im Arbeitsspeicher. Über das Schloss neben „Dateien wählen“ kannst du sie auf Wunsch dauerhaft lokal im Browser speichern. Gespeicherte Dateien lassen sich in der Dateiverwaltung einzeln wieder aus dem Browserspeicher entfernen.</p>
+      <p>Deine CSV-Datei wird direkt in deinem Browser verarbeitet und nicht auf einen Server hochgeladen. Standardmäßig bleibt sie nur bis zum Neuladen oder Schließen der Seite im Arbeitsspeicher. Über das Symbol neben „Dateien wählen“ kannst du sie auf Wunsch verschlüsselt in der IndexedDB deines Browsers speichern. Gespeicherte Dateien lassen sich in der Dateiverwaltung einzeln wieder entfernen.</p>
     </section>
     <section class="welcome-section" aria-labelledby="faqTitle">
       <h2 id="faqTitle" class="section-title">Häufige Fragen zur Finanzanalyse</h2>
@@ -88,17 +88,17 @@
       <details class="mb-3">
         <summary class="fw-semibold">Wie sicher ist Finanz Uhu und wie werden meine Daten verarbeitet?</summary>
         <p class="mt-2">Finanz Uhu hat kein Backend und kein Benutzerkonto. Deine CSV-Datei wird ausschließlich in deinem Browser eingelesen, kategorisiert und ausgewertet – es findet keine Übertragung deiner Umsätze an Server, Dritte oder Analyse-Dienste statt.</p>
-        <p class="mb-2">Umsatzdateien werden standardmäßig nicht dauerhaft gespeichert. Wenn du das Schloss-Symbol beim Import oder neben einer Datei aktivierst, wird diese Datei im Local Storage deines Browsers abgelegt und ist beim nächsten Besuch wieder verfügbar. Kategorien und einige Anzeigeeinstellungen können unabhängig davon lokal gespeichert sein. Weitere Details findest du in der <a routerLink="/datenschutz">Datenschutzerklärung</a>.</p>
+        <p class="mb-2">Umsatzdateien werden standardmäßig nicht dauerhaft gespeichert. Wenn du das Symbol beim Import oder neben einer Datei aktivierst, wird der CSV-Inhalt verschlüsselt in IndexedDB abgelegt und beim nächsten Besuch automatisch entschlüsselt. Dateiname und Importzeit bleiben unverschlüsselt. Kategorien und ein manuell gesetzter Kontostand werden ebenfalls in IndexedDB gespeichert, derzeit ohne Verschlüsselung. JavaScript derselben Website kann Daten während der Nutzung lesen; die Verschlüsselung schützt gespeicherte CSV-Inhalte vor direktem Mitlesen. Weitere Details findest du in der <a routerLink="/datenschutz">Datenschutzerklärung</a>.</p>
       </details>
       <details class="mb-3">
         <summary class="fw-semibold">Wie kann ich alle lokal gespeicherten Daten löschen?</summary>
-        <p class="mt-2 mb-0">Entferne einzelne gespeicherte Umsatzdateien direkt in der Dateiverwaltung. Für alle lokalen Daten öffne die <a routerLink="/settings">Einstellungen</a> und wähle unter <strong>Weitere Aktionen</strong> den Punkt <strong>Alle lokalen Daten löschen</strong>. Dadurch werden gespeicherte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung entfernt. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Beim nächsten Besuch musst du Umsatzdateien erneut importieren und eigene Kategorien neu einrichten.</p>
+        <p class="mt-2 mb-0">Entferne einzelne gespeicherte Umsatzdateien direkt in der Dateiverwaltung. Für alle lokalen Daten öffne die <a routerLink="/settings">Einstellungen</a> und wähle unter <strong>Weitere Aktionen</strong> den Punkt <strong>Alle lokalen Daten löschen</strong>. Dadurch werden gespeicherte Umsatzdateien, der Verschlüsselungsschlüssel, eigene Kategorien, der manuelle Kontostand und die gespeicherte Dateiverknüpfung entfernt. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Beim nächsten Besuch musst du Umsatzdateien erneut importieren und eigene Kategorien neu einrichten.</p>
       </details>
       <details class="mb-3">
         <summary class="fw-semibold">Wie kann ich Datenschutz und Sicherheit selbst prüfen?</summary>
         <p class="mt-2">Der gesamte Quellcode ist öffentlich einsehbar. <a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> Überzeug dich selbst auf GitHub</a>.</p>
         <p class="mt-2">Öffne die Entwickler-Tools deines Browsers (meist mit F12 oder per Rechtsklick und „Untersuchen“) und wechsle zum Tab „Netzwerk“ (Network). Während du eine Datei importierst und auswertest, kannst du dort prüfen: Deine Umsatzdaten werden an keinen Server übermittelt.</p>
-        <p class="mb-0">Im Tab „Speicher“ (Application/Storage) findest du unter „Local Storage“ die lokal auf deinem Computer gespeicherten Daten dieser Website. Diese Einträge werden nicht automatisch an den Browseranbieter oder andere Dritte übermittelt. Andere Websites können sie aufgrund der Same-Origin-Regel des Browsers nicht einfach auslesen. Finanz Uhu kann die Einträge auf seiner eigenen Website lesen, und Programme oder Browser-Erweiterungen mit Zugriff auf dein Browserprofil können je nach Berechtigungen ebenfalls Zugriff haben. Dort kannst du die Daten jederzeit ansehen und löschen.</p>
+        <p class="mb-0">Im Tab „Speicher“ (Application/Storage) findest du unter „IndexedDB“ die Datenbank „FinanceAnalyser“. Dort liegen dauerhaft gespeicherte CSV-Dateien als AES-GCM-Chiffretext sowie Kategorien und ein manuell gesetzter Kontostand. Dateinamen, Importzeiten und Kategorien sind nicht verschlüsselt. Andere Websites können die Datenbank aufgrund der Same-Origin-Regel nicht auslesen; JavaScript auf Finanz Uhu kann gespeicherte CSVs entschlüsseln, solange die Anwendung läuft. Du kannst die Datenbank dort löschen oder unter <strong>Weitere Aktionen</strong> in den Einstellungen alle lokalen Daten entfernen.</p>
       </details>
       <details>
         <summary class="fw-semibold">Was zeigt mir Finanz Uhu?</summary>
