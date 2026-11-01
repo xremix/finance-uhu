@@ -75,13 +75,14 @@ export class N26Importer implements Importer {
     }
 
     const transactions: Transaction[] = [];
-    for (const line of lines.slice(header.lineIndex + 1)) {
+    for (let lineIndex = header.lineIndex + 1; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex];
       const columns = this.splitCsvLine(line);
       if (columns.every((column) => column.trim() === '')) {
         continue;
       }
 
-      const transaction = this.parseLine(line, columns, header.columnMap);
+      const transaction = this.parseLine(line, columns, header.columnMap, lineIndex + 1);
       if (transaction) {
         transactions.push(transaction);
       }
@@ -162,7 +163,7 @@ export class N26Importer implements Importer {
     return undefined;
   }
 
-  private parseLine(line: string, columns: string[], map: N26ColumnMap): Transaction | undefined {
+  private parseLine(line: string, columns: string[], map: N26ColumnMap, rowNumber: number): Transaction | undefined {
     const col = (index: number) => (index >= 0 ? columns[index] ?? '' : '');
 
     const bookingDate = this.parseDate(col(map.bookingDate));
@@ -171,7 +172,7 @@ export class N26Importer implements Importer {
     const hasValidValueDate = this.isValidDate(valueDate);
 
     if (!hasValidBookingDate && !hasValidValueDate) {
-      console.warn('Invalid N26 transaction date:', columns);
+      console.warn(`N26 row ${rowNumber}: invalid dates`);
       return undefined;
     }
 
@@ -180,7 +181,7 @@ export class N26Importer implements Importer {
 
     const amount = this.parseAmount(col(map.amount));
     if (Number.isNaN(amount)) {
-      console.warn('Invalid N26 transaction amount:', columns);
+      console.warn(`N26 row ${rowNumber}: invalid amount`);
       return undefined;
     }
 

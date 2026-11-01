@@ -116,10 +116,12 @@ export class DkbImporter implements Importer {
     let current = '';
     let inQuotes = false;
     let recordStart = 0;
+    let lineNumber = 1;
+    let recordStartLine = 1;
 
     const endRecord = (end: number) => {
       columns.push(current.trim());
-      records.push({ columns, raw: text.slice(recordStart, end) });
+      records.push({ columns, raw: text.slice(recordStart, end), lineNumber: recordStartLine });
       columns = [];
       current = '';
     };
@@ -134,6 +136,9 @@ export class DkbImporter implements Importer {
           inQuotes = false;
         } else {
           current += char;
+          if (char === '\n' || (char === '\r' && text[i + 1] !== '\n')) {
+            lineNumber++;
+          }
         }
       } else if (char === '"') {
         inQuotes = true;
@@ -145,7 +150,9 @@ export class DkbImporter implements Importer {
         if (char === '\r' && text[i + 1] === '\n') {
           i++;
         }
+        lineNumber++;
         recordStart = i + 1;
+        recordStartLine = lineNumber;
       } else {
         current += char;
       }
@@ -172,7 +179,7 @@ export class DkbImporter implements Importer {
     const hasValidValueDate = this.isValidDate(valueDate);
 
     if (!hasValidBookingDate && !hasValidValueDate) {
-      console.warn('Invalid DKB transaction date:', columns);
+      console.warn(`DKB row ${record.lineNumber}: invalid dates`);
       return undefined;
     }
 
@@ -181,7 +188,7 @@ export class DkbImporter implements Importer {
 
     const amount = this.parseAmount(col(map.amount));
     if (Number.isNaN(amount)) {
-      console.warn('Invalid DKB transaction amount:', columns);
+      console.warn(`DKB row ${record.lineNumber}: invalid amount`);
       return undefined;
     }
 
@@ -254,6 +261,7 @@ export class DkbImporter implements Importer {
 interface DkbRecord {
   columns: string[];
   raw: string;
+  lineNumber: number;
 }
 
 interface DkbColumnMap {

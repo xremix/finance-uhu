@@ -53,7 +53,6 @@ export class SpkImporter implements Importer {
 
     const dateParts = dateString.trim().split('.');
     if (dateParts.length !== 3) {
-      console.warn(`Invalid date format: "${dateString}". Expected DD.MM.YY`);
       return new Date(NaN);
     }
 
@@ -68,7 +67,6 @@ export class SpkImporter implements Importer {
 
     // Validate date components
     if (day < 1 || day > 31 || month < 1 || month > 12) {
-      console.warn(`Invalid date components: day=${day}, month=${month}, year=${year}`);
       return new Date(NaN);
     }
 
@@ -78,7 +76,6 @@ export class SpkImporter implements Importer {
       parsedDate.getMonth() !== month - 1 ||
       parsedDate.getDate() !== day
     ) {
-      console.warn(`Invalid calendar date: "${dateString}"`);
       return new Date(NaN);
     }
 
@@ -95,7 +92,6 @@ export class SpkImporter implements Importer {
    */
   private parseAmount(amountString: string): number {
     if (!amountString || amountString.trim() === '') {
-      console.warn('Empty amount string');
       return 0;
     }
 
@@ -106,8 +102,7 @@ export class SpkImporter implements Importer {
 
     const amount = parseFloat(cleanAmount);
     if (isNaN(amount)) {
-      console.warn(`Failed to parse amount: "${amountString}"`);
-      return 0;
+      return NaN;
     }
 
     return amount;
@@ -160,9 +155,9 @@ export class SpkImporter implements Importer {
    * Parses a single line into a Transaction object
    * Follows CAMT v2 field mapping and validation rules
    */
-  private parseLine(columns: string[]): Transaction | undefined {
+  private parseLine(columns: string[], rowNumber: number): Transaction | undefined {
     if (!this.isValidCamtv2Line(columns)) {
-      console.warn('Line does not contain required CAMT v2 columns:', columns);
+      console.warn(`Sparkasse row ${rowNumber}: insufficient columns`);
       return undefined;
     }
 
@@ -183,8 +178,14 @@ export class SpkImporter implements Importer {
 
     // Skip rows where both dates are invalid
     if (!hasValidBookingDate && !hasValidValueDate) {
-      console.warn('Transaction has invalid dates, skipping:', cleanCols);
+      console.warn(`Sparkasse row ${rowNumber}: invalid dates`);
       return undefined;
+    }
+
+    let amount = this.parseAmount(cleanCols[this.columnMap.get('AMOUNT')!]);
+    if (Number.isNaN(amount)) {
+      console.warn(`Sparkasse row ${rowNumber}: invalid amount`);
+      amount = 0;
     }
 
     // Ensure no invalid date reaches UI date pipes.
@@ -205,7 +206,7 @@ export class SpkImporter implements Importer {
       purpose: cleanCols[this.columnMap.get('PURPOSE')!],
       balance: 0, // Not provided in CAMT v2 standard CSV export
       balanceCurrency: cleanCols[this.columnMap.get('CURRENCY')!],
-      amount: this.parseAmount(cleanCols[this.columnMap.get('AMOUNT')!]),
+      amount,
       amountCurrency: cleanCols[this.columnMap.get('CURRENCY')!],
       raw: columns.join(';'),
     };
@@ -237,7 +238,7 @@ export class SpkImporter implements Importer {
       }
 
       const columns = line.split(';');
-      const transaction = this.parseLine(columns);
+      const transaction = this.parseLine(columns, i + 1);
 
       if (transaction) {
         transactions.push(transaction);
