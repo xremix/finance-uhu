@@ -31,9 +31,7 @@ export interface DashboardViewState {
 }
 
 const QUERY_KEYS = ['tab'] as const;
-// `q` is accepted only so older URLs can be cleaned up. It is never restored
-// from or written to the URL.
-const FILTER_KEYS = ['from', 'to', 'category', 'type', 'q', 'average', 'flow'] as const;
+const FILTER_KEYS = ['from', 'to', 'category', 'type', 'average', 'flow'] as const;
 const FILTER_FRAGMENT_PREFIX = 'filters:';
 const defaults = (): DashboardViewState => ({
   tab: 'categories', from: undefined, to: undefined,
@@ -56,8 +54,7 @@ export class DashboardStateService implements OnDestroy {
     this.subject = new BehaviorSubject(this.isDashboard(initialUrl)
       ? this.decode(initialUrl.queryParams, initialFilters ?? initialUrl.queryParams)
       : defaults());
-    if (router.navigated && this.isDashboard(initialUrl) &&
-      (this.hasLegacyFilters(initialUrl.queryParams) || this.hasSearchInUrl(initialUrl))) {
+    if (router.navigated && this.isDashboard(initialUrl) && this.hasLegacyFilters(initialUrl.queryParams)) {
       this.scheduleWrite(true);
     }
     this.navigationSubscription = router.events.subscribe((event) => {
@@ -68,7 +65,7 @@ export class DashboardStateService implements OnDestroy {
 
       const filters = this.decodeFilterFragment(url.fragment);
       this.setState({ ...this.decode(url.queryParams, filters ?? url.queryParams), q: this.state.q });
-      if (this.hasLegacyFilters(url.queryParams) || this.hasSearchInUrl(url)) this.scheduleWrite(true);
+      if (this.hasLegacyFilters(url.queryParams)) this.scheduleWrite(true);
     });
   }
 
@@ -179,11 +176,6 @@ export class DashboardStateService implements OnDestroy {
 
   private hasLegacyFilters(params: Params): boolean {
     return FILTER_KEYS.some((key) => params[key] !== undefined);
-  }
-
-  private hasSearchInUrl(url: UrlTree): boolean {
-    if (url.queryParams['q'] !== undefined) return true;
-    return this.decodeFilterFragment(url.fragment)?.['q'] !== undefined;
   }
 
   private validDate(value: unknown): string | undefined {
