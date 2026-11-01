@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UiDialogComponent, UiDialogOptions } from '../ui-dialog/ui-dialog.component';
+import { Category } from '../models/category';
 
 export type NoticeKind = 'success' | 'info' | 'warning' | 'error';
 
@@ -46,11 +47,22 @@ export class UiFeedbackService {
     return await this.open({ ...options, kind: 'confirmation' }) === true;
   }
 
-  async showDetails(title: string, message: string, items: string[] = []): Promise<void> {
-    await this.open({ kind: 'details', title, message, items, acceptLabel: 'Verstanden' });
+  async showDetails(
+    title: string,
+    message: string,
+    items: string[] = [],
+    categoryReason?: { category: string; keywords: string[] },
+    emphasizedItems: { category: string; keyword: string; prefix: string; suffix: string }[] = [],
+  ): Promise<void> {
+    await this.open({ kind: 'details', title, message, items, categoryReason, emphasizedItems, acceptLabel: 'Verstanden' });
   }
 
-  private async open(options: UiDialogOptions, initialValue = ''): Promise<string | boolean | null> {
+  async requestCategoryChange(options: Omit<UiDialogOptions, 'kind' | 'acceptLabel'> & { selectedCategory: Category }): Promise<Category | null> {
+    const result = await this.open({ ...options, kind: 'category', acceptLabel: 'Übernehmen' }, '', options.selectedCategory);
+    return result && typeof result === 'object' ? result as Category : null;
+  }
+
+  private async open(options: UiDialogOptions, initialValue = '', selectedCategory?: Category): Promise<string | boolean | Category | null> {
     const id = `app-dialog-${++this.nextId}`;
     const ref = this.modalService.open(UiDialogComponent, {
       centered: true,
@@ -64,6 +76,7 @@ export class UiFeedbackService {
     component.titleId = id;
     component.messageId = `${id}-message`;
     component.value = initialValue;
+    component.selectedCategory = selectedCategory;
     try {
       return await ref.result;
     } catch {

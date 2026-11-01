@@ -4,6 +4,8 @@ import { RecurringSeries } from '../services/recurring-service';
 import { DataState } from '../services/data-state';
 import { CategoryService } from '../services/category-service';
 import { UiFeedbackService } from '../services/ui-feedback.service';
+import { ImportService } from '../services/import-services/import-service';
+import { Category } from '../models/category';
 
 @Component({
     selector: 'app-transaction-component',
@@ -19,7 +21,8 @@ export class TransactionComponentComponent implements OnInit {
   constructor(
     private dataState: DataState,
     private categoryService: CategoryService,
-    private feedback: UiFeedbackService
+    private feedback: UiFeedbackService,
+    private importService: ImportService,
   ) { }
 
   ngOnInit(): void {
@@ -51,16 +54,62 @@ export class TransactionComponentComponent implements OnInit {
     return this.transaction.amount > 0 ? 'is-income' : 'is-expense';
   }
 
-  async showMatchingKeywords(transaction: Transaction): Promise<void> {
-    const keywords = [...new Set(this.categoryService.flatCategories.flatMap((category) =>
-      this.categoryService.matchingKeywords(category, transaction)
-    ))];
-    await this.feedback.showDetails(
-      'Passende Keywords',
-      keywords.length
-        ? 'Diese Keywords passen zu der Buchung. Welche Kategorie verwendet wird, hängt auch von Ausschlüssen und der Priorität der Regeln ab.'
-        : 'Für diese Buchung wurde kein Keyword gefunden. Sie wurde einer Standardkategorie zugeordnet.',
-      keywords
+  async editTransactionCategory(transaction: Transaction): Promise<void> {
+    const reason = this.categoryService.explainCategory(transaction);
+    const items = reason.isFallback
+      ? ['Keine Kategorie-Regel passte; die Buchung wurde der Standardkategorie zugeordnet.']
+      : [];
+    const exclusions = this.categoryService.flatCategories.flatMap(category =>
+      this.categoryService.matchingExcludeKeywords(category, transaction)
+        .map(keyword => ({
+          category: category.name,
+          keyword,
+          prefix: ' schließt das Keyword ',
+          suffix: ' aus',
+        }))
     );
+    const selectedCategory = await this.feedback.requestCategoryChange({
+      title: 'Warum diese Kategorie?',
+      message: 'Die Zuordnung basiert auf diesen Regeln. Wähle unten eine andere Kategorie, um eine Korrekturregel für diesen Zahlungsempfänger zu speichern.',
+      items,
+      categoryReason: reason.isFallback ? undefined : {
+        category: reason.ruleCategory?.name ?? transaction.category?.name ?? 'Unbekannt',
+        keywords: reason.matchedKeywords,
+      },
+      emphasizedItems: exclusions,
+      categories: this.categories,
+      selectedCategory: transaction.category ?? this.categories[0],
+    });
+    if (selectedCategory && selectedCategory !== transaction.category) {
+      await this.changeCategory(transaction, selectedCategory);
+    }
+  }
+
+  async changeCategory(transaction: Transaction, category: Category): Promise<void> {
+    const keyword = [transaction.payerReceiver, transaction.bookingText, transaction.purpose]
+      .find(value => !!value?.trim() && transaction.raw.toLocaleLowerCase().includes(value.trim().toLocaleLowerCase()))
+      ?.trim();
+    if (!keyword) {
+      transaction.category = category;
+      this.dataState.categoryRulesChanged();
+      this.feedback.notify('Für diese Buchung konnte kein passender Begriff für eine Korrekturregel gefunden werden.', 'warning');
+      return;
+    }
+
+    this.categoryService.addCorrectionKeyword(category, keyword, this.dataState.allTransactions);
+    this.dataState.categoryRulesChanged();
+    try {
+      const saved = await this.importService.saveCategoriesToIndexedDbAndLinkedFile(this.importService.categorisAsJson());
+      this.feedback.notify(
+        saved ? `Korrekturregel ${keyword} → ${category.name} gespeichert.` : `Regel im Browser gespeichert; die verknüpfte Einstellungsdatei konnte nicht aktualisiert werden.`,
+        saved ? 'success' : 'warning',
+      );
+    } catch {
+      this.feedback.notify('Die Korrekturregel wurde angewendet, konnte aber nicht dauerhaft gespeichert werden.', 'warning');
+    }
+  }
+
+  get categories(): Category[] {
+    return this.categoryService.flatCategories;
   }
 }

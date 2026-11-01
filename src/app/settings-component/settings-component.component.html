@@ -208,5 +208,23 @@
         </div>
       </div>
     }
+
+    @if (category.correctionKeywords?.length) {
+      <div class="correction-rules">
+        <div class="keyword-group-header">
+          <span class="filter-label mb-0">Aus Korrekturen gelernt</span>
+          <span class="correction-help">Diese Begriffe werden vor normalen Keywords geprüft.</span>
+        </div>
+        <div class="keyword-list">
+          @for (keyword of category.correctionKeywords; track keyword) {
+            <button type="button" class="keyword-chip is-correction"
+              (click)="removeKeyWord(category.correctionKeywords, keyword)"
+              [attr.aria-label]="'Korrekturregel ' + keyword + ' entfernen'" title="Korrekturregel entfernen">
+              {{ keyword }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      </div>
+    }
   </article>
 </ng-template>

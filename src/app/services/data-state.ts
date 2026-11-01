@@ -122,6 +122,11 @@ export class DataState implements OnDestroy {
     return this.recurringByTransaction.get(transaction);
   }
 
+  categoryRulesChanged(): void {
+    this.detectRecurring();
+    this.refresh();
+  }
+
 
   // event emitter when selected transactions change
   public selectedTransactionsChanged: EventEmitter<Transaction[]> = new EventEmitter();

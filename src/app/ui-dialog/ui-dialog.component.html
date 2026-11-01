@@ -52,12 +52,35 @@
       </fieldset>
     }
 
-    @if (options.items?.length) {
+    @if (options.items?.length || options.categoryReason || options.emphasizedItems?.length) {
       <ul class="dialog-tags" aria-label="Passende Keywords">
+        @if (options.categoryReason; as reason) {
+          <li class="category-reason-tag">
+            Kategorie <strong>{{ reason.category }}</strong>, weil die Keywords
+            @for (keyword of reason.keywords; track keyword; let last = $last) {
+              <strong>{{ keyword }}</strong>@if (!$last) { und }
+            }
+            im Buchungstext vorkommen.
+          </li>
+        }
         @for (item of options.items; track item) {
           <li>{{ item }}</li>
         }
+        @for (item of options.emphasizedItems; track item) {
+          <li><strong>{{ item.category }}</strong>{{ item.prefix }}<strong>{{ item.keyword }}</strong>{{ item.suffix }}</li>
+        }
       </ul>
+    }
+
+    @if (options.kind === 'category') {
+      <div class="category-picker">
+        <label [for]="titleId + '-category'" class="form-label fw-semibold">Kategorie ändern</label>
+        <select class="form-select" [id]="titleId + '-category'" name="selectedCategory" [(ngModel)]="selectedCategory">
+          @for (category of options.categories; track category.name) {
+            <option [ngValue]="category">{{ category.name }}</option>
+          }
+        </select>
+      </div>
     }
   </div>
 

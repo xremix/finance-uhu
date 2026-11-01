@@ -18,7 +18,8 @@
 </div>
 
 <button type="button" class="transaction-category" [class.uncategorized]="transaction.category?.name === 'Sonstiges'"
-  (click)="showMatchingKeywords(transaction)" title="Passende Keywords anzeigen">
+  (click)="editTransactionCategory(transaction)" title="Kategorie und Zuordnung ansehen"
+  [attr.aria-label]="'Kategorie ' + (transaction.category?.name || 'Ohne Kategorie') + ' ansehen oder ändern'">
   {{ transaction.category?.name || 'Ohne Kategorie' }}
 </button>
 

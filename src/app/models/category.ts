@@ -5,6 +5,7 @@ export interface BaseCategory{
     name: string;
     type: 'savings' | 'income' | 'expense';
     keywords: string[];
+    correctionKeywords?: string[];
     excludeKeywords: string[];
     subCategories: BaseCategory[];
     isDefault?: boolean;
@@ -16,6 +17,7 @@ export interface Category extends BaseCategory{
     name: string;
     type: 'savings' | 'income' | 'expense';
     keywords: string[];
+    correctionKeywords: string[];
     excludeKeywords: string[];
     subCategories: Category[];
     total: number;
@@ -29,6 +31,7 @@ export function mapCategoryToBaseCategory(category: Category): BaseCategory{
         name: category.name,
         type: category.type,
         keywords: category.keywords,
+        correctionKeywords: category.correctionKeywords || [],
         excludeKeywords: category.excludeKeywords,
         subCategories: category.subCategories.map(mapCategoryToBaseCategory),
         isDefault: category.isDefault,
@@ -43,6 +46,7 @@ export function mapBaseCategoryToCategory(baseCategory: BaseCategory): Category{
         name: baseCategory.name,
         type: baseCategory.type,
         keywords: baseCategory.keywords,
+        correctionKeywords: baseCategory.correctionKeywords || [],
         excludeKeywords: baseCategory.excludeKeywords,
         subCategories: baseCategory.subCategories.map(mapBaseCategoryToCategory),
         total: 0,

@@ -196,6 +196,17 @@
   border-top: 1px solid var(--app-border);
 }
 
+.correction-rules {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.correction-help {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
 .keyword-group-header {
   display: flex;
   align-items: center;
@@ -249,6 +260,12 @@
     color: #8f3b3f;
     background: #f8e9ea;
   }
+}
+
+.keyword-chip.is-correction {
+  border-color: #c4dbcd;
+  color: #245b41;
+  background: #edf6f0;
 }
 
 .keyword-empty {

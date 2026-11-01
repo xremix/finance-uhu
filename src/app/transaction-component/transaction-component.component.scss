@@ -46,6 +46,8 @@
 }
 
 .transaction-category {
+  max-width: 12rem;
+  cursor: pointer;
   padding: 0.2rem 0.65rem;
   border: 1px solid var(--app-border);
   border-radius: 999px;

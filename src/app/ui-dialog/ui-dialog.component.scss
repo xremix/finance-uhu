@@ -6,6 +6,10 @@
   &:last-child { margin-bottom: 0; }
 }
 
+.category-reason-tag strong {
+  color: var(--app-ink-strong);
+}
+
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -46,6 +50,8 @@
   font-size: 0.85rem;
 }
 
+.category-picker { margin-top: 1rem; }
+
 .dialog-tags {
   display: flex;
   flex-wrap: wrap;
@@ -62,7 +68,13 @@
     color: var(--app-primary);
     background: #edf3f0;
     overflow-wrap: anywhere;
+    font-weight: 400;
   }
+}
+
+.dialog-tags strong {
+  color: var(--app-ink-strong);
+  font-weight: 700;
 }
 
 @media (max-width: 420px) {

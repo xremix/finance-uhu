@@ -2,9 +2,10 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Category } from '../models/category';
 
 export interface UiDialogOptions {
-  kind: 'text' | 'confirmation' | 'details' | 'icon';
+  kind: 'text' | 'confirmation' | 'details' | 'icon' | 'category';
   title: string;
   message?: string;
   acceptLabel: string;
@@ -13,6 +14,9 @@ export interface UiDialogOptions {
   placeholder?: string;
   helpText?: string;
   items?: string[];
+  categoryReason?: { category: string; keywords: string[] };
+  emphasizedItems?: { category: string; keyword: string; prefix: string; suffix: string }[];
+  categories?: Category[];
 }
 
 @Component({
@@ -27,6 +31,7 @@ export class UiDialogComponent {
   titleId = '';
   messageId = '';
   value = '';
+  selectedCategory?: Category;
   submitted = false;
 
   readonly icons = [
@@ -53,6 +58,10 @@ export class UiDialogComponent {
   submit(): void {
     this.submitted = true;
     if (this.options.kind === 'text' && !this.value.trim()) return;
+    if (this.options.kind === 'category') {
+      if (this.selectedCategory) this.modal.close(this.selectedCategory);
+      return;
+    }
     const isInput = this.options.kind === 'text' || this.options.kind === 'icon';
     this.modal.close(isInput ? this.value.trim() : true);
   }
