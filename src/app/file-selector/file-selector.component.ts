@@ -99,7 +99,7 @@ export class FileSelectorComponent {
       console.error('Error loading file:', error);
       this.feedback.notify(
         persistLocally
-          ? 'Die Datei konnte nicht geladen oder im Browserspeicher abgelegt werden. Bitte prüfe das Dateiformat und den verfügbaren Speicherplatz.'
+          ? 'Die Datei konnte nicht geladen oder verschlüsselt im Browserspeicher abgelegt werden. Bitte prüfe das Dateiformat und den verfügbaren Speicherplatz.'
           : 'Die Datei konnte nicht geladen werden. Bitte prüfe das Dateiformat und versuche es erneut.',
         'error'
       );
@@ -128,7 +128,7 @@ export class FileSelectorComponent {
       console.error('Error loading demo data:', error);
       this.feedback.notify(
         persistLocally
-          ? 'Die Beispieldaten konnten nicht geladen oder im Browserspeicher abgelegt werden. Bitte prüfe den verfügbaren Speicherplatz.'
+          ? 'Die Beispieldaten konnten nicht geladen oder verschlüsselt im Browserspeicher abgelegt werden. Bitte prüfe den verfügbaren Speicherplatz.'
           : 'Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.',
         'error'
       );
@@ -162,14 +162,14 @@ export class FileSelectorComponent {
 
   get newFilesPersistenceDescription(): string {
     return this.saveNewFilesLocally
-      ? 'Neue Umsatzdateien werden nach dem Import lokal in deinem Browser gespeichert. Klicke, um sie nur in dieser Sitzung zu verwenden.'
-      : 'Deine Umsätze werden im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um neue Dateien lokal in deinem Browser zu speichern.';
+      ? 'Neue Umsatzdateien werden nach dem Import verschlüsselt in deinem Browser gespeichert. Klicke, um sie nur in dieser Sitzung zu verwenden.'
+      : 'Deine Umsätze werden im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um neue Dateien verschlüsselt im Browser zu speichern.';
   }
 
   getFilePersistenceDescription(file: UmsatzFile): string {
     return file.persisted
-      ? 'Diese Datei ist lokal in deinem Browser gespeichert. Klicke, um die gespeicherte Kopie zu entfernen; in dieser Sitzung bleibt sie verfügbar.'
-      : 'Diese Datei wird im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um sie lokal in deinem Browser zu speichern.';
+      ? 'Diese Datei ist verschlüsselt in deinem Browser gespeichert. Klicke, um die gespeicherte Kopie zu entfernen; in dieser Sitzung bleibt sie verfügbar.'
+      : 'Diese Datei wird im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um sie verschlüsselt im Browser zu speichern.';
   }
 
   async clearFiles(): Promise<void> {

@@ -11,6 +11,7 @@ import { defaultCategories } from 'src/app/default-categories';
 import { BaseCategory, mapBaseCategoryToCategory, mapCategoryToBaseCategory } from 'src/app/models/category';
 import { BalanceAnchor } from 'src/app/models/balance';
 import { BalanceService } from '../balance-service';
+import { CsvEncryptionService, EncryptedCsvContent } from '../csv-encryption.service';
 import {
   APP_DATA_STORE,
   FILE_HANDLES_STORE,
@@ -24,6 +25,19 @@ export interface UmsatzFile {
   uploadedAt: string;
   persisted: boolean;
 }
+
+interface PlaintextCsvRecord {
+  fileName: string;
+  uploadedAt: string;
+  content: string;
+}
+
+interface EncryptedCsvRecord extends EncryptedCsvContent {
+  fileName: string;
+  uploadedAt: string;
+}
+
+type PersistedCsvRecord = PlaintextCsvRecord | EncryptedCsvRecord;
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +63,8 @@ export class ImportService {
     private categoryService: CategoryService,
     private dataState: DataState,
     private balanceService: BalanceService,
-    private storage: IndexedDbStorageService
+    private storage: IndexedDbStorageService,
+    private csvEncryption: CsvEncryptionService
   ) {}
 
   private typeStoredFile(fileName: string, content: string): Omit<UmsatzFile, 'persisted'> {
@@ -293,6 +308,7 @@ export class ImportService {
   public async clearAllLocalData(): Promise<void> {
     await this.balanceService.clearManualBalance();
     await this.storage.deleteDatabase();
+    this.csvEncryption.clearCachedKey();
     this.clearLegacyLocalStorage();
 
     this.activeFiles = [];
@@ -308,18 +324,22 @@ export class ImportService {
 
   private async writePersistedFiles(files: UmsatzFile[]): Promise<void> {
     const persistedFiles = files.filter((file) => file.persisted);
+    const encryptedEntries = await Promise.all(persistedFiles.map(async (file) => ({
+      key: file.fileName,
+      value: {
+        fileName: file.fileName,
+        uploadedAt: file.uploadedAt,
+        ...await this.csvEncryption.encrypt(file.content),
+      } satisfies EncryptedCsvRecord,
+    })));
     await this.storage.replaceAll(
       PERSISTED_FILES_STORE,
-      persistedFiles.map((file) => ({
-        key: file.fileName,
-        value: { fileName: file.fileName, content: file.content, uploadedAt: file.uploadedAt },
-      }))
+      encryptedEntries
     );
   }
 
   public async loadFromIndexedDb(): Promise<void> {
-    this.activeFiles = (await this.storage.getAll<Omit<UmsatzFile, 'persisted'>>(PERSISTED_FILES_STORE))
-      .map((file) => ({ ...file, persisted: true }));
+    this.activeFiles = await this.loadPersistedFiles();
     this.categoriesLastSaved = await this.storage.get<string>(APP_DATA_STORE, 'categoriesLastSaved') ?? null;
     await this.balanceService.loadManualBalanceFromIndexedDb();
 
@@ -337,6 +357,36 @@ export class ImportService {
       await load();
     }
     this.clearLegacyLocalStorage();
+  }
+
+  private async loadPersistedFiles(): Promise<UmsatzFile[]> {
+    const records = await this.storage.getAll<PersistedCsvRecord>(PERSISTED_FILES_STORE);
+    const files: UmsatzFile[] = [];
+    let hasPlaintextRecords = false;
+
+    for (const record of records) {
+      let content: string;
+      if ('content' in record) {
+        content = record.content;
+        hasPlaintextRecords = true;
+      } else if (record.encryptionVersion === 1) {
+        content = await this.csvEncryption.decrypt(record);
+      } else {
+        throw new Error(`Unsupported encrypted CSV format for ${record.fileName}.`);
+      }
+      files.push({
+        fileName: record.fileName,
+        uploadedAt: record.uploadedAt,
+        content,
+        persisted: true,
+      });
+    }
+
+    if (hasPlaintextRecords) {
+      await this.writePersistedFiles(files);
+    }
+
+    return files;
   }
 
   private clearLegacyLocalStorage(): void {

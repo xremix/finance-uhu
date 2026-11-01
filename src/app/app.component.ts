@@ -5,6 +5,7 @@ import { DateService } from './services/date-service';
 import { ImportService } from './services/import-services/import-service';
 import { Router } from '@angular/router';
 import { legalContact } from './legal-contact';
+import { UiFeedbackService } from './services/ui-feedback.service';
 
 @Component({
     selector: 'app-root',
@@ -20,11 +21,20 @@ export class AppComponent implements OnInit {
       private importService: ImportService,
       protected categoryService: CategoryService, 
       protected dateService: DateService,
-      private router: Router) {
+      private router: Router,
+      private feedback: UiFeedbackService) {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.importService.loadFromIndexedDb();
+    try {
+      await this.importService.loadFromIndexedDb();
+    } catch (error) {
+      console.error('Could not load stored browser data:', error);
+      this.feedback.notify(
+        'Gespeicherte Dateien konnten nicht geladen oder entschlüsselt werden. Die gespeicherten Kopien wurden nicht geändert.',
+        'error'
+      );
+    }
   }
 
   get showToolbar(): boolean {

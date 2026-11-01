@@ -4,6 +4,7 @@ export const FINANCE_ANALYSER_DB_NAME = 'FinanceAnalyser';
 export const FILE_HANDLES_STORE = 'fileHandles';
 export const APP_DATA_STORE = 'appData';
 export const PERSISTED_FILES_STORE = 'files';
+export const CRYPTO_KEYS_STORE = 'cryptoKeys';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class IndexedDbStorageService {
     if (this.databasePromise) return this.databasePromise;
 
     this.databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(FINANCE_ANALYSER_DB_NAME, 2);
+      const request = indexedDB.open(FINANCE_ANALYSER_DB_NAME, 3);
 
       request.onupgradeneeded = () => {
         const database = request.result;
@@ -27,6 +28,9 @@ export class IndexedDbStorageService {
         }
         if (!database.objectStoreNames.contains(PERSISTED_FILES_STORE)) {
           database.createObjectStore(PERSISTED_FILES_STORE);
+        }
+        if (!database.objectStoreNames.contains(CRYPTO_KEYS_STORE)) {
+          database.createObjectStore(CRYPTO_KEYS_STORE);
         }
       };
 
