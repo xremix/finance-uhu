@@ -1,7 +1,7 @@
 <article class="legal-page">
   <a routerLink="/" class="small">&larr; Zur Finanzanalyse</a>
   <h1 class="dashboard-title mt-3">Datenschutzerklärung</h1>
-  <p class="text-muted">Stand: 1. Oktober 2026</p>
+  <p class="text-muted">Stand: 1. November 2026</p>
 
   <h2 class="section-title mt-4">1. Verantwortlicher</h2>
   <address *ngIf="contact.name; else deploymentConfigNotice">
@@ -16,13 +16,15 @@
   </ng-template>
 
   <h2 class="section-title mt-4">2. Grundsätzliches zur Verarbeitung</h2>
-  <p>Finanz Uhu verarbeitet hochgeladene Umsatzdateien im Browser auf deinem Gerät. Die Anwendung sendet den Inhalt der CSV-Dateien nicht an mich und verwendet nach aktuellem Stand keine Nutzerkonten, Analyse- oder Werbetracker.</p>
+  <p>Finanz Uhu verarbeitet hochgeladene Umsatzdateien im Browser auf deinem Gerät. Die Anwendung sendet den Inhalt der CSV-Dateien nicht an mich und verwendet nach aktuellem Stand keine Nutzerkonten, Analyse- oder Werbetracker. Umsatzdateien werden standardmäßig nur vorübergehend im Arbeitsspeicher gehalten und nicht dauerhaft im Browser abgelegt.</p>
   <p>Für die Bereitstellung der Website und externer Schrift- und Formatierungsdateien werden jedoch Verbindungen zu den unten genannten Anbietern hergestellt. Dabei können insbesondere IP-Adresse, Zeitpunkt der Anfrage, Browser- und Geräteinformationen sowie angeforderte Dateien verarbeitet werden.</p>
 
   <h2 class="section-title mt-4">3. Umsatzdateien und lokale Speicherung</h2>
-  <p>Wenn du eine CSV-Datei auswählst, wird sie im Browser eingelesen und ausgewertet. Die Anwendung speichert ausgewählte CSV-Dateien und deine Kategorien im lokalen Speicher (Local Storage) des Browsers, damit sie beim nächsten Besuch wieder verfügbar sind. Suchbegriff und Anzeigeeinstellung können ebenfalls lokal gespeichert werden. Diese Daten werden nicht an den Website-Betreiber übertragen.</p>
+  <p>Wenn du eine Umsatzdatei auswählst, wird sie im Browser eingelesen und ausgewertet. Standardmäßig bleibt ihr Inhalt nur im Arbeitsspeicher der geöffneten Seite. Beim Neuladen oder Schließen der Seite geht eine nicht gespeicherte Datei verloren. Die Datei wird dabei nicht in Local Storage oder IndexedDB geschrieben.</p>
+  <p>Mit dem Schloss-Symbol neben „Dateien wählen“ kannst du beim Import ausdrücklich festlegen, dass die ausgewählten Dateien zusätzlich im lokalen Speicher (Local Storage) deines Browsers abgelegt werden. In der Dateiverwaltung kannst du für jede Datei sehen, ob sie dauerhaft gespeichert ist. Dort kannst du die gespeicherte Kopie auch wieder entfernen; die Datei bleibt dann noch bis zum Neuladen oder Schließen der Seite in der aktuellen Sitzung verfügbar. Bereits vor dieser Änderung gespeicherte Umsatzdateien bleiben gespeichert, bis du sie entfernst oder ihre Speicherung ausschaltest.</p>
+  <p>Kategorien, Suchbegriff und Anzeigeeinstellungen können unabhängig von den Umsatzdateien lokal gespeichert werden. Diese Daten werden nicht an den Website-Betreiber übertragen.</p>
   <p>Wenn du in den Einstellungen eine Kategorien-Datei verknüpfst, kann der Browser zusätzlich den dafür erforderlichen Dateiverweis in IndexedDB speichern. Der Zugriff auf die Datei erfolgt nur über die vom Browser bereitgestellte Dateiauswahl und die dort erteilten Berechtigungen.</p>
-  <p>Du kannst gespeicherte Umsatzdateien über die Dateiverwaltung der Anwendung löschen oder entfernen. Kategorien kannst du in den Einstellungen zurücksetzen oder ändern. Zusätzlich kannst du die Website-Daten in den Einstellungen deines Browsers löschen. Das Löschen der Website-Daten entfernt auch lokal gespeicherte Dateien, Einstellungen und Dateiverweise. Eine verknüpfte Datei, die du selbst außerhalb des Browsers gespeichert hast, wird dadurch nicht gelöscht.</p>
+  <p>Du kannst gespeicherte Umsatzdateien einzeln über die Dateiverwaltung der Anwendung aus dem Browserspeicher entfernen. Kategorien kannst du in den Einstellungen zurücksetzen oder ändern. Zusätzlich kannst du die Website-Daten in den Einstellungen deines Browsers löschen. Das Löschen der Website-Daten entfernt auch lokal gespeicherte Dateien, Einstellungen und Dateiverweise. Eine verknüpfte Datei, die du selbst außerhalb des Browsers gespeichert hast, wird dadurch nicht gelöscht.</p>
 
   <h2 class="section-title mt-4">4. Hosting über GitHub Pages</h2>
   <p>Diese Website wird als statische Website über GitHub Pages bereitgestellt. Beim Aufruf der Website werden technisch notwendige Verbindungsdaten an GitHub übermittelt, damit die Website ausgeliefert und der sichere Betrieb gewährleistet werden kann. GitHub kann dabei insbesondere IP-Adresse, Anfragezeitpunkt, Browserinformationen und abgerufene Ressourcen verarbeiten. Auf vollständige Server-Protokolle und deren konkrete Speicherdauer habe ich keinen Einfluss. Weitere Informationen findest du in der <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von GitHub</a>.</p>
@@ -31,7 +33,7 @@
   <p>Die verwendeten Bibliotheken einschließlich Bootstrap und Font Awesome werden zusammen mit der Anwendung über denselben Hosting-Anbieter ausgeliefert. Die Icon-Schriftdateien von Font Awesome werden dabei ebenfalls lokal eingebunden. Es werden keine Schriftarten oder Bibliotheken von Google Fonts, jsDelivr oder Cloudflare-CDNs nachgeladen.</p>
 
   <h2 class="section-title mt-4">6. Cookies und Reichweitenmessung</h2>
-  <p>Finanz Uhu setzt nach aktuellem Stand keine eigenen Cookies und verwendet keine Reichweitenmessung oder personalisierte Werbung. Die Anwendung nutzt Local Storage und gegebenenfalls IndexedDB wie oben beschrieben.</p>
+  <p>Finanz Uhu setzt nach aktuellem Stand keine eigenen Cookies und verwendet keine Reichweitenmessung oder personalisierte Werbung. Die Anwendung nutzt Local Storage für von dir gespeicherte Dateien, Kategorien und Einstellungen sowie gegebenenfalls IndexedDB für die Dateiverknüpfung wie oben beschrieben.</p>
 
   <h2 class="section-title mt-4">7. Rechtsgrundlagen</h2>
   <p>Technische Zugriffsdaten werden verarbeitet, soweit dies für die sichere und zuverlässige Bereitstellung der Website erforderlich ist. Die lokale Verarbeitung von Umsatzdateien wird durch deine Auswahl und Nutzung der Anwendung ausgelöst. Soweit für einzelne Verarbeitungsschritte eine datenschutzrechtliche Rechtsgrundlage erforderlich ist, richtet sich diese nach den Umständen des jeweiligen Vorgangs und den anwendbaren gesetzlichen Vorschriften.</p>

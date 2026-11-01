@@ -1,6 +1,7 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
+import type { UmsatzFile } from '../services/import-services/import-service';
 import { UiFeedbackService } from '../services/ui-feedback.service';
 
 interface FileTimelineEntry {
@@ -24,6 +25,7 @@ export class FileSelectorComponent {
   selectedBank = 'Sparkasse';
   showExportHelp = false;
   isLoadingDemoData = false;
+  saveNewFilesLocally = false;
   private readonly maxFileNameLength = 26;
   private timelineCacheKey: string = '';
   private timelineCache: FileTimelineEntry[] = [];
@@ -72,8 +74,8 @@ export class FileSelectorComponent {
     this.closeExportHelp();
   }
 
-  get storedFiles(): Array<{ fileName: string; content: string; uploadedAt: string }> {
-    return this.importService.getFilesFromLocalStorage();
+  get storedFiles(): UmsatzFile[] {
+    return this.importService.getActiveFiles();
   }
 
   get inputId(): string {
@@ -88,19 +90,27 @@ export class FileSelectorComponent {
       return;
     }
 
+    const persistLocally = this.saveNewFilesLocally;
     try {
-      await this.importService.addOrReplaceFiles(Array.from(files));
+      await this.importService.addOrReplaceFiles(Array.from(files), persistLocally);
     } catch (error) {
       console.error('Error loading file:', error);
-      this.feedback.notify('Die Datei konnte nicht geladen werden. Bitte prüfe das Dateiformat und versuche es erneut.', 'error');
+      this.feedback.notify(
+        persistLocally
+          ? 'Die Datei konnte nicht geladen oder im Browserspeicher abgelegt werden. Bitte prüfe das Dateiformat und den verfügbaren Speicherplatz.'
+          : 'Die Datei konnte nicht geladen werden. Bitte prüfe das Dateiformat und versuche es erneut.',
+        'error'
+      );
     } finally {
       input.value = '';
+      this.saveNewFilesLocally = false;
     }
   }
 
   async loadDemoData(): Promise<void> {
     if (this.isLoadingDemoData) return;
     this.isLoadingDemoData = true;
+    const persistLocally = this.saveNewFilesLocally;
 
     try {
       const demoUrl = new URL('assets/demo.csv', document.baseURI);
@@ -111,12 +121,18 @@ export class FileSelectorComponent {
 
       const csv = await response.text();
       const demoFile = new File([csv], 'Finance-Uhu-Demo.csv', { type: 'text/csv' });
-      await this.importService.addOrReplaceFile(demoFile);
+      await this.importService.addOrReplaceFile(demoFile, persistLocally);
     } catch (error) {
       console.error('Error loading demo data:', error);
-      this.feedback.notify('Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.', 'error');
+      this.feedback.notify(
+        persistLocally
+          ? 'Die Beispieldaten konnten nicht geladen oder im Browserspeicher abgelegt werden. Bitte prüfe den verfügbaren Speicherplatz.'
+          : 'Die Beispieldaten konnten nicht geladen werden. Bitte versuche es später erneut.',
+        'error'
+      );
     } finally {
       this.isLoadingDemoData = false;
+      this.saveNewFilesLocally = false;
     }
   }
 
@@ -129,16 +145,42 @@ export class FileSelectorComponent {
     }
   }
 
+  toggleSaveNewFilesLocally(): void {
+    this.saveNewFilesLocally = !this.saveNewFilesLocally;
+  }
+
+  async toggleFilePersistence(file: UmsatzFile): Promise<void> {
+    try {
+      this.importService.setFilePersisted(file.fileName, !file.persisted);
+    } catch (error) {
+      console.error('Error changing local file storage:', error);
+      this.feedback.notify('Die Speicheroption konnte nicht geändert werden. Bitte prüfe den verfügbaren Browserspeicher.', 'error');
+    }
+  }
+
+  get newFilesPersistenceDescription(): string {
+    return this.saveNewFilesLocally
+      ? 'Neue Umsatzdateien werden nach dem Import lokal in deinem Browser gespeichert. Klicke, um sie nur in dieser Sitzung zu verwenden.'
+      : 'Deine Umsätze werden im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um neue Dateien lokal in deinem Browser zu speichern.';
+  }
+
+  getFilePersistenceDescription(file: UmsatzFile): string {
+    return file.persisted
+      ? 'Diese Datei ist lokal in deinem Browser gespeichert. Klicke, um die gespeicherte Kopie zu entfernen; in dieser Sitzung bleibt sie verfügbar.'
+      : 'Diese Datei wird im Browser verarbeitet und nicht dauerhaft gespeichert. Klicke, um sie lokal in deinem Browser zu speichern.';
+  }
+
   async clearFiles(): Promise<void> {
     const confirmed = await this.feedback.requestConfirmation({
       title: 'Alle Umsatzdateien entfernen?',
-      message: 'Alle im Browser gespeicherten Umsatzdateien werden entfernt. Du kannst sie anschließend erneut importieren. Deine Kategorien bleiben erhalten.',
+      message: 'Alle geladenen Umsatzdateien werden aus dieser Sitzung entfernt. Gespeicherte Kopien werden zusätzlich aus dem Browser gelöscht. Du kannst die Dateien anschließend erneut importieren. Deine Kategorien bleiben erhalten.',
       acceptLabel: 'Alle Dateien entfernen',
       destructive: true,
     });
     if (!confirmed) return;
     try {
       this.importService.clearFiles();
+      this.saveNewFilesLocally = false;
     } catch (error) {
       console.error('Error clearing files:', error);
       this.feedback.notify('Die Dateien konnten nicht entfernt werden. Bitte versuche es erneut.', 'error');
@@ -157,7 +199,7 @@ export class FileSelectorComponent {
     return this.fileTimelines.find((timeline) => timeline.fileName === fileName);
   }
 
-  get sortedStoredFilesForPopup(): Array<{ fileName: string; content: string; uploadedAt: string }> {
+  get sortedStoredFilesForPopup(): UmsatzFile[] {
     const timelinesByFile = new Map(this.fileTimelines.map((timeline) => [timeline.fileName, timeline]));
 
     return [...this.storedFiles].sort((a, b) => {
@@ -187,7 +229,7 @@ export class FileSelectorComponent {
     return this.timelineCache;
   }
 
-  private buildFileTimelines(files: Array<{ fileName: string; content: string; uploadedAt: string }>): FileTimelineEntry[] {
+  private buildFileTimelines(files: UmsatzFile[]): FileTimelineEntry[] {
     const fileRanges = files.map((file) => {
       const transactions = this.importService.parseCsvToTransactions(file.content);
       const dates = transactions

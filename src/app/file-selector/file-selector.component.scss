@@ -7,10 +7,6 @@
   z-index: -1;
 }
 
-.inputfile+label:hover,
-.inputfile+label:focus {
-  cursor: pointer;
-}
 .big {
   .bank-select-toggle {
     border-top-right-radius: 0;
@@ -26,15 +22,17 @@
     border-radius: 0 var(--bs-btn-border-radius) var(--bs-btn-border-radius) 0 !important;
   }
 
-  .inputfile+label {
+  .file-select-button {
     font-size: 1.25em;
     font-weight: 700;
     color: #fff;
     background-color: var(--app-primary);
     padding: 1rem 1.5rem;
     border-radius: 0.75rem;
-    display: inline-block;
-    margin: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0;
     border: 2px solid var(--app-primary);
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -44,11 +42,103 @@
       box-shadow: 0 0.25rem 0.75rem rgba(25, 47, 42, 0.16);
     }
   }
+}
 
-  .inputfile:focus+label,
-  .inputfile+label:hover {
-    background-color: var(--app-primary-hover);
-    border-color: var(--app-primary-hover);
+.file-picker-actions {
+  display: inline-flex;
+  align-items: stretch;
+  margin: 5px;
+}
+
+.big .file-picker-actions {
+  align-items: stretch;
+  gap: 0;
+}
+
+.file-select-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  margin: 0 !important;
+}
+
+.inputfile:focus-visible + .file-picker-actions .file-select-button {
+  outline: 3px solid var(--app-primary);
+  outline-offset: 3px;
+}
+
+.new-file-retention-control {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.big .new-file-retention-control {
+  align-items: stretch;
+}
+
+.big .new-file-retention-control .retention-toggle {
+  width: 3.25rem;
+  height: 100%;
+  padding: 0 0.9rem;
+  border: 2px solid var(--app-primary);
+  border-right-width: 1px;
+  border-radius: 0.75rem 0 0 0.75rem;
+  background: var(--app-primary);
+  color: #fff;
+  font-size: 1.1rem;
+  box-shadow: 0 0.15rem 0.35rem rgba(25, 47, 42, 0.12);
+}
+
+.big .new-file-retention-control .retention-toggle:hover,
+.big .new-file-retention-control .retention-toggle:focus-visible {
+  background: var(--app-primary-hover);
+  border-color: var(--app-primary-hover);
+  box-shadow: 0 0.25rem 0.75rem rgba(25, 47, 42, 0.2);
+}
+
+.big .file-select-button:hover,
+.big .file-select-button:focus-visible {
+  background-color: var(--app-primary-hover);
+  border-color: var(--app-primary-hover);
+}
+
+.big .file-select-button {
+  border-radius: 0 0.75rem 0.75rem 0 !important;
+}
+
+.retention-control {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.retention-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #66747e;
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--app-primary);
+    background: var(--app-surface-muted);
+    border-color: var(--app-border);
+    outline: none;
+  }
+
+  &.is-persistent {
+    color: var(--app-primary);
   }
 }
 
@@ -88,7 +178,7 @@
 .file-item {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: #ffffff;
   border: 1px solid #d5d9dd;
   border-radius: 999px;
@@ -100,6 +190,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.file-retention-control {
+  margin-left: auto;
 }
 
 .file-remove-btn {
@@ -220,8 +314,39 @@
 
 .file-popover-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+}
+
+.file-popover-upload-group {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+}
+
+.file-popover-upload-group .file-popover-btn {
+  flex: 1 1 auto;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.file-popover-upload-group .retention-toggle {
+  width: 34px;
+  height: 100%;
+  min-height: 34px;
+  border: 1px solid #d6dde3;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  color: #596b65;
+  background: #f8faf9;
+}
+
+.file-popover-upload-group .retention-toggle:hover,
+.file-popover-upload-group .retention-toggle:focus-visible {
+  color: var(--app-primary);
+  background: #eaf1ee;
+  border-color: #b9cbc4;
 }
 
 .file-popover-btn {
@@ -276,7 +401,7 @@
 .file-popover-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 
@@ -287,6 +412,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.file-popover-head .file-popover-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.file-popover-head .file-retention-control {
+  margin-left: 0;
 }
 
 .file-popover-remove {
@@ -358,5 +492,9 @@
 @media (max-width: 575px) {
   .small .top-nav-btn span {
     display: none;
+  }
+
+  .file-popover-menu {
+    min-width: 270px;
   }
 }

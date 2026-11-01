@@ -11,6 +11,14 @@ import { defaultCategories } from 'src/app/default-categories';
 import { BaseCategory, mapBaseCategoryToCategory, mapCategoryToBaseCategory } from 'src/app/models/category';
 import { BalanceAnchor } from 'src/app/models/balance';
 import { BalanceService } from '../balance-service';
+
+export interface UmsatzFile {
+  fileName: string;
+  content: string;
+  uploadedAt: string;
+  persisted: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +29,8 @@ export class ImportService {
   private readonly categoriesFileStoreName = 'fileHandles';
   private readonly categoriesFileHandleKey = 'categoriesFileHandle';
   private readonly filesStorageKey = 'files';
+  private activeFiles: UmsatzFile[] = [];
+  private activeFilesInitialized = false;
   private readonly localStorageKeys = [
     'categories',
     'categoriesLastSaved',
@@ -32,7 +42,7 @@ export class ImportService {
     'showAverage',
   ];
 
-  private typeStoredFile(fileName: string, content: string) {
+  private typeStoredFile(fileName: string, content: string): Omit<UmsatzFile, 'persisted'> {
     return {
       fileName,
       content,
@@ -73,10 +83,10 @@ export class ImportService {
     return undefined;
   }
 
-  public loadFilesFromLocalStorage() {
+  public loadActiveFiles() {
     this.dataState.resetState();
 
-    const storedFiles = this.getFilesFromLocalStorage();
+    const storedFiles = this.getActiveFiles();
     if (storedFiles.length === 0) {
       return;
     }
@@ -184,32 +194,63 @@ export class ImportService {
     return value.toFixed(2);
   }
 
-  public async addOrReplaceFile(file: File): Promise<void> {
-    await this.addOrReplaceFiles([file]);
+  public async addOrReplaceFile(file: File, persistLocally = false): Promise<void> {
+    await this.addOrReplaceFiles([file], persistLocally);
   }
 
-  public async addOrReplaceFiles(files: File[]): Promise<void> {
+  public async addOrReplaceFiles(files: File[], persistLocally = false): Promise<void> {
     if (files.length === 0) {
       return;
     }
 
     const message = files.length === 1 ? `${files[0].name} wird geladen…` : `${files.length} Dateien werden geladen…`;
     await this.runWithLoading(message, async () => {
+      const nextFiles = [...this.getActiveFiles()];
+      let shouldWritePersistedFiles = persistLocally;
       for (const file of files) {
         const fileContent = await this.getFileContent(file);
-        this.upsertStoredFile(file.name, fileContent);
+        const existingIndex = nextFiles.findIndex((storedFile) => storedFile.fileName === file.name);
+        const existingFile = existingIndex >= 0 ? nextFiles[existingIndex] : undefined;
+        shouldWritePersistedFiles ||= existingFile?.persisted === true;
+        const fileData = {
+          ...this.typeStoredFile(file.name, fileContent),
+          persisted: persistLocally || existingFile?.persisted === true,
+        };
+
+        if (existingIndex >= 0) {
+          nextFiles[existingIndex] = fileData;
+        } else {
+          nextFiles.push(fileData);
+        }
       }
+      if (shouldWritePersistedFiles) {
+        this.writePersistedFiles(nextFiles);
+      }
+      this.activeFiles = nextFiles;
       this.balanceService.clearManualBalance();
-      this.loadFilesFromLocalStorage();
+      this.loadActiveFiles();
     });
+  }
+
+  public setFilePersisted(fileName: string, persisted: boolean): void {
+    const currentFiles = this.getActiveFiles();
+    const file = currentFiles.find((item) => item.fileName === fileName);
+    if (!file || file.persisted === persisted) return;
+
+    const nextFiles = currentFiles.map((item) =>
+      item.fileName === fileName ? { ...item, persisted } : item
+    );
+    this.writePersistedFiles(nextFiles);
+    this.activeFiles = nextFiles;
   }
 
   public async removeFile(fileName: string): Promise<void> {
     await this.runWithLoading('Daten werden aktualisiert…', async () => {
-      const files = this.getFilesFromLocalStorage().filter((file) => file.fileName !== fileName);
-      localStorage.setItem(this.filesStorageKey, JSON.stringify(files));
+      const files = this.getActiveFiles().filter((file) => file.fileName !== fileName);
+      this.writePersistedFiles(files);
+      this.activeFiles = files;
       this.balanceService.clearManualBalance();
-      this.loadFilesFromLocalStorage();
+      this.loadActiveFiles();
     });
   }
 
@@ -234,6 +275,10 @@ export class ImportService {
 
   public clearFiles(): void {
     localStorage.removeItem(this.filesStorageKey);
+    localStorage.removeItem('fileContent');
+    localStorage.removeItem('additionalFiles');
+    this.activeFiles = [];
+    this.activeFilesInitialized = true;
     this.balanceService.clearManualBalance();
     this.dataState.resetState();
   }
@@ -245,6 +290,8 @@ export class ImportService {
       localStorage.removeItem(key);
     }
 
+    this.activeFiles = [];
+    this.activeFilesInitialized = true;
     this.balanceService.clearManualBalance();
     this.dataState.resetState();
     this.dataState.categories = defaultCategories.map(mapBaseCategoryToCategory);
@@ -256,23 +303,27 @@ export class ImportService {
     }
   }
 
-  private upsertStoredFile(fileName: string, fileContent: string): void {
-    const files = this.getFilesFromLocalStorage();
-    const fileData = this.typeStoredFile(fileName, fileContent);
-
-    const existingIndex = files.findIndex((f) => f.fileName === fileName);
-    if (existingIndex >= 0) {
-      files[existingIndex] = fileData;
-    } else {
-      files.push(fileData);
-    }
-
-    localStorage.setItem(this.filesStorageKey, JSON.stringify(files));
+  public getFilesFromLocalStorage(): UmsatzFile[] {
+    const stored = localStorage.getItem(this.filesStorageKey);
+    const files: Array<Omit<UmsatzFile, 'persisted'> & { persisted?: boolean }> = stored ? JSON.parse(stored) : [];
+    return files.map((file) => ({ ...file, persisted: true }));
   }
 
-  public getFilesFromLocalStorage(): Array<{ fileName: string; content: string; uploadedAt: string }> {
-    const stored = localStorage.getItem(this.filesStorageKey);
-    return stored ? JSON.parse(stored) : [];
+  public getActiveFiles(): UmsatzFile[] {
+    if (!this.activeFilesInitialized) {
+      this.activeFiles = this.getFilesFromLocalStorage();
+      this.activeFilesInitialized = true;
+    }
+    return this.activeFiles;
+  }
+
+  private writePersistedFiles(files: UmsatzFile[]): void {
+    const persistedFiles = files.filter((file) => file.persisted);
+    if (persistedFiles.length === 0) {
+      localStorage.removeItem(this.filesStorageKey);
+      return;
+    }
+    localStorage.setItem(this.filesStorageKey, JSON.stringify(persistedFiles));
   }
 
   constructor(private categoryService: CategoryService, private dataState: DataState, private balanceService: BalanceService) {}
@@ -280,12 +331,15 @@ export class ImportService {
 
   public async loadFromLocalStorage(){
     const load = async () => {
+      this.migrateLegacyFilesToUnifiedFiles();
+      this.activeFiles = this.getFilesFromLocalStorage();
+      this.activeFilesInitialized = true;
+
       const loadedFromFile = await this.loadCategoriesFromLinkedFile();
       if (!loadedFromFile) {
         this.loadCategoriesFromLocalStorage();
       }
-      this.migrateLegacyFilesToUnifiedFiles();
-      this.loadFilesFromLocalStorage();
+      this.loadActiveFiles();
     };
 
     const hasStoredFiles = this.getFilesFromLocalStorage().length > 0 || !!localStorage.getItem('fileContent');
