@@ -31,6 +31,8 @@ export interface DashboardViewState {
 }
 
 const QUERY_KEYS = ['tab'] as const;
+// `q` is accepted only so older URLs can be cleaned up. It is never restored
+// from or written to the URL.
 const FILTER_KEYS = ['from', 'to', 'category', 'type', 'q', 'average', 'flow'] as const;
 const FILTER_FRAGMENT_PREFIX = 'filters:';
 const defaults = (): DashboardViewState => ({
@@ -54,7 +56,8 @@ export class DashboardStateService implements OnDestroy {
     this.subject = new BehaviorSubject(this.isDashboard(initialUrl)
       ? this.decode(initialUrl.queryParams, initialFilters ?? initialUrl.queryParams)
       : defaults());
-    if (router.navigated && this.isDashboard(initialUrl) && this.hasLegacyFilters(initialUrl.queryParams)) {
+    if (router.navigated && this.isDashboard(initialUrl) &&
+      (this.hasLegacyFilters(initialUrl.queryParams) || this.hasSearchInUrl(initialUrl))) {
       this.scheduleWrite(true);
     }
     this.navigationSubscription = router.events.subscribe((event) => {
@@ -64,8 +67,8 @@ export class DashboardStateService implements OnDestroy {
       if (!this.isDashboard(url)) return;
 
       const filters = this.decodeFilterFragment(url.fragment);
-      this.setState(this.decode(url.queryParams, filters ?? url.queryParams));
-      if (this.hasLegacyFilters(url.queryParams)) this.scheduleWrite(true);
+      this.setState({ ...this.decode(url.queryParams, filters ?? url.queryParams), q: this.state.q });
+      if (this.hasLegacyFilters(url.queryParams) || this.hasSearchInUrl(url)) this.scheduleWrite(true);
     });
   }
 
@@ -137,7 +140,6 @@ export class DashboardStateService implements OnDestroy {
     state.category = (Array.isArray(filters['category']) ? filters['category'] : [filters['category']])
       .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0);
     if (filters['type'] === 'income' || filters['type'] === 'expense') state.type = filters['type'];
-    if (typeof filters['q'] === 'string') state.q = filters['q'];
     state.average = filters['average'] === '1';
     if (filters['flow'] === 'income') state.flow = 'income';
     return state;
@@ -155,7 +157,6 @@ export class DashboardStateService implements OnDestroy {
     if (state.to) params.set('to', state.to);
     state.category.forEach((category) => params.append('category', category));
     if (state.type !== 'all') params.set('type', state.type);
-    if (state.q) params.set('q', state.q);
     if (state.average) params.set('average', '1');
     if (state.flow !== 'expense') params.set('flow', state.flow);
     const encoded = params.toString();
@@ -178,6 +179,11 @@ export class DashboardStateService implements OnDestroy {
 
   private hasLegacyFilters(params: Params): boolean {
     return FILTER_KEYS.some((key) => params[key] !== undefined);
+  }
+
+  private hasSearchInUrl(url: UrlTree): boolean {
+    if (url.queryParams['q'] !== undefined) return true;
+    return this.decodeFilterFragment(url.fragment)?.['q'] !== undefined;
   }
 
   private validDate(value: unknown): string | undefined {
