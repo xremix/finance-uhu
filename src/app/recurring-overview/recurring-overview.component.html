@@ -69,7 +69,7 @@
     </div>
   }
 
-  @for (group of groups; track group) {
+  @for (group of groups; track group.kind) {
     <section class="series-group" [attr.aria-label]="group.title">
       <header class="group-header">
         <h3 class="group-title"><i [class]="group.icon" aria-hidden="true"></i>{{ group.title }}</h3>
@@ -115,7 +115,7 @@
                 </span>
               </span>
               <span class="series-history" aria-hidden="true">
-                @for (bar of history(series); track bar) {
+                @for (bar of history(series); track $index) {
                   <span class="bar" [style.height.%]="bar.height" [title]="barLabel(bar)"
                   [class.is-income]="bar.amount > 0" [class.is-empty]="bar.empty"></span>
                 }

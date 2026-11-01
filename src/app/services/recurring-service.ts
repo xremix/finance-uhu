@@ -205,8 +205,9 @@ export class RecurringService {
     const priceSteps = this.findPriceSteps(amounts);
     const isFixed = priceSteps !== undefined;
 
-    // Frequent, strongly varying payments are usually everyday shopping rather than contracts.
-    if (!isFixed && (variation > 0.5 || frequency.days < 20)) {
+    // Frequent payments are not recurring when their amounts vary strongly,
+    // but a stable weekly or biweekly pattern may still have variable amounts.
+    if (!isFixed && variation > 0.7 && frequency.days < 20) {
       return undefined;
     }
     // Two bookings are only convincing if the amount matches exactly.
