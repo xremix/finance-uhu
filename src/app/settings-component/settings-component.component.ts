@@ -4,6 +4,7 @@ import { ImportService } from '../services/import-services/import-service';
 import { defaultCategories } from '../default-categories';
 import { BaseCategory, Category, mapBaseCategoryToCategory } from '../models/category';
 import { UiFeedbackService } from '../services/ui-feedback.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-settings-component',
@@ -27,7 +28,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   public isSaving = false;
   private initialCategoriesSnapshot: string = '';
   
-  constructor(protected dataState: DataState, private importService: ImportService, private feedback: UiFeedbackService) {}
+  constructor(protected dataState: DataState, private importService: ImportService, private feedback: UiFeedbackService, private router: Router) {}
 
   ngOnInit(): void {
     this.supportsFileSync = this.importService.supportsCategoriesFileSync();
@@ -271,7 +272,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
     try {
       await this.importService.clearAllLocalData();
       this.hasUnsavedChanges = false;
-      window.location.reload();
+      await this.router.navigateByUrl('/', { replaceUrl: true });
     } catch (error) {
       console.error('Could not clear all local app data:', error);
       this.feedback.notify('Die lokalen Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.', 'error');

@@ -3,11 +3,13 @@ import { mapBaseCategoryToCategory } from '../models/category';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
 import { UiFeedbackService } from '../services/ui-feedback.service';
+import { Router } from '@angular/router';
 
 describe('Settings dialog actions', () => {
   let state: DataState;
   let importer: jasmine.SpyObj<ImportService>;
   let feedback: jasmine.SpyObj<UiFeedbackService>;
+  let router: jasmine.SpyObj<Router>;
   let component: SettingsComponentComponent;
 
   const category = () => mapBaseCategoryToCategory({
@@ -22,7 +24,8 @@ describe('Settings dialog actions', () => {
     feedback.requestText.and.resolveTo(null);
     feedback.requestIcon.and.resolveTo(null);
     feedback.requestConfirmation.and.resolveTo(false);
-    component = new SettingsComponentComponent(state, importer, feedback);
+    router = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
+    component = new SettingsComponentComponent(state, importer, feedback, router);
   });
 
   it('does not change names, icons, keywords or categories when dialogs are cancelled', async () => {
