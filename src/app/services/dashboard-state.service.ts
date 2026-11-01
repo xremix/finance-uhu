@@ -30,7 +30,9 @@ export interface DashboardViewState {
   flow: 'expense' | 'income';
 }
 
-const QUERY_KEYS = ['tab', 'from', 'to', 'category', 'type', 'q', 'average', 'flow'] as const;
+const QUERY_KEYS = ['tab'] as const;
+const FILTER_KEYS = ['from', 'to', 'category', 'type', 'q', 'average', 'flow'] as const;
+const FILTER_FRAGMENT_PREFIX = 'filters:';
 const defaults = (): DashboardViewState => ({
   tab: 'categories', from: undefined, to: undefined,
   category: [], type: 'all', q: '', average: false, flow: 'expense',
@@ -48,12 +50,22 @@ export class DashboardStateService implements OnDestroy {
 
   constructor(private router: Router, location: Location) {
     const initialUrl = router.parseUrl(location.path(true) || '/');
-    this.subject = new BehaviorSubject(this.isDashboard(initialUrl) ? this.decode(initialUrl.queryParams) : defaults());
+    const initialFilters = this.decodeFilterFragment(initialUrl.fragment);
+    this.subject = new BehaviorSubject(this.isDashboard(initialUrl)
+      ? this.decode(initialUrl.queryParams, initialFilters ?? initialUrl.queryParams)
+      : defaults());
+    if (router.navigated && this.isDashboard(initialUrl) && this.hasLegacyFilters(initialUrl.queryParams)) {
+      this.scheduleWrite(true);
+    }
     this.navigationSubscription = router.events.subscribe((event) => {
       if (!(event instanceof NavigationEnd)) return;
       if (this.ownNavigations.delete(event.urlAfterRedirects)) return;
       const url = router.parseUrl(event.urlAfterRedirects);
-      if (this.isDashboard(url)) this.setState(this.decode(url.queryParams));
+      if (!this.isDashboard(url)) return;
+
+      const filters = this.decodeFilterFragment(url.fragment);
+      this.setState(this.decode(url.queryParams, filters ?? url.queryParams));
+      if (this.hasLegacyFilters(url.queryParams)) this.scheduleWrite(true);
     });
   }
 
@@ -72,6 +84,10 @@ export class DashboardStateService implements OnDestroy {
   update(patch: Partial<DashboardViewState>, replaceUrl = true): void {
     if (!this.setState({ ...this.state, ...patch })) return;
     // Batch compound actions and replace filter edits rather than recording every keystroke.
+    this.scheduleWrite(replaceUrl);
+  }
+
+  private scheduleWrite(replaceUrl: boolean): void {
     this.replaceUrl = this.replaceUrl && replaceUrl;
     if (this.writeScheduled) return;
     this.writeScheduled = true;
@@ -96,8 +112,9 @@ export class DashboardStateService implements OnDestroy {
     const url = this.router.parseUrl(this.router.url);
     if (!this.isDashboard(url)) return;
     const params = { ...url.queryParams };
-    QUERY_KEYS.forEach((key) => delete params[key]);
-    url.queryParams = { ...params, ...this.encode(this.state) };
+    [...QUERY_KEYS, ...FILTER_KEYS].forEach((key) => delete params[key]);
+    url.queryParams = { ...params, ...this.encodeTab(this.state) };
+    url.fragment = this.encodeFilterFragment(this.state);
     const target = this.router.serializeUrl(url);
     if (target === this.router.url) return;
     this.ownNavigations.add(target);
@@ -108,35 +125,59 @@ export class DashboardStateService implements OnDestroy {
     return !url.root.children[PRIMARY_OUTLET]?.segments.length;
   }
 
-  private decode(params: Params): DashboardViewState {
+  private decode(params: Params, filters: Params): DashboardViewState {
     const state = defaults();
     if (DASHBOARD_TABS.some((tab) => tab.id === params['tab'])) state.tab = params['tab'];
-    state.from = this.validDate(params['from']);
-    state.to = this.validDate(params['to']);
+    state.from = this.validDate(filters['from']);
+    state.to = this.validDate(filters['to']);
     if (state.from && state.to && state.from > state.to) {
       state.from = undefined;
       state.to = undefined;
     }
-    state.category = (Array.isArray(params['category']) ? params['category'] : [params['category']])
+    state.category = (Array.isArray(filters['category']) ? filters['category'] : [filters['category']])
       .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0);
-    if (params['type'] === 'income' || params['type'] === 'expense') state.type = params['type'];
-    if (typeof params['q'] === 'string') state.q = params['q'];
-    state.average = params['average'] === '1';
-    if (params['flow'] === 'income') state.flow = 'income';
+    if (filters['type'] === 'income' || filters['type'] === 'expense') state.type = filters['type'];
+    if (typeof filters['q'] === 'string') state.q = filters['q'];
+    state.average = filters['average'] === '1';
+    if (filters['flow'] === 'income') state.flow = 'income';
     return state;
   }
 
-  private encode(state: Readonly<DashboardViewState>): Params {
+  private encodeTab(state: Readonly<DashboardViewState>): Params {
     const params: Params = {};
     if (state.tab !== 'categories') params['tab'] = state.tab;
-    if (state.from) params['from'] = state.from;
-    if (state.to) params['to'] = state.to;
-    if (state.category.length) params['category'] = [...state.category];
-    if (state.type !== 'all') params['type'] = state.type;
-    if (state.q) params['q'] = state.q;
-    if (state.average) params['average'] = '1';
-    if (state.flow !== 'expense') params['flow'] = state.flow;
     return params;
+  }
+
+  private encodeFilterFragment(state: Readonly<DashboardViewState>): string | null {
+    const params = new URLSearchParams();
+    if (state.from) params.set('from', state.from);
+    if (state.to) params.set('to', state.to);
+    state.category.forEach((category) => params.append('category', category));
+    if (state.type !== 'all') params.set('type', state.type);
+    if (state.q) params.set('q', state.q);
+    if (state.average) params.set('average', '1');
+    if (state.flow !== 'expense') params.set('flow', state.flow);
+    const encoded = params.toString();
+    return encoded ? `${FILTER_FRAGMENT_PREFIX}${encoded}` : null;
+  }
+
+  private decodeFilterFragment(fragment: string | null): Params | undefined {
+    if (fragment === null || !fragment.startsWith(FILTER_FRAGMENT_PREFIX)) return undefined;
+    const params: Params = {};
+    new URLSearchParams(fragment.slice(FILTER_FRAGMENT_PREFIX.length)).forEach((value, key) => {
+      if (!FILTER_KEYS.includes(key as typeof FILTER_KEYS[number])) return;
+      if (key === 'category') {
+        params[key] = [...(params[key] ?? []), value];
+      } else {
+        params[key] = value;
+      }
+    });
+    return params;
+  }
+
+  private hasLegacyFilters(params: Params): boolean {
+    return FILTER_KEYS.some((key) => params[key] !== undefined);
   }
 
   private validDate(value: unknown): string | undefined {
