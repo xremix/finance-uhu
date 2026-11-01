@@ -2,8 +2,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataState } from '../services/data-state';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { EMPTY, Subject, Subscription, timer } from 'rxjs';
+import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { DashboardStateService } from '../services/dashboard-state.service';
 
 @Component({
@@ -19,8 +19,10 @@ export class GlobalSearchComponent implements OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(public dataState: DataState, viewState: DashboardStateService) {
-    this.subscriptions.add(this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
-      if (searchTerm !== null) this.dataState.filterBySearchTerm(searchTerm);
+    this.subscriptions.add(this.searchSubject.pipe(
+      switchMap(term => term === null ? EMPTY : timer(300).pipe(map(() => term)))
+    ).subscribe(searchTerm => {
+      this.dataState.filterBySearchTerm(searchTerm);
     }));
     this.subscriptions.add(viewState.state$.pipe(
       distinctUntilChanged((previous, current) => previous.q === current.q)

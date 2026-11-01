@@ -5,6 +5,7 @@ import { BalanceService } from '../services/balance-service';
 import { CategoryService } from '../services/category-service';
 import { DataState } from '../services/data-state';
 import { DateService } from '../services/date-service';
+import { DashboardStateService } from '../services/dashboard-state.service';
 
 describe('HomeComponentComponent negative daily balances', () => {
   let state: DataState;
@@ -26,6 +27,7 @@ describe('HomeComponentComponent negative daily balances', () => {
       fileBalanceAnchor: { date: date(12), amount: 50, source: 'file' },
       currentFilter: { from: date(1), to: date(31), type: 'all', searchTerm: '' },
       showAverage: false,
+      hasLoadedData: true,
     } as unknown as DataState;
     balanceService = new BalanceService(state);
     component = new HomeComponentComponent(
@@ -34,6 +36,10 @@ describe('HomeComponentComponent negative daily balances', () => {
       {} as DateService,
       {} as ChangeDetectorRef,
       balanceService,
+      {
+        activeTab: 'Kategorien',
+        selectTab(this: { activeTab: string }, label: string) { this.activeTab = label; },
+      } as unknown as DashboardStateService,
     );
   });
 

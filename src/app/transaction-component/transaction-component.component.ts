@@ -36,10 +36,16 @@ export class TransactionComponentComponent implements OnInit {
     return new Date(date).toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
   }
 
+  get isBalanced(): boolean {
+    return !!(this.transaction.balancedByDescription || this.transaction.balancedOfDescription);
+  }
+
+  get displayAmount(): number {
+    return this.isBalanced ? Math.abs(this.transaction.amount) : this.transaction.amount;
+  }
+
   get amountClass(): string {
-    if (this.transaction.balancedByDescription || this.transaction.balancedOfDescription) {
-      return 'is-balanced';
-    }
+    if (this.isBalanced) return 'is-balanced';
     return this.transaction.amount > 0 ? 'is-income' : 'is-expense';
   }
 

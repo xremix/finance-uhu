@@ -348,8 +348,8 @@ export class DataState implements OnDestroy {
   filterByDateFilter(dateFilter: DateFilter) {
     // Check if the selected month is already the current filter
     if (
-      this.currentFilter.from.getTime() === dateFilter.from.getTime() &&
-      this.currentFilter.to.getTime() === dateFilter.to.getTime()
+      formatDateParameter(this.currentFilter.from) === formatDateParameter(dateFilter.from) &&
+      formatDateParameter(this.currentFilter.to) === formatDateParameter(dateFilter.to)
     ) {
       // Reset the filter if the same month is selected again
       this.resetMonth();

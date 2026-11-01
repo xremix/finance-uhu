@@ -6,7 +6,7 @@ import { Transaction } from '../models/transaction';
 import { Category } from '../models/category';
 import { DailyBalance } from '../models/balance';
 import { BalanceService } from '../services/balance-service';
-import { DASHBOARD_TABS, DashboardStateService } from '../services/dashboard-state.service';
+import { DASHBOARD_TABS, DashboardStateService, formatDateParameter } from '../services/dashboard-state.service';
 
 interface NegativeBalanceMonth {
   month: Date;
@@ -160,8 +160,8 @@ export class HomeComponentComponent implements DoCheck {
     }
 
     return (
-      this.dataState.currentFilter.from.getTime() === date.from.getTime() &&
-      this.dataState.currentFilter.to.getTime() === date.to.getTime()
+      formatDateParameter(this.dataState.currentFilter.from) === formatDateParameter(date.from) &&
+      formatDateParameter(this.dataState.currentFilter.to) === formatDateParameter(date.to)
     );
   }
 

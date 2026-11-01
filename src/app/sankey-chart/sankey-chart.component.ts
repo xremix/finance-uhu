@@ -5,6 +5,7 @@ import { EChartsOption } from 'echarts';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
 import { SankeyDataService } from '../services/sankey-data.service';
+import { chartColors, chartFontFamily } from '../chart-theme';
 
 @Component({
   selector: 'app-sankey-chart',
@@ -53,13 +54,24 @@ export class SankeyChartComponent implements OnInit, OnChanges {
       return;
     }
 
-    // Farbpalette für das Chart
-    const colors = [
-      '#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de',
-      '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#48b8d0',
-      '#ff9f7f', '#87cefa', '#da70d6', '#32cd32', '#6495ed',
-      '#ff69b4', '#ba55d3', '#cd5c5c', '#ffa500', '#40e0d0'
-    ];
+    const rootName = this.type === 'expense' ? 'Gesamtausgaben' : 'Gesamteinnahmen';
+    const sourceByTarget = new Map(sankeyData.links.map(link => [link.target, link.source]));
+    const nodeColors = new Map<string, string>();
+    let categoryColorIndex = 0;
+
+    const getNodeColor = (name: string): string => {
+      if (name === rootName) {
+        return chartColors.text;
+      }
+
+      const source = sourceByTarget.get(name);
+      const color = source === rootName
+        ? chartColors.categories[categoryColorIndex++ % chartColors.categories.length]
+        : nodeColors.get(source ?? '') ?? chartColors.categories[0];
+
+      nodeColors.set(name, color);
+      return color;
+    };
 
     this.chartOptions = {
       tooltip: {
@@ -82,10 +94,10 @@ export class SankeyChartComponent implements OnInit, OnChanges {
           nodeAlign: 'left',
           orient: 'horizontal',
           draggable: true,
-          data: sankeyData.nodes.map((node, index) => ({
+          data: sankeyData.nodes.map((node) => ({
             name: node.name,
             itemStyle: {
-              color: colors[index % colors.length]
+              color: getNodeColor(node.name)
             }
           })),
           links: sankeyData.links,
@@ -95,6 +107,8 @@ export class SankeyChartComponent implements OnInit, OnChanges {
           },
           label: {
             position: 'right',
+            color: chartColors.text,
+            fontFamily: chartFontFamily,
             formatter: (params: any) => {
               // Finde den Gesamtwert für diesen Node
               const nodeValue = sankeyData.links
