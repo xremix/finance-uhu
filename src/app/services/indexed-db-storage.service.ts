@@ -79,6 +79,17 @@ export class IndexedDbStorageService {
     });
   }
 
+  async count(storeName: string): Promise<number> {
+    const database = await this.openDatabase();
+    return new Promise<number>((resolve, reject) => {
+      const transaction = database.transaction(storeName, 'readonly');
+      const request = transaction.objectStore(storeName).count();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? transaction.error);
+      transaction.onabort = () => reject(transaction.error ?? new Error('Could not inspect browser storage.'));
+    });
+  }
+
   async put<T>(storeName: string, key: IDBValidKey, value: T): Promise<void> {
     const database = await this.openDatabase();
     await new Promise<void>((resolve, reject) => {

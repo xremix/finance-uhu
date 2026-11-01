@@ -228,9 +228,15 @@ export class ImportService {
       return;
     }
 
-    const message = files.length === 1 ? `${files[0].name} wird geladen…` : `${files.length} Dateien werden geladen…`;
+    const currentFiles = this.getActiveFiles();
+    const willPersist = persistLocally || files.some((file) =>
+      currentFiles.some((storedFile) => storedFile.fileName === file.name && storedFile.persisted)
+    );
+    const message = files.length === 1
+      ? `${files[0].name} wird ${willPersist ? 'geladen und verschlüsselt gespeichert' : 'geladen'}…`
+      : `${files.length} Dateien werden ${willPersist ? 'geladen und verschlüsselt gespeichert' : 'geladen'}…`;
     await this.runWithLoading(message, async () => {
-      const nextFiles = [...this.getActiveFiles()];
+      const nextFiles = [...currentFiles];
       let shouldWritePersistedFiles = persistLocally;
       for (const file of files) {
         const fileContent = await this.getFileContent(file);
@@ -265,8 +271,13 @@ export class ImportService {
     const nextFiles = currentFiles.map((item) =>
       item.fileName === fileName ? { ...item, persisted } : item
     );
-    await this.writePersistedFiles(nextFiles);
-    this.activeFiles = nextFiles;
+    const message = persisted
+      ? 'Umsatzdaten werden verschlüsselt gespeichert…'
+      : 'Gespeicherte Umsatzdaten werden aktualisiert…';
+    await this.runWithLoading(message, async () => {
+      await this.writePersistedFiles(nextFiles);
+      this.activeFiles = nextFiles;
+    }, 300);
   }
 
   public async removeFile(fileName: string): Promise<void> {
@@ -279,16 +290,20 @@ export class ImportService {
     });
   }
 
-  // Parsing is synchronous, so yield one frame to let the loading indicator paint first.
-  // The loader stays visible long enough for the owl intro animation to finish.
-  private async runWithLoading(message: string, work: () => Promise<void>): Promise<void> {
+  // Yield a frame so the loading indicator can paint before work starts.
+  // Full-page loads stay visible long enough for the owl intro animation to finish.
+  private async runWithLoading(
+    message: string,
+    work: () => Promise<void>,
+    minDurationMs = this.minLoadingDurationMs
+  ): Promise<void> {
     this.dataState.loadingMessage = message;
     this.dataState.isLoading = true;
     const startedAt = performance.now();
     try {
       await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve)));
       await work();
-      const remaining = this.minLoadingDurationMs - (performance.now() - startedAt);
+      const remaining = minDurationMs - (performance.now() - startedAt);
       if (remaining > 0) {
         await new Promise<void>((resolve) => setTimeout(resolve, remaining));
       }
@@ -339,11 +354,11 @@ export class ImportService {
   }
 
   public async loadFromIndexedDb(): Promise<void> {
-    this.activeFiles = await this.loadPersistedFiles();
-    this.categoriesLastSaved = await this.storage.get<string>(APP_DATA_STORE, 'categoriesLastSaved') ?? null;
-    await this.balanceService.loadManualBalanceFromIndexedDb();
-
     const load = async () => {
+      this.activeFiles = await this.loadPersistedFiles();
+      this.categoriesLastSaved = await this.storage.get<string>(APP_DATA_STORE, 'categoriesLastSaved') ?? null;
+      await this.balanceService.loadManualBalanceFromIndexedDb();
+
       const loadedFromFile = await this.loadCategoriesFromLinkedFile();
       if (!loadedFromFile) {
         await this.loadCategoriesFromIndexedDb();
@@ -351,8 +366,8 @@ export class ImportService {
       this.loadActiveFiles();
     };
 
-    if (this.activeFiles.length > 0) {
-      await this.runWithLoading('Gespeicherte Daten werden geladen…', load);
+    if (await this.storage.count(PERSISTED_FILES_STORE) > 0) {
+      await this.runWithLoading('Gespeicherte Umsatzdaten werden entschlüsselt und geladen…', load);
     } else {
       await load();
     }
