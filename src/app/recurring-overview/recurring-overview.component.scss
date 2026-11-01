@@ -255,6 +255,15 @@
   background: var(--app-surface-muted);
 }
 
+.detection-explanation {
+  margin: 0 0 0.8rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.5rem;
+  color: var(--app-muted);
+  background: var(--app-surface-muted);
+  font-size: 0.82rem;
+}
+
 .detail-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

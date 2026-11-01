@@ -162,12 +162,13 @@
       </section>
     </div>
     <p class="forecast-method-note mb-0">
-      Die Schätzung nutzt erkannte aktive Wiederholungen. @if (forecast.usesHistoryAverage) {
-      Variable, nicht wiederkehrende Buchungen werden anhand ihres Durchschnitts aus bis zu 90 Tagen hochgerechnet.
+      <strong>So wird gerechnet:</strong> Start ist der jüngste erfasste Kontostand. Erkannte aktive Wiederholungen werden an ihren erwarteten Terminen angesetzt; feste Serien nutzen den letzten Betrag, variable Serien den jüngsten Jahresdurchschnitt.
+      @if (forecast.usesHistoryAverage) {
+      Wiederkehrende Buchungen werden aus dem historischen Durchschnitt herausgerechnet. Alle übrigen gebuchten Einnahmen und Ausgaben der letzten {{ forecast.historyDays }} Tage (höchstens 90) werden gleichmäßig auf Wochen umgelegt und fortgeschrieben.
     } @else {
-      Für nicht wiederkehrende Buchungen liegen weniger als 30 Tage Historie vor; dafür wird kein Durchschnitt angesetzt.
+      Für den nicht wiederkehrenden Teil liegen weniger als 30 Tage Historie vor; dafür wird kein Durchschnitt angesetzt.
     }
-    Die Saldoentwicklung berücksichtigt alle gebuchten Zu- und Abflüsse, einschließlich Sparraten. Variable Wiederholungen beruhen auf den letzten Buchungen der Serie. Unregelmäßige Sonderausgaben und künftige Änderungen sind nicht vorhersehbar.
+    Die Saldoentwicklung berücksichtigt alle gebuchten Zu- und Abflüsse, einschließlich Sparraten. Der Wochenwert setzt voraus, dass sich die jüngste Buchungsrate fortsetzt. Unregelmäßige Sonderausgaben und künftige Änderungen sind nicht vorhersehbar.
     @if (!forecast.hasBalance) {
       Ohne erfassten Kontostand zeigt die Kurve nur die kumulierte Veränderung, keinen tatsächlichen Kontostand.
     }

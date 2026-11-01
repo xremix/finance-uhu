@@ -158,6 +158,14 @@ export class RecurringOverviewComponent {
     return `${fmt(low)}–${fmt(high)} €`;
   }
 
+  detectionReason(series: RecurringSeries): string {
+    const dates = [...new Set(series.transactions.map(t => new Date(t.bookingDate.getFullYear(), t.bookingDate.getMonth(), t.bookingDate.getDate()).getTime()))]
+      .sort((a, b) => a - b);
+    const gaps = dates.slice(1).map((date, index) => Math.round((date - dates[index]) / (24 * 60 * 60 * 1000)));
+    const medianGap = gaps.length ? [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : series.intervalDays;
+    return `${dates.length} Zahlungstermine, typischer Abstand etwa ${medianGap} Tage; ${(series.regularity * 100).toLocaleString('de-DE', { maximumFractionDigits: 0 })} % der Abstände passen zum erkannten Rhythmus. Dafür verlangt die Erkennung mindestens drei Termine (bei halbjährlichen und jährlichen Zahlungen zwei) und 75 % passende Abstände.`;
+  }
+
   total(series: RecurringSeries): number {
     return series.transactions.reduce((sum, t) => sum + t.amount, 0);
   }

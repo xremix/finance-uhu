@@ -150,6 +150,14 @@
             </button>
             @if (expandedKey === series.key) {
               <div class="series-details" [id]="domId(series)">
+                <p class="detection-explanation">
+                  <strong>Warum als wiederkehrend erkannt?</strong> {{ detectionReason(series) }}
+                  @if (series.amountType === 'fixed') {
+                    Der Betrag bleibt stabil.
+                  } @else {
+                    Der Betrag schwankt; für die Prognose wird der Durchschnitt der jüngsten Buchungen verwendet.
+                  }
+                </p>
                 <dl class="detail-stats">
                   <div><dt>Hochgerechnet pro Jahr</dt><dd>{{ series.yearlyAmount | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
                   <div><dt>{{ series.kind === 'income' ? 'Insgesamt erhalten' : 'Insgesamt gezahlt' }}</dt><dd>{{ total(series) | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
