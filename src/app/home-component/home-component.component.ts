@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DoCheck } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, ChangeDetectionStrategy } from '@angular/core';
 import { CategoryService } from '../services/category-service';
 import { DataState, DateFilter } from '../services/data-state';
 import { DateService } from '../services/date-service';
@@ -14,9 +14,11 @@ interface NegativeBalanceMonth {
 }
 
 @Component({
-  selector: 'app-home-component',
-  templateUrl: './home-component.component.html',
-  styleUrl: './home-component.component.scss',
+    selector: 'app-home-component',
+    templateUrl: './home-component.component.html',
+    styleUrl: './home-component.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class HomeComponentComponent implements DoCheck {
   readonly negativeBalanceTab = 'Tage im Minus';

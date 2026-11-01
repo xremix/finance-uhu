@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Transaction } from '../models/transaction';
 import { Category } from '../models/category';
 
@@ -14,9 +14,11 @@ interface Statistics {
 }
 
 @Component({
-  selector: 'app-statistics-card',
-  templateUrl: './statistics-card.component.html',
-  styleUrls: ['./statistics-card.component.scss']
+    selector: 'app-statistics-card',
+    templateUrl: './statistics-card.component.html',
+    styleUrls: ['./statistics-card.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class StatisticsCardComponent implements OnChanges {
   @Input() transactions: Transaction[] = [];

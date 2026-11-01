@@ -1,31 +1,34 @@
-<div class="loading-overlay" *ngIf="dataState.isLoading" role="status" aria-live="polite">
-  <div class="loading-card">
-    <app-owl-loader [size]="64"></app-owl-loader>
-    <div>
-      <div class="loading-title">{{ dataState.loadingMessage || 'Daten werden geladen…' }}</div>
-      <div class="loading-hint">Buchungen werden eingelesen und kategorisiert</div>
+@if (dataState.isLoading) {
+  <div class="loading-overlay" role="status" aria-live="polite">
+    <div class="loading-card">
+      <app-owl-loader [size]="64"></app-owl-loader>
+      <div>
+        <div class="loading-title">{{ dataState.loadingMessage || 'Daten werden geladen…' }}</div>
+        <div class="loading-hint">Buchungen werden eingelesen und kategorisiert</div>
+      </div>
     </div>
   </div>
-</div>
+}
 
 <a class="skip-link" href="#main-content" (click)="skipToMain($event)">Zum Inhalt springen</a>
 
 <!-- Toolbar -->
-<header class="toolbar sticky-top" *ngIf="showToolbar">
- <a href="./" class="brand-link">
-  <app-owl-loader class="brand-logo" [size]="null" [loop]="false"></app-owl-loader>
-  <span class="brand-name">Finanz <span class="brand-accent">Uhu</span></span>
- </a>
-  <div class="spacer"></div>
-
-  <nav class="toolbar-actions me-4" aria-label="Hauptnavigation">
-    <app-file-selector [big]="false"></app-file-selector>
-    <a routerLink="/settings" class="top-nav-btn" title="Einstellungen öffnen" aria-label="Einstellungen öffnen">
-      <i class="fa-solid fa-gear" aria-hidden="true"></i>
-      <span>Einstellungen</span>
+@if (showToolbar) {
+  <header class="toolbar sticky-top">
+    <a href="./" class="brand-link">
+      <app-owl-loader class="brand-logo" [size]="null" [loop]="false"></app-owl-loader>
+      <span class="brand-name">Finanz <span class="brand-accent">Uhu</span></span>
     </a>
-  </nav>
-</header>
+    <div class="spacer"></div>
+    <nav class="toolbar-actions me-4" aria-label="Hauptnavigation">
+      <app-file-selector [big]="false"></app-file-selector>
+      <a routerLink="/settings" class="top-nav-btn" title="Einstellungen öffnen" aria-label="Einstellungen öffnen">
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+        <span>Einstellungen</span>
+      </a>
+    </nav>
+  </header>
+}
 
 <app-ui-notifications></app-ui-notifications>
 

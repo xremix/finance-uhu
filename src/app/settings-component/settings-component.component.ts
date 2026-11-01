@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
 import { defaultCategories } from '../default-categories';
@@ -6,9 +6,11 @@ import { BaseCategory, Category, mapBaseCategoryToCategory } from '../models/cat
 import { UiFeedbackService } from '../services/ui-feedback.service';
 
 @Component({
-  selector: 'app-settings-component',
-  templateUrl: './settings-component.component.html',
-  styleUrl: './settings-component.component.scss',
+    selector: 'app-settings-component',
+    templateUrl: './settings-component.component.html',
+    styleUrl: './settings-component.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class SettingsComponentComponent implements OnInit, OnDestroy {
     /**

@@ -5,47 +5,67 @@
   </header>
 
   <div class="modal-body">
-    <p *ngIf="options.message" [id]="messageId" class="dialog-message">{{ options.message }}</p>
+    @if (options.message) {
+      <p [id]="messageId" class="dialog-message">{{ options.message }}</p>
+    }
 
-    <div *ngIf="options.kind === 'text'">
-      <label [for]="titleId + '-input'" class="form-label fw-semibold">{{ options.inputLabel }}</label>
-      <input type="text" class="form-control" [id]="titleId + '-input'" name="value" [(ngModel)]="value"
-        [placeholder]="options.placeholder || ''" [class.is-invalid]="submitted && !value.trim()"
-        [attr.aria-invalid]="submitted && !value.trim()"
-        [attr.aria-describedby]="submitted && !value.trim() ? titleId + '-error' : options.helpText ? titleId + '-help' : null"
-        autocomplete="off" ngbAutofocus>
-      <p class="invalid-feedback mb-0" *ngIf="submitted && !value.trim()" [id]="titleId + '-error'">Bitte fülle dieses Feld aus.</p>
-      <p class="form-text mb-0" *ngIf="options.helpText" [id]="titleId + '-help'">{{ options.helpText }}</p>
-    </div>
-
-    <fieldset *ngIf="options.kind === 'icon'">
-      <legend class="form-label fs-6 fw-semibold">Icon auswählen</legend>
-      <div class="icon-grid">
-        <button type="button" *ngFor="let icon of icons" class="icon-option" [class.is-selected]="value === icon.value"
-          [attr.aria-pressed]="value === icon.value" [attr.aria-label]="icon.label" [title]="icon.label" (click)="value = icon.value">
-          <i [class]="icon.value" aria-hidden="true"></i>
-        </button>
+    @if (options.kind === 'text') {
+      <div>
+        <label [for]="titleId + '-input'" class="form-label fw-semibold">{{ options.inputLabel }}</label>
+        <input type="text" class="form-control" [id]="titleId + '-input'" name="value" [(ngModel)]="value"
+          [placeholder]="options.placeholder || ''" [class.is-invalid]="submitted && !value.trim()"
+          [attr.aria-invalid]="submitted && !value.trim()"
+          [attr.aria-describedby]="submitted && !value.trim() ? titleId + '-error' : options.helpText ? titleId + '-help' : null"
+          autocomplete="off" ngbAutofocus>
+        @if (submitted && !value.trim()) {
+          <p class="invalid-feedback mb-0" [id]="titleId + '-error'">Bitte fülle dieses Feld aus.</p>
+        }
+        @if (options.helpText) {
+          <p class="form-text mb-0" [id]="titleId + '-help'">{{ options.helpText }}</p>
+        }
       </div>
-      <div class="icon-preview">
-        <i [class]="value || 'fa-solid fa-minus'" aria-hidden="true"></i>
-        <span>{{ value ? 'Ausgewähltes Icon' : 'Kein Icon ausgewählt' }}</span>
-        <button *ngIf="value" type="button" class="btn btn-link btn-sm ms-auto p-0" (click)="value = ''">Entfernen</button>
-      </div>
-      <details class="custom-icon">
-        <summary>Eigenes Icon verwenden</summary>
-        <label [for]="titleId + '-icon'" class="form-label mt-2">Font-Awesome-Klasse</label>
-        <input type="text" class="form-control" [id]="titleId + '-icon'" name="icon" [(ngModel)]="value" placeholder="z. B. fa-solid fa-tag" spellcheck="false">
-      </details>
-    </fieldset>
+    }
 
-    <ul class="dialog-tags" *ngIf="options.items?.length" aria-label="Passende Keywords">
-      <li *ngFor="let item of options.items">{{ item }}</li>
-    </ul>
+    @if (options.kind === 'icon') {
+      <fieldset>
+        <legend class="form-label fs-6 fw-semibold">Icon auswählen</legend>
+        <div class="icon-grid">
+          @for (icon of icons; track icon) {
+            <button type="button" class="icon-option" [class.is-selected]="value === icon.value"
+              [attr.aria-pressed]="value === icon.value" [attr.aria-label]="icon.label" [title]="icon.label" (click)="value = icon.value">
+              <i [class]="icon.value" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+        <div class="icon-preview">
+          <i [class]="value || 'fa-solid fa-minus'" aria-hidden="true"></i>
+          <span>{{ value ? 'Ausgewähltes Icon' : 'Kein Icon ausgewählt' }}</span>
+          @if (value) {
+            <button type="button" class="btn btn-link btn-sm ms-auto p-0" (click)="value = ''">Entfernen</button>
+          }
+        </div>
+        <details class="custom-icon">
+          <summary>Eigenes Icon verwenden</summary>
+          <label [for]="titleId + '-icon'" class="form-label mt-2">Font-Awesome-Klasse</label>
+          <input type="text" class="form-control" [id]="titleId + '-icon'" name="icon" [(ngModel)]="value" placeholder="z. B. fa-solid fa-tag" spellcheck="false">
+        </details>
+      </fieldset>
+    }
+
+    @if (options.items?.length) {
+      <ul class="dialog-tags" aria-label="Passende Keywords">
+        @for (item of options.items; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    }
   </div>
 
   <footer class="modal-footer">
-    <button *ngIf="options.kind !== 'details'" type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()"
+    @if (options.kind !== 'details') {
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()"
       [attr.ngbAutofocus]="options.kind === 'confirmation' ? '' : null">Abbrechen</button>
+    }
     <button type="submit" class="btn" [class.btn-danger]="options.destructive" [class.btn-primary]="!options.destructive">
       {{ options.acceptLabel }}
     </button>

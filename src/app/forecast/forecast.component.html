@@ -1,153 +1,176 @@
-<section class="forecast" *ngIf="projection as forecast" aria-labelledby="forecastTitle">
-  <header class="forecast-header">
-    <div>
-      <h2 id="forecastTitle" class="section-title mb-1">Finanzprognose für die nächsten {{ horizonWeeks }} Wochen</h2>
-      <p class="text-muted small mb-0">
-        Berechnungsbasis: {{ forecast.asOf | date:'dd.MM.yyyy' }} · bis {{ forecast.endDate | date:'dd.MM.yyyy' }} · alle Buchungen, unabhängig von Filtern
-      </p>
-    </div>
-    <span class="forecast-badge"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Schätzung</span>
-  </header>
-
-  <div class="forecast-summary-grid" aria-label="Zusammenfassung der Prognose">
-    <article class="forecast-summary-tile">
-      <span class="forecast-summary-label">{{ forecast.hasBalance ? 'Startkontostand' : 'Startwert' }}</span>
-      <strong *ngIf="forecast.hasBalance; else noStartingBalance" class="forecast-summary-value">
-        {{ forecast.startValue | currency:'EUR':'symbol':'1.2-2' }}
-      </strong>
-      <ng-template #noStartingBalance><strong class="forecast-summary-value">Kein Kontostand</strong></ng-template>
-      <span class="forecast-summary-hint">
-        {{ forecast.hasBalance ? (forecast.asOf | date:'dd.MM.yyyy') : 'Veränderung ab 0 €' }}
-      </span>
-    </article>
-
-    <article class="forecast-summary-tile">
-      <span class="forecast-summary-label">{{ forecast.hasBalance ? 'Kontostand in 12 Wochen' : 'Nettoveränderung in 12 Wochen' }}</span>
-      <strong class="forecast-summary-value" [class.text-danger]="(forecast.hasBalance ? forecast.endValue : forecast.change) < 0"
-        [class.text-success]="(forecast.hasBalance ? forecast.endValue : forecast.change) > 0">
-        <ng-container *ngIf="forecast.hasBalance; else netChange">
-          {{ forecast.endValue | currency:'EUR':'symbol':'1.2-2' }}
-        </ng-container>
-        <ng-template #netChange>{{ forecast.change > 0 ? '+' : '' }}{{ forecast.change | currency:'EUR':'symbol':'1.2-2' }}</ng-template>
-      </strong>
-      <span class="forecast-summary-hint">
-        {{ forecast.change > 0 ? '+' : '' }}{{ forecast.change | currency:'EUR':'symbol':'1.2-2' }} gegenüber dem Start
-      </span>
-    </article>
-
-    <article class="forecast-summary-tile">
-      <span class="forecast-summary-label">Ø Einnahmen pro Woche</span>
-      <strong class="forecast-summary-value text-success" *ngIf="forecast.usesHistoryAverage; else unknownWeeklyIncome">
-        {{ forecast.weeklyIncome | currency:'EUR':'symbol':'1.0-0' }}
-      </strong>
-      <ng-template #unknownWeeklyIncome><strong class="forecast-summary-value">–</strong></ng-template>
-      <span class="forecast-summary-hint" *ngIf="forecast.usesHistoryAverage; else insufficientIncomeHistory">
-        Nicht wiederkehrend · letzte {{ forecast.historyDays }} Tage
-      </span>
-      <ng-template #insufficientIncomeHistory><span class="forecast-summary-hint">Mindestens 30 Tage Historie nötig</span></ng-template>
-    </article>
-
-    <article class="forecast-summary-tile">
-      <span class="forecast-summary-label">Ø Abflüsse pro Woche</span>
-      <strong class="forecast-summary-value text-danger" *ngIf="forecast.usesHistoryAverage; else unknownWeeklyExpenses">
-        {{ forecast.weeklyExpenses | currency:'EUR':'symbol':'1.0-0' }}
-      </strong>
-      <ng-template #unknownWeeklyExpenses><strong class="forecast-summary-value">–</strong></ng-template>
-      <span class="forecast-summary-hint" *ngIf="forecast.usesHistoryAverage; else insufficientExpenseHistory">
-        Nicht wiederkehrend · letzte {{ forecast.historyDays }} Tage
-      </span>
-      <ng-template #insufficientExpenseHistory><span class="forecast-summary-hint">Mindestens 30 Tage Historie nötig</span></ng-template>
-    </article>
-  </div>
-
-  <div class="forecast-chart-card" *ngIf="chart as forecastChart">
-    <div class="forecast-chart-heading">
-      <h3 class="section-title mb-1">{{ forecast.hasBalance ? 'Voraussichtlicher Kontostand' : 'Kumulierte Entwicklung' }}</h3>
-      <span class="small text-muted">Täglicher Verlauf · wiederkehrende Buchungen am erwarteten Termin</span>
-    </div>
-    <div role="img" [attr.aria-label]="(forecast.hasBalance ? 'Prognostizierter Kontostand' : 'Kumulierte Nettoveränderung') + ' vom ' + (forecast.asOf | date:'dd.MM.yyyy') + ' bis ' + (forecast.endDate | date:'dd.MM.yyyy')">
-      <apx-chart
-        [series]="forecastChart.series"
-        [chart]="forecastChart.chart"
-        [colors]="forecastChart.colors"
-        [stroke]="forecastChart.stroke"
-        [fill]="forecastChart.fill"
-        [dataLabels]="forecastChart.dataLabels"
-        [xaxis]="forecastChart.xaxis"
-        [yaxis]="forecastChart.yaxis"
-        [grid]="forecastChart.grid"
-        [tooltip]="forecastChart.tooltip">
-      </apx-chart>
-    </div>
-  </div>
-
-  <div class="forecast-detail-grid">
-    <section class="forecast-detail-card" aria-labelledby="forecastPaymentsTitle">
-      <div class="forecast-detail-heading">
-        <div>
-          <h3 id="forecastPaymentsTitle" class="section-title mb-1">Erwartete wiederkehrende Buchungen</h3>
-          <p class="small text-muted mb-0">{{ forecast.activeRecurringCount }} aktive Serien · {{ forecast.upcomingPaymentCount }} Termine im Zeitraum</p>
-        </div>
+@if (projection; as forecast) {
+  <section class="forecast" aria-labelledby="forecastTitle">
+    <header class="forecast-header">
+      <div>
+        <h2 id="forecastTitle" class="section-title mb-1">Finanzprognose für die nächsten {{ horizonWeeks }} Wochen</h2>
+        <p class="text-muted small mb-0">
+          Berechnungsbasis: {{ forecast.asOf | date:'dd.MM.yyyy' }} · bis {{ forecast.endDate | date:'dd.MM.yyyy' }} · alle Buchungen, unabhängig von Filtern
+        </p>
       </div>
-
-      <div *ngIf="forecast.upcomingPayments.length; else noPayments" class="forecast-payment-list">
-        <div class="forecast-payment-row" *ngFor="let payment of forecast.upcomingPayments; let i = index; trackBy: paymentKey">
-          <span class="forecast-payment-date">{{ payment.date | date:'dd.MM.' }}</span>
-          <span class="forecast-payment-copy">
-            <strong>{{ payment.name }}</strong>
-            <small>{{ payment.categoryName || 'Ohne Kategorie' }}</small>
+      <span class="forecast-badge"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Schätzung</span>
+    </header>
+    <div class="forecast-summary-grid" aria-label="Zusammenfassung der Prognose">
+      <article class="forecast-summary-tile">
+        <span class="forecast-summary-label">{{ forecast.hasBalance ? 'Startkontostand' : 'Startwert' }}</span>
+        @if (forecast.hasBalance) {
+          <strong class="forecast-summary-value">
+            {{ forecast.startValue | currency:'EUR':'symbol':'1.2-2' }}
+          </strong>
+        } @else {
+          <strong class="forecast-summary-value">Kein Kontostand</strong>
+        }
+        <span class="forecast-summary-hint">
+          {{ forecast.hasBalance ? (forecast.asOf | date:'dd.MM.yyyy') : 'Veränderung ab 0 €' }}
+        </span>
+      </article>
+      <article class="forecast-summary-tile">
+        <span class="forecast-summary-label">{{ forecast.hasBalance ? 'Kontostand in 12 Wochen' : 'Nettoveränderung in 12 Wochen' }}</span>
+        <strong class="forecast-summary-value" [class.text-danger]="(forecast.hasBalance ? forecast.endValue : forecast.change) < 0"
+          [class.text-success]="(forecast.hasBalance ? forecast.endValue : forecast.change) > 0">
+          @if (forecast.hasBalance) {
+            {{ forecast.endValue | currency:'EUR':'symbol':'1.2-2' }}
+          } @else {
+            {{ forecast.change > 0 ? '+' : '' }}{{ forecast.change | currency:'EUR':'symbol':'1.2-2' }}
+          }
+        </strong>
+        <span class="forecast-summary-hint">
+          {{ forecast.change > 0 ? '+' : '' }}{{ forecast.change | currency:'EUR':'symbol':'1.2-2' }} gegenüber dem Start
+        </span>
+      </article>
+      <article class="forecast-summary-tile">
+        <span class="forecast-summary-label">Ø Einnahmen pro Woche</span>
+        @if (forecast.usesHistoryAverage) {
+          <strong class="forecast-summary-value text-success">
+            {{ forecast.weeklyIncome | currency:'EUR':'symbol':'1.0-0' }}
+          </strong>
+        } @else {
+          <strong class="forecast-summary-value">–</strong>
+        }
+        @if (forecast.usesHistoryAverage) {
+          <span class="forecast-summary-hint">
+            Nicht wiederkehrend · letzte {{ forecast.historyDays }} Tage
           </span>
-          <strong class="forecast-payment-amount" [class.text-success]="payment.amount > 0" [class.text-danger]="payment.amount < 0">
-            {{ payment.amount | currency:'EUR':'symbol':'1.2-2' }}
+        } @else {
+          <span class="forecast-summary-hint">Mindestens 30 Tage Historie nötig</span>
+        }
+      </article>
+      <article class="forecast-summary-tile">
+        <span class="forecast-summary-label">Ø Abflüsse pro Woche</span>
+        @if (forecast.usesHistoryAverage) {
+          <strong class="forecast-summary-value text-danger">
+            {{ forecast.weeklyExpenses | currency:'EUR':'symbol':'1.0-0' }}
           </strong>
+        } @else {
+          <strong class="forecast-summary-value">–</strong>
+        }
+        @if (forecast.usesHistoryAverage) {
+          <span class="forecast-summary-hint">
+            Nicht wiederkehrend · letzte {{ forecast.historyDays }} Tage
+          </span>
+        } @else {
+          <span class="forecast-summary-hint">Mindestens 30 Tage Historie nötig</span>
+        }
+      </article>
+    </div>
+    @if (chart; as forecastChart) {
+      <div class="forecast-chart-card">
+        <div class="forecast-chart-heading">
+          <h3 class="section-title mb-1">{{ forecast.hasBalance ? 'Voraussichtlicher Kontostand' : 'Kumulierte Entwicklung' }}</h3>
+          <span class="small text-muted">Täglicher Verlauf · wiederkehrende Buchungen am erwarteten Termin</span>
         </div>
-        <p class="small text-muted mb-0" *ngIf="forecast.upcomingPaymentCount > forecast.upcomingPayments.length">
-          Weitere {{ forecast.upcomingPaymentCount - forecast.upcomingPayments.length }} Termine sind in der Prognose berücksichtigt.
-        </p>
-      </div>
-      <ng-template #noPayments>
-        <p class="forecast-empty mb-0">Für den Zeitraum wurden keine aktiven wiederkehrenden Buchungen erkannt.</p>
-      </ng-template>
-    </section>
-
-    <section class="forecast-detail-card" aria-labelledby="forecastCategoriesTitle">
-      <div class="forecast-detail-heading">
-        <div>
-          <h3 id="forecastCategoriesTitle" class="section-title mb-1">Durchschnitt nach Kategorie</h3>
-          <p class="small text-muted mb-0" *ngIf="forecast.usesHistoryAverage; else insufficientCategoryHistory">
-            {{ forecast.baselineTransactionCount }} nicht wiederkehrende Buchungen · letzte {{ forecast.historyDays }} Tage, auf eine Woche umgerechnet
-          </p>
-          <ng-template #insufficientCategoryHistory>
-            <p class="small text-muted mb-0">Für einen Durchschnitt werden mindestens 30 Tage Historie benötigt.</p>
-          </ng-template>
+        <div role="img" [attr.aria-label]="(forecast.hasBalance ? 'Prognostizierter Kontostand' : 'Kumulierte Nettoveränderung') + ' vom ' + (forecast.asOf | date:'dd.MM.yyyy') + ' bis ' + (forecast.endDate | date:'dd.MM.yyyy')">
+          <apx-chart
+            [series]="forecastChart.series"
+            [chart]="forecastChart.chart"
+            [colors]="forecastChart.colors"
+            [stroke]="forecastChart.stroke"
+            [fill]="forecastChart.fill"
+            [dataLabels]="forecastChart.dataLabels"
+            [xaxis]="forecastChart.xaxis"
+            [yaxis]="forecastChart.yaxis"
+            [grid]="forecastChart.grid"
+            [tooltip]="forecastChart.tooltip">
+          </apx-chart>
         </div>
       </div>
-
-      <div *ngIf="forecast.categoryAverages.length; else noCategoryAverages" class="forecast-category-list">
-        <div class="forecast-category-row" *ngFor="let category of forecast.categoryAverages.slice(0, 6)">
-          <span>{{ category.name }}</span>
-          <strong [class.text-success]="category.weeklyAmount > 0" [class.text-danger]="category.weeklyAmount < 0">
-            {{ category.weeklyAmount | currency:'EUR':'symbol':'1.0-0' }} / Wo.
-          </strong>
+    }
+    <div class="forecast-detail-grid">
+      <section class="forecast-detail-card" aria-labelledby="forecastPaymentsTitle">
+        <div class="forecast-detail-heading">
+          <div>
+            <h3 id="forecastPaymentsTitle" class="section-title mb-1">Erwartete wiederkehrende Buchungen</h3>
+            <p class="small text-muted mb-0">{{ forecast.activeRecurringCount }} aktive Serien · {{ forecast.upcomingPaymentCount }} Termine im Zeitraum</p>
+          </div>
         </div>
-      </div>
-      <ng-template #noCategoryAverages>
-        <p class="forecast-empty mb-0" *ngIf="forecast.usesHistoryAverage; else missingCategoryHistory">
-          Im Durchschnittszeitraum gibt es keine nicht wiederkehrenden Buchungen.
-        </p>
-        <ng-template #missingCategoryHistory>
-          <p class="forecast-empty mb-0">Bei weniger als 30 Tagen Historie wird kein Kategoriedurchschnitt angesetzt.</p>
-        </ng-template>
-      </ng-template>
-    </section>
-  </div>
-
-  <p class="forecast-method-note mb-0">
-    Die Schätzung nutzt erkannte aktive Wiederholungen. <ng-container *ngIf="forecast.usesHistoryAverage; else noHistoryAverage">
+        @if (forecast.upcomingPayments.length) {
+          <div class="forecast-payment-list">
+            @for (payment of forecast.upcomingPayments; track paymentKey(i, payment); let i = $index) {
+              <div class="forecast-payment-row">
+                <span class="forecast-payment-date">{{ payment.date | date:'dd.MM.' }}</span>
+                <span class="forecast-payment-copy">
+                  <strong>{{ payment.name }}</strong>
+                  <small>{{ payment.categoryName || 'Ohne Kategorie' }}</small>
+                </span>
+                <strong class="forecast-payment-amount" [class.text-success]="payment.amount > 0" [class.text-danger]="payment.amount < 0">
+                  {{ payment.amount | currency:'EUR':'symbol':'1.2-2' }}
+                </strong>
+              </div>
+            }
+            @if (forecast.upcomingPaymentCount > forecast.upcomingPayments.length) {
+              <p class="small text-muted mb-0">
+                Weitere {{ forecast.upcomingPaymentCount - forecast.upcomingPayments.length }} Termine sind in der Prognose berücksichtigt.
+              </p>
+            }
+          </div>
+        } @else {
+          <p class="forecast-empty mb-0">Für den Zeitraum wurden keine aktiven wiederkehrenden Buchungen erkannt.</p>
+        }
+      </section>
+      <section class="forecast-detail-card" aria-labelledby="forecastCategoriesTitle">
+        <div class="forecast-detail-heading">
+          <div>
+            <h3 id="forecastCategoriesTitle" class="section-title mb-1">Durchschnitt nach Kategorie</h3>
+            @if (forecast.usesHistoryAverage) {
+              <p class="small text-muted mb-0">
+                {{ forecast.baselineTransactionCount }} nicht wiederkehrende Buchungen · letzte {{ forecast.historyDays }} Tage, auf eine Woche umgerechnet
+              </p>
+            } @else {
+              <p class="small text-muted mb-0">Für einen Durchschnitt werden mindestens 30 Tage Historie benötigt.</p>
+            }
+          </div>
+        </div>
+        @if (forecast.categoryAverages.length) {
+          <div class="forecast-category-list">
+            @for (category of forecast.categoryAverages.slice(0, 6); track category) {
+              <div class="forecast-category-row">
+                <span>{{ category.name }}</span>
+                <strong [class.text-success]="category.weeklyAmount > 0" [class.text-danger]="category.weeklyAmount < 0">
+                  {{ category.weeklyAmount | currency:'EUR':'symbol':'1.0-0' }} / Wo.
+                </strong>
+              </div>
+            }
+          </div>
+        } @else {
+          @if (forecast.usesHistoryAverage) {
+            <p class="forecast-empty mb-0">
+              Im Durchschnittszeitraum gibt es keine nicht wiederkehrenden Buchungen.
+            </p>
+          } @else {
+            <p class="forecast-empty mb-0">Bei weniger als 30 Tagen Historie wird kein Kategoriedurchschnitt angesetzt.</p>
+          }
+        }
+      </section>
+    </div>
+    <p class="forecast-method-note mb-0">
+      Die Schätzung nutzt erkannte aktive Wiederholungen. @if (forecast.usesHistoryAverage) {
       Variable, nicht wiederkehrende Buchungen werden anhand ihres Durchschnitts aus bis zu 90 Tagen hochgerechnet.
-    </ng-container>
-    <ng-template #noHistoryAverage>Für nicht wiederkehrende Buchungen liegen weniger als 30 Tage Historie vor; dafür wird kein Durchschnitt angesetzt.</ng-template>
+    } @else {
+      Für nicht wiederkehrende Buchungen liegen weniger als 30 Tage Historie vor; dafür wird kein Durchschnitt angesetzt.
+    }
     Die Saldoentwicklung berücksichtigt alle gebuchten Zu- und Abflüsse, einschließlich Sparraten. Variable Wiederholungen beruhen auf den letzten Buchungen der Serie. Unregelmäßige Sonderausgaben und künftige Änderungen sind nicht vorhersehbar.
-    <ng-container *ngIf="!forecast.hasBalance">Ohne erfassten Kontostand zeigt die Kurve nur die kumulierte Veränderung, keinen tatsächlichen Kontostand.</ng-container>
+    @if (!forecast.hasBalance) {
+      Ohne erfassten Kontostand zeigt die Kurve nur die kumulierte Veränderung, keinen tatsächlichen Kontostand.
+    }
   </p>
 </section>
+}

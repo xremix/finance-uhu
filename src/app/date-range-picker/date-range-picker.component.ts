@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { NgbCalendar, NgbDateParserFormatter, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { DataState } from '../services/data-state';
 
@@ -47,9 +47,11 @@ class CustomDateFormatter extends NgbDateParserFormatter {
 }
 
 @Component({
-  selector: 'app-date-range-picker',
-  templateUrl: './date-range-picker.component.html',
-  styleUrl: './date-range-picker.component.scss'
+    selector: 'app-date-range-picker',
+    templateUrl: './date-range-picker.component.html',
+    styleUrl: './date-range-picker.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class DateRangePickerComponent implements OnInit, OnChanges {
 	calendar = inject(NgbCalendar);

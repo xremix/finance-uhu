@@ -5,23 +5,23 @@
   </div>
 </div>
 
-<div *ngIf="series && series.length > 0 && series[0]?.data && series[0].data.length > 0 && categories?.categories && categories.categories.length > 0; else noDataTemplate">
-  <div role="img" aria-label="Liniendiagramm: tägliche Einnahmen und Ausgaben im gewählten Zeitraum. Einzelbuchungen stehen im Tab Alle Buchungen.">
-    <apx-chart
-      [series]="series"
-      [chart]="chartOptions.chart"
-      [xaxis]="chartOptions.xaxis"
-      [yaxis]="chartOptions.yaxis"
-      [dataLabels]="chartOptions.dataLabels"
-      [stroke]="chartOptions.stroke"
-      [markers]="chartOptions.markers"
-      [legend]="chartOptions.legend"
-      [tooltip]="chartOptions.tooltip"
-      [grid]="chartOptions.grid">
-    </apx-chart>
+@if (series && series.length > 0 && series[0]?.data && series[0].data.length > 0 && categories?.categories && categories.categories.length > 0) {
+  <div>
+    <div role="img" aria-label="Liniendiagramm: tägliche Einnahmen und Ausgaben im gewählten Zeitraum. Einzelbuchungen stehen im Tab Alle Buchungen.">
+      <apx-chart
+        [series]="series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [yaxis]="chartOptions.yaxis"
+        [dataLabels]="chartOptions.dataLabels"
+        [stroke]="chartOptions.stroke"
+        [markers]="chartOptions.markers"
+        [legend]="chartOptions.legend"
+        [tooltip]="chartOptions.tooltip"
+        [grid]="chartOptions.grid">
+      </apx-chart>
+    </div>
   </div>
-</div>
-
-<ng-template #noDataTemplate>
+} @else {
   <p class="text-center py-4 text-muted mb-0">Keine Daten für die tägliche Ansicht verfügbar</p>
-</ng-template>
+}

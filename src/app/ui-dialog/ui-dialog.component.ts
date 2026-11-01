@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -16,11 +16,11 @@ export interface UiDialogOptions {
 }
 
 @Component({
-  selector: 'app-ui-dialog',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './ui-dialog.component.html',
-  styleUrl: './ui-dialog.component.scss',
+    selector: 'app-ui-dialog',
+    imports: [FormsModule],
+    templateUrl: './ui-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './ui-dialog.component.scss'
 })
 export class UiDialogComponent {
   options: UiDialogOptions = { kind: 'details', title: '', acceptLabel: 'Verstanden' };

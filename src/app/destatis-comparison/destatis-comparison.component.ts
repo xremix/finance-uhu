@@ -1,5 +1,5 @@
 import { CommonModule, registerLocaleData } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import localeDe from '@angular/common/locales/de';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
@@ -23,11 +23,11 @@ interface ComparisonRow {
 }
 
 @Component({
-  selector: 'app-destatis-comparison',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './destatis-comparison.component.html',
-  styleUrl: './destatis-comparison.component.scss',
+    selector: 'app-destatis-comparison',
+    imports: [CommonModule],
+    templateUrl: './destatis-comparison.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './destatis-comparison.component.scss'
 })
 export class DestatisComparisonComponent implements OnChanges {
   @Input() transactions: readonly Transaction[] = [];

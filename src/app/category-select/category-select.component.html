@@ -7,17 +7,17 @@
         <button type="button" class="crumb" [class.current]="!selected" (click)="selectAll()">
           <i class="fa-solid fa-layer-group" aria-hidden="true"></i>Alle
         </button>
-        <ng-container *ngIf="selectedParent as parent">
+        @if (selectedParent; as parent) {
           <i class="fa-solid fa-chevron-right crumb-sep" aria-hidden="true"></i>
           <button type="button" class="crumb" (click)="selectCategory(parent)">{{ parent.name }}</button>
-        </ng-container>
-        <ng-container *ngIf="selected">
+        }
+        @if (selected) {
           <i class="fa-solid fa-chevron-right crumb-sep" aria-hidden="true"></i>
           <span class="crumb current" aria-current="true">{{ selected.name }}</span>
           <button type="button" class="crumb-clear" (click)="selectAll()" title="Kategoriefilter entfernen" aria-label="Kategoriefilter entfernen">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
-        </ng-container>
+        }
       </nav>
     </div>
 
@@ -36,121 +36,140 @@
         [ngModel]="query"
         (ngModelChange)="onQueryChange($event)"
         (keydown)="onSearchKeydown($event)" />
-      <button *ngIf="query" type="button" class="cat-search-clear" (click)="clearQuery(); searchInput.focus()" aria-label="Suche leeren">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
+      @if (query) {
+        <button type="button" class="cat-search-clear" (click)="clearQuery(); searchInput.focus()" aria-label="Suche leeren">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      }
     </div>
   </div>
 
   <!-- Search results -->
-  <ul *ngIf="query" id="categorySearchResults" class="cat-results" role="listbox" aria-label="Gefundene Kategorien">
-    <li *ngFor="let node of searchResults; let i = index; trackBy: trackByNode"
-        [id]="'cat-result-' + i"
-        role="option"
-        class="cat-result"
-        [class.active]="i === activeResultIndex"
-        [class.selected]="isActive(node)"
-        [attr.aria-selected]="i === activeResultIndex"
-        (mouseenter)="activeResultIndex = i"
-        (mousedown)="$event.preventDefault()"
-        (click)="pickResult(node)">
-      <span class="cat-icon sm" [ngClass]="'type-' + node.category.type"><i [class]="node.icon" aria-hidden="true"></i></span>
-      <span class="cat-result-name">
-        <small *ngIf="node.parent" class="text-muted">{{ node.parent.name }} ›</small>
-        {{ node.category.name }}
-      </span>
-      <span class="cat-result-amount" [class.positive]="node.total > 0">
-        {{ displayAmount(node.total) | currency:'EUR':'symbol':'1.0-0' }}
-      </span>
-      <kbd *ngIf="i === activeResultIndex" class="cat-kbd" aria-hidden="true">↵</kbd>
-    </li>
-    <li *ngIf="!searchResults.length" class="cat-result empty" role="presentation">
-      Keine Kategorie mit Buchungen im aktuellen Zeitraum gefunden.
-    </li>
-  </ul>
+  @if (query) {
+    <ul id="categorySearchResults" class="cat-results" role="listbox" aria-label="Gefundene Kategorien">
+      @for (node of searchResults; track trackByNode(i, node); let i = $index) {
+        <li
+          [id]="'cat-result-' + i"
+          role="option"
+          class="cat-result"
+          [class.active]="i === activeResultIndex"
+          [class.selected]="isActive(node)"
+          [attr.aria-selected]="i === activeResultIndex"
+          (mouseenter)="activeResultIndex = i"
+          (mousedown)="$event.preventDefault()"
+          (click)="pickResult(node)">
+          <span class="cat-icon sm" [ngClass]="'type-' + node.category.type"><i [class]="node.icon" aria-hidden="true"></i></span>
+          <span class="cat-result-name">
+            @if (node.parent) {
+              <small class="text-muted">{{ node.parent.name }} ›</small>
+            }
+            {{ node.category.name }}
+          </span>
+          <span class="cat-result-amount" [class.positive]="node.total > 0">
+            {{ displayAmount(node.total) | currency:'EUR':'symbol':'1.0-0' }}
+          </span>
+          @if (i === activeResultIndex) {
+            <kbd class="cat-kbd" aria-hidden="true">↵</kbd>
+          }
+        </li>
+      }
+      @if (!searchResults.length) {
+        <li class="cat-result empty" role="presentation">
+          Keine Kategorie mit Buchungen im aktuellen Zeitraum gefunden.
+        </li>
+      }
+    </ul>
+  }
 
   <!-- Root category tiles -->
-  <div *ngIf="!query"
-       #tileGrid
-       class="cat-grid"
-       role="group"
-       aria-labelledby="categoryNavLabel"
-       (keydown)="onGridKeydown($event)">
-    <button type="button"
-            data-nav-tile
-            class="cat-tile all"
-            [class.active]="!selected"
-            [attr.aria-pressed]="!selected"
-            (click)="selectAll()"
-            title="Alle Kategorien anzeigen">
-      <span class="cat-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-      <span class="cat-tile-body">
-        <span class="cat-tile-name">Alle</span>
-        <span class="cat-tile-meta">
-          <span class="cat-tile-amount" [class.positive]="overallTotal > 0">{{ displayAmount(overallTotal) | currency:'EUR':'symbol':'1.0-0' }}</span>
-          <span class="cat-tile-count">{{ overallCount }} Buchungen</span>
+  @if (!query) {
+    <div
+      #tileGrid
+      class="cat-grid"
+      role="group"
+      aria-labelledby="categoryNavLabel"
+      (keydown)="onGridKeydown($event)">
+      <button type="button"
+        data-nav-tile
+        class="cat-tile all"
+        [class.active]="!selected"
+        [attr.aria-pressed]="!selected"
+        (click)="selectAll()"
+        title="Alle Kategorien anzeigen">
+        <span class="cat-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+        <span class="cat-tile-body">
+          <span class="cat-tile-name">Alle</span>
+          <span class="cat-tile-meta">
+            <span class="cat-tile-amount" [class.positive]="overallTotal > 0">{{ displayAmount(overallTotal) | currency:'EUR':'symbol':'1.0-0' }}</span>
+            <span class="cat-tile-count">{{ overallCount }} Buchungen</span>
+          </span>
         </span>
-      </span>
-    </button>
-
-    <button type="button"
-            *ngFor="let node of roots; trackBy: trackByNode"
-            data-nav-tile
-            class="cat-tile"
-            [ngClass]="'type-' + node.category.type"
-            [class.active]="isActive(node)"
-            [class.in-path]="isInPath(node) && !isActive(node)"
-            [attr.aria-pressed]="isActive(node)"
-            (click)="select(node)"
-            [title]="(isActive(node) ? 'Filter entfernen: ' : 'Filtern nach ') + node.category.name">
-      <span class="cat-icon" [ngClass]="'type-' + node.category.type"><i [class]="node.icon" aria-hidden="true"></i></span>
-      <span class="cat-tile-body">
-        <span class="cat-tile-name">
-          {{ node.category.name }}
-          <i *ngIf="node.children.length" class="fa-solid fa-chevron-down cat-tile-chevron" aria-hidden="true"></i>
-        </span>
-        <span class="cat-tile-meta">
-          <span class="cat-tile-amount" [class.positive]="node.total > 0">{{ displayAmount(node.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
-          <span class="cat-tile-count">{{ node.percent | number:'1.0-0' }} %</span>
-        </span>
-      </span>
-      <span class="cat-bar" aria-hidden="true"><span class="cat-bar-fill" [style.width.%]="node.barRatio * 100"></span></span>
-    </button>
-
-
-    <p *ngIf="!roots.length" class="cat-empty">Keine kategorisierten Buchungen im aktuellen Zeitraum.</p>
-  </div>
+      </button>
+      @for (node of roots; track trackByNode($index, node)) {
+        <button type="button"
+          data-nav-tile
+          class="cat-tile"
+          [ngClass]="'type-' + node.category.type"
+          [class.active]="isActive(node)"
+          [class.in-path]="isInPath(node) && !isActive(node)"
+          [attr.aria-pressed]="isActive(node)"
+          (click)="select(node)"
+          [title]="(isActive(node) ? 'Filter entfernen: ' : 'Filtern nach ') + node.category.name">
+          <span class="cat-icon" [ngClass]="'type-' + node.category.type"><i [class]="node.icon" aria-hidden="true"></i></span>
+          <span class="cat-tile-body">
+            <span class="cat-tile-name">
+              {{ node.category.name }}
+              @if (node.children.length) {
+                <i class="fa-solid fa-chevron-down cat-tile-chevron" aria-hidden="true"></i>
+              }
+            </span>
+            <span class="cat-tile-meta">
+              <span class="cat-tile-amount" [class.positive]="node.total > 0">{{ displayAmount(node.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
+              <span class="cat-tile-count">{{ node.percent | number:'1.0-0' }} %</span>
+            </span>
+          </span>
+          <span class="cat-bar" aria-hidden="true"><span class="cat-bar-fill" [style.width.%]="node.barRatio * 100"></span></span>
+        </button>
+      }
+      @if (!roots.length) {
+        <p class="cat-empty">Keine kategorisierten Buchungen im aktuellen Zeitraum.</p>
+      }
+    </div>
+  }
 
   <!-- Sub categories of the active root -->
-  <div *ngIf="!query && activeRoot as root" class="cat-subs" [ngClass]="'type-' + root.category.type">
-    <ng-container *ngIf="root.children.length">
-      <div class="cat-subs-title">
-        <i [class]="root.icon" aria-hidden="true"></i>
-        Unterkategorien von {{ root.category.name }}
-      </div>
-      <div class="cat-subs-list" role="group" [attr.aria-label]="'Unterkategorien von ' + root.category.name">
-        <button type="button"
-                class="cat-chip"
-                [class.active]="selected === root.category"
-                [attr.aria-pressed]="selected === root.category"
-                (click)="selectCategory(root.category)">
-          <span class="cat-chip-name">Alle</span>
-          <span class="cat-chip-amount">{{ displayAmount(root.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
-        </button>
-        <button type="button"
-                *ngFor="let sub of root.children; trackBy: trackByNode"
-                class="cat-chip"
-                [class.active]="isActive(sub)"
-                [attr.aria-pressed]="isActive(sub)"
-                (click)="select(sub)"
-                [title]="sub.count + ' Buchungen · ' + (sub.percent | number:'1.0-0') + ' % von ' + root.category.name">
-          <span class="cat-chip-name">{{ sub.category.name }}</span>
-          <span class="cat-chip-amount" [class.positive]="sub.total > 0">{{ displayAmount(sub.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
-          <span class="cat-chip-bar" aria-hidden="true"><span [style.width.%]="sub.barRatio * 100"></span></span>
-        </button>
-      </div>
-    </ng-container>
-  </div>
+  @if (!query && activeRoot; as root) {
+    <div class="cat-subs" [ngClass]="'type-' + root.category.type">
+      @if (root.children.length) {
+        <div class="cat-subs-title">
+          <i [class]="root.icon" aria-hidden="true"></i>
+          Unterkategorien von {{ root.category.name }}
+        </div>
+        <div class="cat-subs-list" role="group" [attr.aria-label]="'Unterkategorien von ' + root.category.name">
+          <button type="button"
+            class="cat-chip"
+            [class.active]="selected === root.category"
+            [attr.aria-pressed]="selected === root.category"
+            (click)="selectCategory(root.category)">
+            <span class="cat-chip-name">Alle</span>
+            <span class="cat-chip-amount">{{ displayAmount(root.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
+          </button>
+          @for (sub of root.children; track trackByNode($index, sub)) {
+            <button type="button"
+              class="cat-chip"
+              [class.active]="isActive(sub)"
+              [attr.aria-pressed]="isActive(sub)"
+              (click)="select(sub)"
+              [title]="sub.count + ' Buchungen · ' + (sub.percent | number:'1.0-0') + ' % von ' + root.category.name">
+              <span class="cat-chip-name">{{ sub.category.name }}</span>
+              <span class="cat-chip-amount" [class.positive]="sub.total > 0">{{ displayAmount(sub.total) | currency:'EUR':'symbol':'1.0-0' }}</span>
+              <span class="cat-chip-bar" aria-hidden="true"><span [style.width.%]="sub.barRatio * 100"></span></span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
 
   <p class="cat-hint" aria-hidden="true">
     <kbd>←</kbd><kbd>→</kbd> navigieren · <kbd>Esc</kbd> eine Ebene zurück · einfach lostippen zum Suchen

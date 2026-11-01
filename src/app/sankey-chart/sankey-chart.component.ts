@@ -1,6 +1,7 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgxEchartsDirective, provideEcharts } from 'ngx-echarts';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
@@ -8,12 +9,12 @@ import { SankeyDataService } from '../services/sankey-data.service';
 import { chartColors, chartFontFamily } from '../chart-theme';
 
 @Component({
-  selector: 'app-sankey-chart',
-  standalone: true,
-  imports: [CommonModule, NgxEchartsDirective],
-  providers: [provideEcharts()],
-  templateUrl: './sankey-chart.component.html',
-  styleUrls: ['./sankey-chart.component.scss']
+    selector: 'app-sankey-chart',
+    imports: [NgxEchartsDirective],
+    providers: [provideEchartsCore({ echarts })],
+    templateUrl: './sankey-chart.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./sankey-chart.component.scss']
 })
 export class SankeyChartComponent implements OnInit, OnChanges {
   @Input() transactions: Transaction[] = [];

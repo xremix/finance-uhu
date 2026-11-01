@@ -1,191 +1,212 @@
 <div class="settings-sticky-shell">
-    <div class="card settings-header">
-        <div class="settings-header-body">
-            <div>
-                <p class="eyebrow mb-1">Einstellungen</p>
-                <h1 class="dashboard-title mb-0 d-flex align-items-center flex-wrap gap-2">
-                    Kategorien &amp; Daten
-                    <span class="unsaved-pill" *ngIf="hasUnsavedChanges">
-                        <i class="fa-solid fa-circle" aria-hidden="true"></i>Ungespeicherte Änderungen
-                    </span>
-                </h1>
-                <p class="settings-meta mb-0" *ngIf="supportsFileSync && linkedSettingsFileName">
-                    <i class="fa-solid fa-link me-1" aria-hidden="true"></i>Verknüpfte Datei: <strong>{{ linkedSettingsFileName }}</strong>
-                </p>
-                <p class="settings-meta text-warning mb-0" *ngIf="!supportsFileSync">
-                    <i class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>Direkter Dateizugriff wird von diesem Browser nicht unterstützt.
-                </p>
-            </div>
+  <div class="card settings-header">
+    <div class="settings-header-body">
+      <div>
+        <p class="eyebrow mb-1">Einstellungen</p>
+        <h1 class="dashboard-title mb-0 d-flex align-items-center flex-wrap gap-2">
+          Kategorien &amp; Daten
+          @if (hasUnsavedChanges) {
+            <span class="unsaved-pill">
+              <i class="fa-solid fa-circle" aria-hidden="true"></i>Ungespeicherte Änderungen
+            </span>
+          }
+        </h1>
+        @if (supportsFileSync && linkedSettingsFileName) {
+          <p class="settings-meta mb-0">
+            <i class="fa-solid fa-link me-1" aria-hidden="true"></i>Verknüpfte Datei: <strong>{{ linkedSettingsFileName }}</strong>
+          </p>
+        }
+        @if (!supportsFileSync) {
+          <p class="settings-meta text-warning mb-0">
+            <i class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>Direkter Dateizugriff wird von diesem Browser nicht unterstützt.
+          </p>
+        }
+      </div>
 
-            <div class="settings-actions">
-                <div ngbDropdown placement="bottom-end" class="d-inline-block">
-                    <button type="button" class="btn btn-outline-secondary" id="settingsMoreActions" ngbDropdownToggle>
-                        <i class="fa-solid fa-ellipsis me-2" aria-hidden="true"></i>Weitere Aktionen
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="settingsMoreActions">
-                        <h6 class="dropdown-header">Datei</h6>
-                        <button ngbDropdownItem (click)="loadSettingsFromFile()" [disabled]="!supportsFileSync">
-                            <i class="fa-solid fa-folder-open me-2" aria-hidden="true"></i>Einstellungen aus Datei laden
-                        </button>
-                        <button ngbDropdownItem (click)="reloadSettingsFromLinkedFile()" [disabled]="!supportsFileSync || !linkedSettingsFileName">
-                            <i class="fa-solid fa-rotate me-2" aria-hidden="true"></i>Verknüpfte Datei nachladen
-                        </button>
-                        <button ngbDropdownItem (click)="saveDatabaseInFile()" [disabled]="!supportsFileSync">
-                            <i class="fa-solid fa-file-export me-2" aria-hidden="true"></i>Datenbank in Datei speichern
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <h6 class="dropdown-header">Kategorien</h6>
-                        <button ngbDropdownItem (click)="fillCategoriesWithDefaults()">
-                            <i class="fa-solid fa-wand-magic-sparkles me-2" aria-hidden="true"></i>App-Standardeinstellungen nachladen
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <h6 class="dropdown-header">Lokaler Speicher</h6>
-                        <button ngbDropdownItem class="text-danger" (click)="deleteAllLocalData()">
-                            <i class="fa-solid fa-trash-can me-2" aria-hidden="true"></i>Alle lokalen Daten löschen
-                        </button>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-primary" (click)="saveState()" [disabled]="isSaving" [attr.aria-busy]="isSaving">
-                    <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>{{ isSaving ? 'Wird gespeichert…' : 'Speichern' }}
-                </button>
-            </div>
+      <div class="settings-actions">
+        <div ngbDropdown placement="bottom-end" class="d-inline-block">
+          <button type="button" class="btn btn-outline-secondary" id="settingsMoreActions" ngbDropdownToggle>
+            <i class="fa-solid fa-ellipsis me-2" aria-hidden="true"></i>Weitere Aktionen
+          </button>
+          <div ngbDropdownMenu aria-labelledby="settingsMoreActions">
+            <h6 class="dropdown-header">Datei</h6>
+            <button ngbDropdownItem (click)="loadSettingsFromFile()" [disabled]="!supportsFileSync">
+              <i class="fa-solid fa-folder-open me-2" aria-hidden="true"></i>Einstellungen aus Datei laden
+            </button>
+            <button ngbDropdownItem (click)="reloadSettingsFromLinkedFile()" [disabled]="!supportsFileSync || !linkedSettingsFileName">
+              <i class="fa-solid fa-rotate me-2" aria-hidden="true"></i>Verknüpfte Datei nachladen
+            </button>
+            <button ngbDropdownItem (click)="saveDatabaseInFile()" [disabled]="!supportsFileSync">
+              <i class="fa-solid fa-file-export me-2" aria-hidden="true"></i>Datenbank in Datei speichern
+            </button>
+            <div class="dropdown-divider"></div>
+            <h6 class="dropdown-header">Kategorien</h6>
+            <button ngbDropdownItem (click)="fillCategoriesWithDefaults()">
+              <i class="fa-solid fa-wand-magic-sparkles me-2" aria-hidden="true"></i>App-Standardeinstellungen nachladen
+            </button>
+            <div class="dropdown-divider"></div>
+            <h6 class="dropdown-header">Lokaler Speicher</h6>
+            <button ngbDropdownItem class="text-danger" (click)="deleteAllLocalData()">
+              <i class="fa-solid fa-trash-can me-2" aria-hidden="true"></i>Alle lokalen Daten löschen
+            </button>
+          </div>
         </div>
+        <button type="button" class="btn btn-primary" (click)="saveState()" [disabled]="isSaving" [attr.aria-busy]="isSaving">
+          <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>{{ isSaving ? 'Wird gespeichert…' : 'Speichern' }}
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <section class="row g-3 mb-4" aria-label="Übersicht">
-    <div class="col-12 col-md-4">
-        <div class="card metric-card h-100">
-            <div class="card-body">
-                <div class="metric-label">Zuletzt gespeichert</div>
-                <div class="settings-metric-value">{{ getLastSavedDate() || 'Noch nie gespeichert' }}</div>
-            </div>
-        </div>
+  <div class="col-12 col-md-4">
+    <div class="card metric-card h-100">
+      <div class="card-body">
+        <div class="metric-label">Zuletzt gespeichert</div>
+        <div class="settings-metric-value">{{ getLastSavedDate() || 'Noch nie gespeichert' }}</div>
+      </div>
     </div>
-    <div class="col-6 col-md-4">
-        <div class="card metric-card h-100">
-            <div class="card-body">
-                <div class="metric-label">Neue Kategorien</div>
-                <div class="metric-value">+{{ getAddedCategoriesCount() }}</div>
-                <div class="metric-hint">Gegenüber den Standardwerten</div>
-            </div>
-        </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="card metric-card h-100">
+      <div class="card-body">
+        <div class="metric-label">Neue Kategorien</div>
+        <div class="metric-value">+{{ getAddedCategoriesCount() }}</div>
+        <div class="metric-hint">Gegenüber den Standardwerten</div>
+      </div>
     </div>
-    <div class="col-6 col-md-4">
-        <div class="card metric-card h-100">
-            <div class="card-body">
-                <div class="metric-label">Neue Keywords</div>
-                <div class="metric-value">+{{ getAddedKeywordsCount().include + getAddedKeywordsCount().exclude }}</div>
-                <div class="metric-hint">{{ getAddedKeywordsCount().include }} Einschließen · {{ getAddedKeywordsCount().exclude }} Ausschließen</div>
-            </div>
-        </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="card metric-card h-100">
+      <div class="card-body">
+        <div class="metric-label">Neue Keywords</div>
+        <div class="metric-value">+{{ getAddedKeywordsCount().include + getAddedKeywordsCount().exclude }}</div>
+        <div class="metric-hint">{{ getAddedKeywordsCount().include }} Einschließen · {{ getAddedKeywordsCount().exclude }} Ausschließen</div>
+      </div>
     </div>
+  </div>
 </section>
 
 <section aria-labelledby="categoriesTitle">
-    <div class="settings-section-header">
-        <div>
-            <h2 id="categoriesTitle" class="section-title mb-0">Kategorien verwalten</h2>
-            <p class="settings-meta mb-0">Buchungen werden anhand der Keywords automatisch zugeordnet. Eigene Keywords sind farbig markiert.</p>
-        </div>
-        <button type="button" class="btn btn-primary" (click)="addCategory()">
-            <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>Neue Kategorie
-        </button>
+  <div class="settings-section-header">
+    <div>
+      <h2 id="categoriesTitle" class="section-title mb-0">Kategorien verwalten</h2>
+      <p class="settings-meta mb-0">Buchungen werden anhand der Keywords automatisch zugeordnet. Eigene Keywords sind farbig markiert.</p>
     </div>
+    <button type="button" class="btn btn-primary" (click)="addCategory()">
+      <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>Neue Kategorie
+    </button>
+  </div>
 
-    <div class="category-list">
-        <ng-container *ngFor="let category of dataState.categories">
-            <ng-container *ngTemplateOutlet="categoryTemplate; context:{category: category, nested: false}"></ng-container>
-        </ng-container>
-    </div>
+  <div class="category-list">
+    @for (category of dataState.categories; track category) {
+      <ng-container *ngTemplateOutlet="categoryTemplate; context:{category: category, nested: false}"></ng-container>
+    }
+  </div>
 </section>
 
 <ng-template #categoryTemplate let-category="category" let-nested="nested">
-    <article class="category-card" [class.card]="!nested" [class.is-nested]="nested">
-        <header class="category-card-header">
-            <div class="category-identity">
-                <span class="category-icon-tile"><i [class]="category.icon || 'fa-solid fa-tag'" aria-hidden="true"></i></span>
-                <div class="min-w-0">
-                    <h3 class="category-title">{{ category.name }}</h3>
-                    <div class="category-tags">
-                        <span class="type-pill" [ngClass]="'is-' + category.type">{{ getTypeLabel(category.type) }}</span>
-                        <span class="type-pill is-muted" *ngIf="category.lowPrio">Niedrige Priorität</span>
-                        <span class="category-count" *ngIf="category.subCategories?.length">{{ category.subCategories.length }} Unterkategorien</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="category-actions">
-                <button type="button" class="icon-btn" (click)="addCategory(category.subCategories, category.name)"
-                    title="Unterkategorie hinzufügen" [attr.aria-label]="'Unterkategorie zu ' + category.name + ' hinzufügen'">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="icon-btn" (click)="renameCategory(category)"
-                    title="Umbenennen" [attr.aria-label]="category.name + ' umbenennen'">
-                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="icon-btn" (click)="editIcon(category)"
-                    title="Icon ändern" [attr.aria-label]="'Icon von ' + category.name + ' ändern'">
-                    <i class="fa-solid fa-icons" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="icon-btn" (click)="toggleType(category)"
-                    title="Typ wechseln (Ausgaben → Sparen → Einnahmen)" [attr.aria-label]="'Typ von ' + category.name + ' wechseln'">
-                    <i class="fa-solid fa-right-left" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="icon-btn" (click)="toggleLowPrio(category)" [class.active]="category.lowPrio"
-                    [attr.aria-pressed]="!!category.lowPrio" title="Niedrige Priorität umschalten"
-                    [attr.aria-label]="'Niedrige Priorität für ' + category.name + ' umschalten'">
-                    <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="icon-btn is-danger" (click)="deleteCategory(category)"
-                    title="Löschen" [attr.aria-label]="category.name + ' löschen'">
-                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                </button>
-            </div>
-        </header>
-
-        <div class="subcategory-list" *ngIf="category.subCategories?.length">
-            <ng-container *ngFor="let sub of category.subCategories">
-                <ng-container *ngTemplateOutlet="categoryTemplate; context:{category: sub, nested: true}"></ng-container>
-            </ng-container>
+  <article class="category-card" [class.card]="!nested" [class.is-nested]="nested">
+    <header class="category-card-header">
+      <div class="category-identity">
+        <span class="category-icon-tile"><i [class]="category.icon || 'fa-solid fa-tag'" aria-hidden="true"></i></span>
+        <div class="min-w-0">
+          <h3 class="category-title">{{ category.name }}</h3>
+          <div class="category-tags">
+            <span class="type-pill" [ngClass]="'is-' + category.type">{{ getTypeLabel(category.type) }}</span>
+            @if (category.lowPrio) {
+              <span class="type-pill is-muted">Niedrige Priorität</span>
+            }
+            @if (category.subCategories?.length) {
+              <span class="category-count">{{ category.subCategories.length }} Unterkategorien</span>
+            }
+          </div>
         </div>
+      </div>
 
-        <div class="keyword-grid" *ngIf="!category.subCategories?.length">
-            <div class="keyword-group">
-                <div class="keyword-group-header">
-                    <span class="filter-label mb-0">Einschließen</span>
-                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.keywords, category.name)">
-                        <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
-                    </button>
-                </div>
-                <div class="keyword-list">
-                    <button type="button" *ngFor="let keyword of category.keywords | order"
-                        [class]="getKeywordClass(category, keyword, false)"
-                        (click)="removeKeyWord(category.keywords, keyword)"
-                        [attr.aria-label]="'Keyword ' + keyword + ' entfernen'" title="Entfernen">
-                        {{ keyword }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                    <span *ngIf="!category.keywords?.length" class="keyword-empty">Keine Keywords</span>
-                </div>
-            </div>
+      <div class="category-actions">
+        <button type="button" class="icon-btn" (click)="addCategory(category.subCategories, category.name)"
+          title="Unterkategorie hinzufügen" [attr.aria-label]="'Unterkategorie zu ' + category.name + ' hinzufügen'">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-btn" (click)="renameCategory(category)"
+          title="Umbenennen" [attr.aria-label]="category.name + ' umbenennen'">
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-btn" (click)="editIcon(category)"
+          title="Icon ändern" [attr.aria-label]="'Icon von ' + category.name + ' ändern'">
+          <i class="fa-solid fa-icons" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-btn" (click)="toggleType(category)"
+          title="Typ wechseln (Ausgaben → Sparen → Einnahmen)" [attr.aria-label]="'Typ von ' + category.name + ' wechseln'">
+          <i class="fa-solid fa-right-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-btn" (click)="toggleLowPrio(category)" [class.active]="category.lowPrio"
+          [attr.aria-pressed]="!!category.lowPrio" title="Niedrige Priorität umschalten"
+          [attr.aria-label]="'Niedrige Priorität für ' + category.name + ' umschalten'">
+          <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-btn is-danger" (click)="deleteCategory(category)"
+          title="Löschen" [attr.aria-label]="category.name + ' löschen'">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
 
-            <div class="keyword-group">
-                <div class="keyword-group-header">
-                    <span class="filter-label mb-0">Ausschließen</span>
-                    <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.excludeKeywords, category.name, true)">
-                        <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
-                    </button>
-                </div>
-                <div class="keyword-list">
-                    <button type="button" *ngFor="let keyword of category.excludeKeywords | order"
-                        [class]="getKeywordClass(category, keyword, true)"
-                        (click)="removeKeyWord(category.excludeKeywords, keyword)"
-                        [attr.aria-label]="'Ausschluss-Keyword ' + keyword + ' entfernen'" title="Entfernen">
-                        {{ keyword }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                    <span *ngIf="!category.excludeKeywords?.length" class="keyword-empty">Keine Ausschlüsse</span>
-                </div>
-            </div>
+    @if (category.subCategories?.length) {
+      <div class="subcategory-list">
+        @for (sub of category.subCategories; track sub) {
+          <ng-container *ngTemplateOutlet="categoryTemplate; context:{category: sub, nested: true}"></ng-container>
+        }
+      </div>
+    }
+
+    @if (!category.subCategories?.length) {
+      <div class="keyword-grid">
+        <div class="keyword-group">
+          <div class="keyword-group-header">
+            <span class="filter-label mb-0">Einschließen</span>
+            <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.keywords, category.name)">
+              <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
+            </button>
+          </div>
+          <div class="keyword-list">
+            @for (keyword of category.keywords | order; track keyword) {
+              <button type="button"
+                [class]="getKeywordClass(category, keyword, false)"
+                (click)="removeKeyWord(category.keywords, keyword)"
+                [attr.aria-label]="'Keyword ' + keyword + ' entfernen'" title="Entfernen">
+                {{ keyword }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            }
+            @if (!category.keywords?.length) {
+              <span class="keyword-empty">Keine Keywords</span>
+            }
+          </div>
         </div>
-    </article>
+        <div class="keyword-group">
+          <div class="keyword-group-header">
+            <span class="filter-label mb-0">Ausschließen</span>
+            <button type="button" class="btn btn-sm btn-link keyword-add" (click)="addKeyWord(category.excludeKeywords, category.name, true)">
+              <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Keyword
+            </button>
+          </div>
+          <div class="keyword-list">
+            @for (keyword of category.excludeKeywords | order; track keyword) {
+              <button type="button"
+                [class]="getKeywordClass(category, keyword, true)"
+                (click)="removeKeyWord(category.excludeKeywords, keyword)"
+                [attr.aria-label]="'Ausschluss-Keyword ' + keyword + ' entfernen'" title="Entfernen">
+                {{ keyword }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            }
+            @if (!category.excludeKeywords?.length) {
+              <span class="keyword-empty">Keine Ausschlüsse</span>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </article>
 </ng-template>

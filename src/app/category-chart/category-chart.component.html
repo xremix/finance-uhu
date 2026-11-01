@@ -1,15 +1,17 @@
-<div class="card chart-card" *ngIf="labels.length && series.length">
+@if (labels.length && series.length) {
+  <div class="card chart-card">
     <div class="card-body">
-        <div class="chart-card-header">
-            <div>
-                <h2 class="section-title mb-0">Ausgaben nach Kategorie</h2>
-                <p class="chart-subtitle mb-0">Segment anklicken, um zu filtern</p>
-            </div>
+      <div class="chart-card-header">
+        <div>
+          <h2 class="section-title mb-0">Ausgaben nach Kategorie</h2>
+          <p class="chart-subtitle mb-0">Segment anklicken, um zu filtern</p>
         </div>
-        <div role="img" [attr.aria-label]="ariaSummary">
+      </div>
+      <div role="img" [attr.aria-label]="ariaSummary">
         <apx-chart [series]="series" [chart]="chartOptions.chart" [labels]="labels" [legend]="chartOptions.legend"
-            [colors]="chartOptions.colors" [dataLabels]="chartOptions.dataLabels" [stroke]="chartOptions.stroke"
-            [tooltip]="chartOptions.tooltip" [plotOptions]="chartOptions.plotOptions"></apx-chart>
-        </div>
+          [colors]="chartOptions.colors" [dataLabels]="chartOptions.dataLabels" [stroke]="chartOptions.stroke"
+        [tooltip]="chartOptions.tooltip" [plotOptions]="chartOptions.plotOptions"></apx-chart>
+      </div>
     </div>
-</div>
+  </div>
+}

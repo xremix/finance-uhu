@@ -1,10 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Transaction } from '../models/transaction';
 
 @Component({
-  selector: 'app-monthy-billance',
-  templateUrl: './monthy-billance.component.html',
-  styleUrl: './monthy-billance.component.scss',
+    selector: 'app-monthy-billance',
+    templateUrl: './monthy-billance.component.html',
+    styleUrl: './monthy-billance.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MonthyBillanceComponent implements OnInit {
   @Input() dates: Date[] = [];

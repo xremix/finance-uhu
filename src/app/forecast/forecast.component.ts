@@ -1,4 +1,4 @@
-import { Component, DoCheck } from '@angular/core';
+import { Component, DoCheck, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ApexAxisChartSeries,
@@ -31,11 +31,11 @@ interface ForecastChart {
 }
 
 @Component({
-  selector: 'app-forecast',
-  standalone: true,
-  imports: [CommonModule, NgApexchartsModule],
-  templateUrl: './forecast.component.html',
-  styleUrl: './forecast.component.scss',
+    selector: 'app-forecast',
+    imports: [CommonModule, NgApexchartsModule],
+    templateUrl: './forecast.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './forecast.component.scss'
 })
 export class ForecastComponent implements DoCheck {
   readonly horizonWeeks = 12;
@@ -109,7 +109,7 @@ export class ForecastComponent implements DoCheck {
       grid: { borderColor: chartColors.grid },
       tooltip: {
         x: { format: 'dd.MM.yyyy' },
-        y: { formatter: (value) => formatCurrency(value) },
+        y: { formatter: (value) => value == null ? '' : formatCurrency(value) },
       },
     };
   }

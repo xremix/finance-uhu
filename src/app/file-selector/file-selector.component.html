@@ -1,157 +1,168 @@
-<div class="big" *ngIf="big">
-  <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
-  <div class="file-picker-actions">
-    <span class="retention-control new-file-retention-control">
-      <button type="button" class="retention-toggle" [class.is-persistent]="saveNewFilesLocally"
-        [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
-        [ngbTooltip]="newFilesPersistenceDescription" placement="top" container="body"
-        triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
-        <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
-      </button>
-    </span>
-    <label [for]="inputId" class="file-select-button">
-      Dateien wählen
-    </label>
-  </div>
-
-  <div class="btn-group d-flex w-fit-content mx-auto mt-2 bank-export-button-group" ngbDropdown>
-    <button type="button" class="btn btn-outline-primary bank-select-toggle" ngbDropdownToggle aria-label="Bank für Export-Hilfe auswählen">
-      <i class="fa-solid fa-building-columns me-2" aria-hidden="true"></i>{{ selectedBank }}
-    </button>
-    <div ngbDropdownMenu aria-label="Bank auswählen">
-      <button ngbDropdownItem *ngFor="let bank of banks" (click)="selectedBank = bank">{{ bank }}</button>
-    </div>
-    <button type="button" class="btn btn-primary export-help-button" (click)="showExportHelp = true">
-      <i class="fa-regular fa-circle-question me-2" aria-hidden="true"></i>Export-Hilfe
-    </button>
-  </div>
-
-  <div class="demo-data-action">
-    <button type="button" class="btn btn-link btn-sm demo-data-button" [disabled]="isLoadingDemoData"
-      [attr.aria-busy]="isLoadingDemoData" (click)="loadDemoData()">
-      <i [class]="isLoadingDemoData ? 'fa-solid fa-spinner fa-spin me-2' : 'fa-solid fa-flask me-2'" aria-hidden="true"></i>
-      {{ isLoadingDemoData ? 'Beispieldaten werden geladen…' : 'Mit Beispieldaten testen' }}
-    </button>
-  </div>
-
-  <div *ngIf="showExportHelp" (click)="closeExportHelp()">
-    <div class="modal-backdrop fade show"></div>
-    <section class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="exportHelpTitle" (click)="$event.stopPropagation()">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 id="exportHelpTitle" class="modal-title fs-5">{{ selectedBank }}: Umsätze als CSV exportieren</h2>
-            <button type="button" class="btn-close" aria-label="Schließen" (click)="closeExportHelp()"></button>
-          </div>
-          <div class="modal-body">
-            <p>Datei aus dem Banking laden:</p>
-            <ol>
-              <li *ngFor="let step of exportSteps">{{ step }}</li>
-            </ol>
-            <p class="mb-0">Achte darauf, wirklich <strong>CSV</strong> auszuwählen. PDF-Kontoauszüge können hier nicht ausgewertet werden.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" (click)="closeExportHelp()">Verstanden</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div class="file-list" *ngIf="storedFiles.length > 0">
-    <div class="file-item" *ngFor="let file of storedFiles">
-      <span class="file-name" [title]="file.fileName">{{ file.fileName }}</span>
-      <span class="retention-control file-retention-control">
-        <button type="button" class="retention-toggle" [class.is-persistent]="file.persisted"
-          [attr.aria-pressed]="file.persisted" [attr.aria-label]="getFilePersistenceDescription(file)"
-          [ngbTooltip]="getFilePersistenceDescription(file)" placement="top" container="body"
-          triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleFilePersistence(file)">
-          <i [class]="file.persisted ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+@if (big) {
+  <div class="big">
+    <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
+    <div class="file-picker-actions">
+      <span class="retention-control new-file-retention-control">
+        <button type="button" class="retention-toggle" [class.is-persistent]="saveNewFilesLocally"
+          [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
+          [ngbTooltip]="newFilesPersistenceDescription" placement="top" container="body"
+          triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
+          <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
         </button>
       </span>
-      <button type="button" class="file-remove-btn" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
+      <label [for]="inputId" class="file-select-button">
+        Dateien wählen
+      </label>
     </div>
-
-    <button type="button" class="clear-files-btn" (click)="clearFiles()" title="Alle Dateien löschen">
-      <i class="fa-solid fa-trash" aria-hidden="true"></i> Alle löschen
-    </button>
-  </div>
-</div>
-<div class="small d-inline" *ngIf="!big" ngbDropdown placement="bottom-end" autoClose="outside" container="body">
-  <button type="button" class="top-nav-btn" ngbDropdownToggle title="Dateien verwalten"
-    [attr.aria-label]="'Dateien verwalten' + (storedFiles.length ? ', ' + storedFiles.length + ' geladen' : '')">
-    <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-    <span>Dateien</span>
-    <span class="file-counter" aria-hidden="true" *ngIf="storedFiles.length > 0">{{ storedFiles.length }}</span>
-  </button>
-
-  <div ngbDropdownMenu class="file-popover-menu">
-    <div class="file-popover-actions">
-      <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
-      <div class="file-popover-upload-group">
-        <span class="retention-control new-file-retention-control">
-          <button type="button" class="retention-toggle" [class.is-persistent]="saveNewFilesLocally"
-            [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
-            [ngbTooltip]="newFilesPersistenceDescription" placement="bottom" container="body"
-            triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
-            <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
-          </button>
-        </span>
-        <label [for]="inputId" class="file-popover-btn" title="CSV-Dateien laden">
-          <i class="fa-solid fa-upload" aria-hidden="true"></i>
-          <span>Datei hinzufügen</span>
-        </label>
+    <div class="btn-group d-flex w-fit-content mx-auto mt-2 bank-export-button-group" ngbDropdown>
+      <button type="button" class="btn btn-outline-primary bank-select-toggle" ngbDropdownToggle aria-label="Bank für Export-Hilfe auswählen">
+        <i class="fa-solid fa-building-columns me-2" aria-hidden="true"></i>{{ selectedBank }}
+      </button>
+      <div ngbDropdownMenu aria-label="Bank auswählen">
+        @for (bank of banks; track bank) {
+          <button ngbDropdownItem (click)="selectedBank = bank">{{ bank }}</button>
+        }
       </div>
-
-      <button type="button" class="file-popover-btn danger" (click)="clearFiles()" [disabled]="storedFiles.length === 0" title="Alle Dateien löschen">
-        <i class="fa-solid fa-trash" aria-hidden="true"></i>
-        <span>Alle löschen</span>
+      <button type="button" class="btn btn-primary export-help-button" (click)="showExportHelp = true">
+        <i class="fa-regular fa-circle-question me-2" aria-hidden="true"></i>Export-Hilfe
       </button>
     </div>
-
-    <div class="file-popover-list" *ngIf="storedFiles.length > 0; else noFilesTemplate">
-      <div class="file-popover-item" *ngFor="let file of sortedStoredFilesForPopup">
-        <div class="file-popover-main">
-          <div class="file-popover-head">
-            <span class="file-popover-name" [title]="file.fileName">{{ truncateFileName(file.fileName) }}</span>
+    <div class="demo-data-action">
+      <button type="button" class="btn btn-link btn-sm demo-data-button" [disabled]="isLoadingDemoData"
+        [attr.aria-busy]="isLoadingDemoData" (click)="loadDemoData()">
+        <i [class]="isLoadingDemoData ? 'fa-solid fa-spinner fa-spin me-2' : 'fa-solid fa-flask me-2'" aria-hidden="true"></i>
+        {{ isLoadingDemoData ? 'Beispieldaten werden geladen…' : 'Mit Beispieldaten testen' }}
+      </button>
+    </div>
+    @if (showExportHelp) {
+      <div (click)="closeExportHelp()">
+        <div class="modal-backdrop fade show"></div>
+        <section class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="exportHelpTitle" (click)="$event.stopPropagation()">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2 id="exportHelpTitle" class="modal-title fs-5">{{ selectedBank }}: Umsätze als CSV exportieren</h2>
+                <button type="button" class="btn-close" aria-label="Schließen" (click)="closeExportHelp()"></button>
+              </div>
+              <div class="modal-body">
+                <p>Datei aus dem Banking laden:</p>
+                <ol>
+                  @for (step of exportSteps; track step) {
+                    <li>{{ step }}</li>
+                  }
+                </ol>
+                <p class="mb-0">Achte darauf, wirklich <strong>CSV</strong> auszuwählen. PDF-Kontoauszüge können hier nicht ausgewertet werden.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="closeExportHelp()">Verstanden</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+    @if (storedFiles.length > 0) {
+      <div class="file-list">
+        @for (file of storedFiles; track file) {
+          <div class="file-item">
+            <span class="file-name" [title]="file.fileName">{{ file.fileName }}</span>
             <span class="retention-control file-retention-control">
               <button type="button" class="retention-toggle" [class.is-persistent]="file.persisted"
                 [attr.aria-pressed]="file.persisted" [attr.aria-label]="getFilePersistenceDescription(file)"
-                [ngbTooltip]="getFilePersistenceDescription(file)" placement="bottom" container="body"
+                [ngbTooltip]="getFilePersistenceDescription(file)" placement="top" container="body"
                 triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleFilePersistence(file)">
                 <i [class]="file.persisted ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
               </button>
             </span>
-            <button type="button" class="file-popover-remove" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
+            <button type="button" class="file-remove-btn" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
               <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
           </div>
-
-          <div class="file-range" *ngIf="getFileTimeline(file.fileName) as timeline">
-            <div class="file-range-track" *ngIf="timeline.hasRange; else noDateRange">
-              <span class="file-range-line" [style.left.%]="timeline.leftPct" [style.width.%]="timeline.widthPct"></span>
-            </div>
-            <ng-template #noDateRange>
-              <div class="file-range-track empty"></div>
-            </ng-template>
-            <div class="file-range-labels">
-              <span>{{ timeline.startLabel }}</span>
-              <span>{{ timeline.endLabel }}</span>
-            </div>
-          </div>
-        </div>
+        }
+        <button type="button" class="clear-files-btn" (click)="clearFiles()" title="Alle Dateien löschen">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i> Alle löschen
+        </button>
       </div>
-    </div>
-
-    <ng-template #noFilesTemplate>
-      <div class="file-popover-empty">Keine Dateien geladen</div>
-    </ng-template>
-
-    <p class="file-popover-privacy">
-      <i class="fa-solid fa-lock" aria-hidden="true"></i>
-      <span>Umsatzdateien werden standardmäßig nicht gespeichert. Klicke beim Upload auf das Schloss oder aktiviere die Speicherung pro Datei.</span>
-    </p>
+    }
   </div>
-</div>
+}
+@if (!big) {
+  <div class="small d-inline" ngbDropdown placement="bottom-end" autoClose="outside" container="body">
+    <button type="button" class="top-nav-btn" ngbDropdownToggle title="Dateien verwalten"
+      [attr.aria-label]="'Dateien verwalten' + (storedFiles.length ? ', ' + storedFiles.length + ' geladen' : '')">
+      <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+      <span>Dateien</span>
+      @if (storedFiles.length > 0) {
+        <span class="file-counter" aria-hidden="true">{{ storedFiles.length }}</span>
+      }
+    </button>
+    <div ngbDropdownMenu class="file-popover-menu">
+      <div class="file-popover-actions">
+        <input type="file" name="file" [id]="inputId" class="inputfile" accept=".csv,.txt,.xls,.xlsx" multiple (change)="fileChanged($event)" />
+        <div class="file-popover-upload-group">
+          <span class="retention-control new-file-retention-control">
+            <button type="button" class="retention-toggle" [class.is-persistent]="saveNewFilesLocally"
+              [attr.aria-pressed]="saveNewFilesLocally" [attr.aria-label]="newFilesPersistenceDescription"
+              [ngbTooltip]="newFilesPersistenceDescription" placement="bottom" container="body"
+              triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleSaveNewFilesLocally()">
+              <i [class]="saveNewFilesLocally ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+            </button>
+          </span>
+          <label [for]="inputId" class="file-popover-btn" title="CSV-Dateien laden">
+            <i class="fa-solid fa-upload" aria-hidden="true"></i>
+            <span>Datei hinzufügen</span>
+          </label>
+        </div>
+        <button type="button" class="file-popover-btn danger" (click)="clearFiles()" [disabled]="storedFiles.length === 0" title="Alle Dateien löschen">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          <span>Alle löschen</span>
+        </button>
+      </div>
+      @if (storedFiles.length > 0) {
+        <div class="file-popover-list">
+          @for (file of sortedStoredFilesForPopup; track file) {
+            <div class="file-popover-item">
+              <div class="file-popover-main">
+                <div class="file-popover-head">
+                  <span class="file-popover-name" [title]="file.fileName">{{ truncateFileName(file.fileName) }}</span>
+                  <span class="retention-control file-retention-control">
+                    <button type="button" class="retention-toggle" [class.is-persistent]="file.persisted"
+                      [attr.aria-pressed]="file.persisted" [attr.aria-label]="getFilePersistenceDescription(file)"
+                      [ngbTooltip]="getFilePersistenceDescription(file)" placement="bottom" container="body"
+                      triggers="mouseenter:mouseleave focusin:focusout" (click)="toggleFilePersistence(file)">
+                      <i [class]="file.persisted ? 'fa-solid fa-floppy-disk' : 'fa-solid fa-lock'" aria-hidden="true"></i>
+                    </button>
+                  </span>
+                  <button type="button" class="file-popover-remove" (click)="removeFile(file.fileName)" title="Datei entfernen" [attr.aria-label]="file.fileName + ' entfernen'">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                  </button>
+                </div>
+                @if (getFileTimeline(file.fileName); as timeline) {
+                  <div class="file-range">
+                    @if (timeline.hasRange) {
+                      <div class="file-range-track">
+                        <span class="file-range-line" [style.left.%]="timeline.leftPct" [style.width.%]="timeline.widthPct"></span>
+                      </div>
+                    } @else {
+                      <div class="file-range-track empty"></div>
+                    }
+                    <div class="file-range-labels">
+                      <span>{{ timeline.startLabel }}</span>
+                      <span>{{ timeline.endLabel }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="file-popover-empty">Keine Dateien geladen</div>
+      }
+      <p class="file-popover-privacy">
+        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+        <span>Umsatzdateien werden standardmäßig nicht gespeichert. Klicke beim Upload auf das Schloss oder aktiviere die Speicherung pro Datei.</span>
+      </p>
+    </div>
+  </div>
+}

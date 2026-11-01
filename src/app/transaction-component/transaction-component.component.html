@@ -1,29 +1,33 @@
 <div class="transaction-row">
-    <div class="transaction-date">
-        <span class="transaction-day">{{ dayLabel }}</span>
-        <span class="transaction-month">{{ monthLabel }}</span>
-    </div>
+  <div class="transaction-date">
+    <span class="transaction-day">{{ dayLabel }}</span>
+    <span class="transaction-month">{{ monthLabel }}</span>
+  </div>
 
-    <div class="transaction-main" triggers="mouseenter:mouseleave" [ngbPopover]="transaction.raw">
-        <div class="transaction-payee">{{ transaction.payerReceiver || 'Unbekannt' }}</div>
-        <div class="transaction-purpose">{{ transaction.purpose }}</div>
-        <div *ngIf="recurring" class="transaction-recurring">
-            <i class="fa-solid fa-repeat me-1" aria-hidden="true"></i>
-            {{ recurring.frequencyLabel }} · {{ recurring.amountType === 'fixed' ? 'fester Betrag' : 'variabel' }} · {{ recurring.transactions.length }}× gebucht<span *ngIf="!recurring.isActive"> · vermutlich beendet</span>
-        </div>
+  <div class="transaction-main" triggers="mouseenter:mouseleave" [ngbPopover]="transaction.raw">
+    <div class="transaction-payee">{{ transaction.payerReceiver || 'Unbekannt' }}</div>
+    <div class="transaction-purpose">{{ transaction.purpose }}</div>
+    @if (recurring) {
+      <div class="transaction-recurring">
+        <i class="fa-solid fa-repeat me-1" aria-hidden="true"></i>
+        {{ recurring.frequencyLabel }} · {{ recurring.amountType === 'fixed' ? 'fester Betrag' : 'variabel' }} · {{ recurring.transactions.length }}× gebucht@if (!recurring.isActive) {
+        <span> · vermutlich beendet</span>
+      }
     </div>
+  }
+</div>
 
-    <button type="button" class="transaction-category" [class.uncategorized]="transaction.category?.name === 'Sonstiges'"
-        (click)="showMatchingKeywords(transaction)" title="Passende Keywords anzeigen">
-        {{ transaction.category?.name || 'Ohne Kategorie' }}
-    </button>
+<button type="button" class="transaction-category" [class.uncategorized]="transaction.category?.name === 'Sonstiges'"
+  (click)="showMatchingKeywords(transaction)" title="Passende Keywords anzeigen">
+  {{ transaction.category?.name || 'Ohne Kategorie' }}
+</button>
 
-    <div class="transaction-amount" [ngClass]="amountClass">
-        <ng-container *ngIf="isBalanced">
-            <i class="fa-solid fa-plus-minus me-1"
-                triggers="mouseenter:mouseleave" [ngbPopover]="transaction.balancedByDescription || transaction.balancedOfDescription"
-                aria-hidden="true"></i><span class="visually-hidden">Ausgeglichen: </span>
-        </ng-container>
-        {{ displayAmount | currency:'EUR' }}
-    </div>
+<div class="transaction-amount" [ngClass]="amountClass">
+  @if (isBalanced) {
+    <i class="fa-solid fa-plus-minus me-1"
+      triggers="mouseenter:mouseleave" [ngbPopover]="transaction.balancedByDescription || transaction.balancedOfDescription"
+      aria-hidden="true"></i><span class="visually-hidden">Ausgeglichen: </span>
+    }
+    {{ displayAmount | currency:'EUR' }}
+  </div>
 </div>

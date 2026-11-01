@@ -1,3 +1,7 @@
-<div *ngFor="let categorySummary of categorySummaries | orderBy: 'total'; trackBy: trackByCategoryId">
-    <app-category-component [amountMonths]="amountMonths" [showAverage]="dataState.showAverage" [categorySummary]="categorySummary" *ngIf="categorySummary.total != 0"></app-category-component>
- </div>
+@for (categorySummary of categorySummaries | orderBy: 'total'; track trackByCategoryId($index, categorySummary)) {
+  <div>
+    @if (categorySummary.total != 0) {
+      <app-category-component [amountMonths]="amountMonths" [showAverage]="dataState.showAverage" [categorySummary]="categorySummary"></app-category-component>
+    }
+  </div>
+}

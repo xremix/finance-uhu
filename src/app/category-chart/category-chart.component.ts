@@ -1,16 +1,16 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { ApexChart, ApexLegend, NgApexchartsModule } from 'ng-apexcharts';
-import { CommonModule } from '@angular/common';
+
 import { DataState } from '../services/data-state';
 import { Category } from '../models/category';
 import { chartColors, chartFontFamily, formatCompactCurrency, formatCurrency } from '../chart-theme';
 
 @Component({
-  selector: 'app-category-chart',
-  standalone: true,
-  imports: [NgApexchartsModule, CommonModule],
-  templateUrl: './category-chart.component.html',
-  styleUrl: './category-chart.component.scss',
+    selector: 'app-category-chart',
+    imports: [NgApexchartsModule],
+    templateUrl: './category-chart.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './category-chart.component.scss'
 })
 export class CategoryChartComponent implements OnChanges, OnInit {
   @Input() data: Category[] = [];
@@ -87,8 +87,10 @@ export class CategoryChartComponent implements OnChanges, OnInit {
         foreColor: chartColors.text,
         events: {
           dataPointSelection: function (event, chartContext, config) {
+            if (!config || config.dataPointIndex < 0) return;
             var ix = config.dataPointIndex;
-            const label = config.w.config.labels[ix];
+            const label = config.w.config.labels?.[ix];
+            if (!label) return;
             const category = self.dataState.categories.find((c) => c.name === label);
             if (category) {
               self.dataState.filterByCategory(category);

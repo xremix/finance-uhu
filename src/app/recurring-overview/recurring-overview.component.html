@@ -8,123 +8,162 @@
     </div>
     <div class="btn-group btn-group-sm" role="group" aria-label="Status filtern">
       <button type="button" class="btn" [ngClass]="statusFilter === 'active' ? 'btn-primary' : 'btn-outline-primary'"
-        [attr.aria-pressed]="statusFilter === 'active'" (click)="statusFilter = 'active'">Aktiv ({{ activeSeries.length }})</button>
+      [attr.aria-pressed]="statusFilter === 'active'" (click)="statusFilter = 'active'">Aktiv ({{ activeSeries.length }})</button>
       <button type="button" class="btn" [ngClass]="statusFilter === 'ended' ? 'btn-primary' : 'btn-outline-primary'"
-        [attr.aria-pressed]="statusFilter === 'ended'" (click)="statusFilter = 'ended'">Beendet ({{ endedCount }})</button>
+      [attr.aria-pressed]="statusFilter === 'ended'" (click)="statusFilter = 'ended'">Beendet ({{ endedCount }})</button>
       <button type="button" class="btn" [ngClass]="statusFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'"
-        [attr.aria-pressed]="statusFilter === 'all'" (click)="statusFilter = 'all'">Alle</button>
+      [attr.aria-pressed]="statusFilter === 'all'" (click)="statusFilter = 'all'">Alle</button>
     </div>
   </div>
 
-  <div class="summary-grid mb-3" *ngIf="activeSeries.length">
-    <div class="summary-tile">
-      <div class="summary-label">Fixkosten pro Monat</div>
-      <div class="summary-value text-danger">{{ -monthlyExpenses | currency:'EUR':'symbol':'1.0-0' }}</div>
-      <div class="summary-hint">
-        {{ -monthlyExpenses * 12 | currency:'EUR':'symbol':'1.0-0' }} pro Jahr
-        <ng-container *ngIf="fixedShareOfIncome !== undefined"> · {{ fixedShareOfIncome | percent:'1.0-0' }} der regelm. Einnahmen</ng-container>
-      </div>
-    </div>
-    <div class="summary-tile">
-      <div class="summary-label">Sparraten pro Monat</div>
-      <div class="summary-value">{{ -monthlySavings | currency:'EUR':'symbol':'1.0-0' }}</div>
-      <div class="summary-hint">{{ -monthlySavings * 12 | currency:'EUR':'symbol':'1.0-0' }} pro Jahr</div>
-    </div>
-    <div class="summary-tile">
-      <div class="summary-label">Regelm. Einnahmen pro Monat</div>
-      <div class="summary-value text-success">{{ monthlyIncome | currency:'EUR':'symbol':'1.0-0' }}</div>
-      <div class="summary-hint">Gehalt, Miete, Erstattungen …</div>
-    </div>
-    <div class="summary-tile" [class.is-warning]="priceIncreases.length">
-      <div class="summary-label">Preiserhöhungen</div>
-      <div class="summary-value">{{ priceIncreases.length }}</div>
-      <div class="summary-hint" *ngIf="priceIncreases.length; else noIncrease">
-        <span *ngFor="let s of priceIncreases.slice(0, 2); let last = last">{{ s.name }}<span *ngIf="!last">, </span></span>
-        <span *ngIf="priceIncreases.length > 2"> +{{ priceIncreases.length - 2 }}</span>
-      </div>
-      <ng-template #noIncrease><div class="summary-hint">Bei aktiven Zahlungen</div></ng-template>
-    </div>
-  </div>
-
-  <div class="empty-state" *ngIf="groups.length === 0">
-    <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-    <p class="mb-0">
-      Keine wiederkehrenden Zahlungen gefunden.
-      <span class="d-block small text-muted">Für die Erkennung werden mindestens drei regelmäßige Buchungen (bei jährlichen Zahlungen zwei) benötigt.</span>
-    </p>
-  </div>
-
-  <section class="series-group" *ngFor="let group of groups" [attr.aria-label]="group.title">
-    <header class="group-header">
-      <h3 class="group-title"><i [class]="group.icon" aria-hidden="true"></i>{{ group.title }}</h3>
-      <span class="group-total" *ngIf="group.monthlyTotal">
-        {{ group.monthlyTotal | currency:'EUR':'symbol':'1.0-0' }} / Monat
-      </span>
-    </header>
-
-    <div class="series-list">
-      <div class="series" *ngFor="let series of group.series; trackBy: trackSeries" [class.is-ended]="!series.isActive"
-        [class.is-open]="expandedKey === series.key">
-        <button type="button" class="series-row" (click)="toggle(series)" [attr.aria-expanded]="expandedKey === series.key"
-          [attr.aria-controls]="domId(series)">
-          <span class="series-icon" aria-hidden="true">
-            <i [class]="series.category?.icon || 'fa-solid fa-rotate'"></i>
-          </span>
-
-          <span class="series-main">
-            <span class="series-name">
-              {{ series.name }}
-              <span class="series-via" *ngIf="series.via">via {{ series.via }}</span>
-            </span>
-            <span class="series-meta">
-              <span class="meta-pill">{{ series.frequencyLabel }}</span>
-              <span class="meta-pill" [class.is-variable]="series.amountType === 'variable'">
-                {{ series.amountType === 'fixed' ? 'Fester Betrag' : 'Variabel' }}
-              </span>
-              <span class="meta-pill is-up" *ngIf="series.priceChange as change"
-                [class.is-down]="change.percent < 0"
-                [title]="'Seit ' + shortDate(change.date) + ': ' + (change.from | currency:'EUR') + ' → ' + (change.to | currency:'EUR')">
-                <i class="fa-solid" [ngClass]="change.percent < 0 ? 'fa-arrow-down' : 'fa-arrow-up'" aria-hidden="true"></i>
-                {{ change.percent | number:'1.0-1' }} %
-              </span>
-              <span class="meta-pill is-ended" *ngIf="!series.isActive">Vermutlich beendet</span>
-              <span class="meta-text">{{ series.category?.name || 'Ohne Kategorie' }} · {{ series.transactions.length }}× seit {{ monthYear(series.firstDate) }}</span>
-            </span>
-          </span>
-
-          <span class="series-history" aria-hidden="true">
-            <span class="bar" *ngFor="let bar of history(series)" [style.height.%]="bar.height" [title]="barLabel(bar)"
-              [class.is-income]="bar.amount > 0" [class.is-empty]="bar.empty"></span>
-          </span>
-
-          <span class="series-amount">
-            <span class="amount-main" [class.text-success]="series.currentAmount > 0">
-              <ng-container *ngIf="series.amountType === 'fixed'">{{ series.currentAmount | currency:'EUR' }}</ng-container>
-              <ng-container *ngIf="series.amountType === 'variable'">Ø {{ series.averageAmount | currency:'EUR' }}</ng-container>
-            </span>
-            <span class="amount-sub" *ngIf="series.amountType === 'variable'">
-              {{ rangeLabel(series) }}
-            </span>
-            <span class="amount-sub" *ngIf="series.amountType === 'fixed' && showMonthlyHint(series)">
-              ≈ {{ series.monthlyAmount | currency:'EUR' }} / Monat
-            </span>
-            <span class="amount-sub" *ngIf="series.isActive">Nächste ca. {{ shortDate(series.nextExpectedDate) }}</span>
-            <span class="amount-sub" *ngIf="!series.isActive">Zuletzt {{ shortDate(series.lastDate) }}</span>
-          </span>
-
-          <i class="fa-solid fa-chevron-right series-chevron" aria-hidden="true"></i>
-        </button>
-
-        <div class="series-details" *ngIf="expandedKey === series.key" [id]="domId(series)">
-          <dl class="detail-stats">
-            <div><dt>Hochgerechnet pro Jahr</dt><dd>{{ series.yearlyAmount | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
-            <div><dt>{{ series.kind === 'income' ? 'Insgesamt erhalten' : 'Insgesamt gezahlt' }}</dt><dd>{{ total(series) | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
-            <div><dt>Erste Buchung</dt><dd>{{ shortDate(series.firstDate) }}</dd></div>
-            <div><dt>Regelmäßigkeit</dt><dd>{{ series.regularity | percent:'1.0-0' }}</dd></div>
-          </dl>
-          <app-transaction-component *ngFor="let transaction of bookings(series)" [transaction]="transaction"></app-transaction-component>
+  @if (activeSeries.length) {
+    <div class="summary-grid mb-3">
+      <div class="summary-tile">
+        <div class="summary-label">Fixkosten pro Monat</div>
+        <div class="summary-value text-danger">{{ -monthlyExpenses | currency:'EUR':'symbol':'1.0-0' }}</div>
+        <div class="summary-hint">
+          {{ -monthlyExpenses * 12 | currency:'EUR':'symbol':'1.0-0' }} pro Jahr
+          @if (fixedShareOfIncome !== undefined) {
+            · {{ fixedShareOfIncome | percent:'1.0-0' }} der regelm. Einnahmen
+          }
         </div>
       </div>
+      <div class="summary-tile">
+        <div class="summary-label">Sparraten pro Monat</div>
+        <div class="summary-value">{{ -monthlySavings | currency:'EUR':'symbol':'1.0-0' }}</div>
+        <div class="summary-hint">{{ -monthlySavings * 12 | currency:'EUR':'symbol':'1.0-0' }} pro Jahr</div>
+      </div>
+      <div class="summary-tile">
+        <div class="summary-label">Regelm. Einnahmen pro Monat</div>
+        <div class="summary-value text-success">{{ monthlyIncome | currency:'EUR':'symbol':'1.0-0' }}</div>
+        <div class="summary-hint">Gehalt, Miete, Erstattungen …</div>
+      </div>
+      <div class="summary-tile" [class.is-warning]="priceIncreases.length">
+        <div class="summary-label">Preiserhöhungen</div>
+        <div class="summary-value">{{ priceIncreases.length }}</div>
+        @if (priceIncreases.length) {
+          <div class="summary-hint">
+            @for (s of priceIncreases.slice(0, 2); track s; let last = $last) {
+              <span>{{ s.name }}@if (!last) {
+                <span>, </span>
+              }</span>
+            }
+            @if (priceIncreases.length > 2) {
+              <span> +{{ priceIncreases.length - 2 }}</span>
+            }
+          </div>
+        } @else {
+          <div class="summary-hint">Bei aktiven Zahlungen</div>
+        }
+      </div>
     </div>
-  </section>
+  }
+
+  @if (groups.length === 0) {
+    <div class="empty-state">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      <p class="mb-0">
+        Keine wiederkehrenden Zahlungen gefunden.
+        <span class="d-block small text-muted">Für die Erkennung werden mindestens drei regelmäßige Buchungen (bei jährlichen Zahlungen zwei) benötigt.</span>
+      </p>
+    </div>
+  }
+
+  @for (group of groups; track group) {
+    <section class="series-group" [attr.aria-label]="group.title">
+      <header class="group-header">
+        <h3 class="group-title"><i [class]="group.icon" aria-hidden="true"></i>{{ group.title }}</h3>
+        @if (group.monthlyTotal) {
+          <span class="group-total">
+            {{ group.monthlyTotal | currency:'EUR':'symbol':'1.0-0' }} / Monat
+          </span>
+        }
+      </header>
+      <div class="series-list">
+        @for (series of group.series; track trackSeries($index, series)) {
+          <div class="series" [class.is-ended]="!series.isActive"
+            [class.is-open]="expandedKey === series.key">
+            <button type="button" class="series-row" (click)="toggle(series)" [attr.aria-expanded]="expandedKey === series.key"
+              [attr.aria-controls]="domId(series)">
+              <span class="series-icon" aria-hidden="true">
+                <i [class]="series.category?.icon || 'fa-solid fa-rotate'"></i>
+              </span>
+              <span class="series-main">
+                <span class="series-name">
+                  {{ series.name }}
+                  @if (series.via) {
+                    <span class="series-via">via {{ series.via }}</span>
+                  }
+                </span>
+                <span class="series-meta">
+                  <span class="meta-pill">{{ series.frequencyLabel }}</span>
+                  <span class="meta-pill" [class.is-variable]="series.amountType === 'variable'">
+                    {{ series.amountType === 'fixed' ? 'Fester Betrag' : 'Variabel' }}
+                  </span>
+                  @if (series.priceChange; as change) {
+                    <span class="meta-pill is-up"
+                      [class.is-down]="change.percent < 0"
+                      [title]="'Seit ' + shortDate(change.date) + ': ' + (change.from | currency:'EUR') + ' → ' + (change.to | currency:'EUR')">
+                      <i class="fa-solid" [ngClass]="change.percent < 0 ? 'fa-arrow-down' : 'fa-arrow-up'" aria-hidden="true"></i>
+                      {{ change.percent | number:'1.0-1' }} %
+                    </span>
+                  }
+                  @if (!series.isActive) {
+                    <span class="meta-pill is-ended">Vermutlich beendet</span>
+                  }
+                  <span class="meta-text">{{ series.category?.name || 'Ohne Kategorie' }} · {{ series.transactions.length }}× seit {{ monthYear(series.firstDate) }}</span>
+                </span>
+              </span>
+              <span class="series-history" aria-hidden="true">
+                @for (bar of history(series); track bar) {
+                  <span class="bar" [style.height.%]="bar.height" [title]="barLabel(bar)"
+                  [class.is-income]="bar.amount > 0" [class.is-empty]="bar.empty"></span>
+                }
+              </span>
+              <span class="series-amount">
+                <span class="amount-main" [class.text-success]="series.currentAmount > 0">
+                  @if (series.amountType === 'fixed') {
+                    {{ series.currentAmount | currency:'EUR' }}
+                  }
+                  @if (series.amountType === 'variable') {
+                    Ø {{ series.averageAmount | currency:'EUR' }}
+                  }
+                </span>
+                @if (series.amountType === 'variable') {
+                  <span class="amount-sub">
+                    {{ rangeLabel(series) }}
+                  </span>
+                }
+                @if (series.amountType === 'fixed' && showMonthlyHint(series)) {
+                  <span class="amount-sub">
+                    ≈ {{ series.monthlyAmount | currency:'EUR' }} / Monat
+                  </span>
+                }
+                @if (series.isActive) {
+                  <span class="amount-sub">Nächste ca. {{ shortDate(series.nextExpectedDate) }}</span>
+                }
+                @if (!series.isActive) {
+                  <span class="amount-sub">Zuletzt {{ shortDate(series.lastDate) }}</span>
+                }
+              </span>
+              <i class="fa-solid fa-chevron-right series-chevron" aria-hidden="true"></i>
+            </button>
+            @if (expandedKey === series.key) {
+              <div class="series-details" [id]="domId(series)">
+                <dl class="detail-stats">
+                  <div><dt>Hochgerechnet pro Jahr</dt><dd>{{ series.yearlyAmount | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
+                  <div><dt>{{ series.kind === 'income' ? 'Insgesamt erhalten' : 'Insgesamt gezahlt' }}</dt><dd>{{ total(series) | currency:'EUR':'symbol':'1.0-0' }}</dd></div>
+                  <div><dt>Erste Buchung</dt><dd>{{ shortDate(series.firstDate) }}</dd></div>
+                  <div><dt>Regelmäßigkeit</dt><dd>{{ series.regularity | percent:'1.0-0' }}</dd></div>
+                </dl>
+                @for (transaction of bookings(series); track transaction) {
+                  <app-transaction-component [transaction]="transaction"></app-transaction-component>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
 </div>

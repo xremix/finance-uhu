@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { ImportService } from '../services/import-services/import-service';
 import type { UmsatzFile } from '../services/import-services/import-service';
@@ -15,9 +15,11 @@ interface FileTimelineEntry {
 }
 
 @Component({
-  selector: 'app-file-selector',
-  templateUrl: './file-selector.component.html',
-  styleUrls: ['./file-selector.component.scss'],
+    selector: 'app-file-selector',
+    templateUrl: './file-selector.component.html',
+    styleUrls: ['./file-selector.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class FileSelectorComponent {
   @Input() public big: boolean = false;

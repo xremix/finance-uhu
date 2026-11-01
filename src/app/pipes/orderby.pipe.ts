@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Category } from '../models/category';
 
 @Pipe({
-  name: 'orderBy',
+    name: 'orderBy',
+    standalone: false
 })
 export class OrderByPipe implements PipeTransform {
   transform<T>(value: T[], property: keyof T, order: 'asc' | 'desc' = 'asc'): T[] {

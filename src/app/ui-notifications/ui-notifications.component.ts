@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { UiFeedbackService, UiNotice } from '../services/ui-feedback.service';
 
 @Component({
-  selector: 'app-ui-notifications',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './ui-notifications.component.html',
-  styleUrl: './ui-notifications.component.scss',
+    selector: 'app-ui-notifications',
+    imports: [CommonModule],
+    templateUrl: './ui-notifications.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './ui-notifications.component.scss'
 })
 export class UiNotificationsComponent {
   readonly icons = {

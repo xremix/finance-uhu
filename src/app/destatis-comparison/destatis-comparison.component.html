@@ -15,7 +15,9 @@
           class="form-select form-select-sm"
           [value]="selectedHouseholdSize"
           (change)="setHouseholdSize($any($event.target).value)">
-          <option *ngFor="let option of householdSizeOptions" [value]="option.value">{{ option.label }}</option>
+          @for (option of householdSizeOptions; track option) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
         </select>
       </div>
       <a class="source-link" [href]="sourceUrl" target="_blank" rel="noopener noreferrer">
@@ -34,55 +36,62 @@
     </span>
   </div>
 
-  <div class="table-responsive" *ngIf="rows.length; else emptyState">
-    <table class="table comparison-table align-middle mb-0">
-      <thead>
-        <tr>
-          <th scope="col">Destatis-Kategorie</th>
-          <th scope="col" class="text-end">Dein Monatsdurchschnitt</th>
-          <th scope="col" class="text-end">Haushaltsdurchschnitt</th>
-          <th scope="col" class="text-end">Abweichung</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of rows; trackBy: trackById">
-          <th scope="row">
-            <span class="comparison-category">{{ row.label }}</span>
-            <div class="comparison-mapping">
-              <span>Verwendete Kategorien</span>
-              <ul class="comparison-category-tags" aria-label="Verwendete eigene Kategorien">
-                <li class="comparison-category-tag" *ngFor="let category of row.usedCategories">{{ category }}</li>
-              </ul>
-            </div>
-          </th>
-          <td class="text-end amount-cell">{{ row.monthlySpending | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
-          <td class="text-end benchmark-cell">{{ row.benchmark | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
-          <td class="text-end difference-cell" [class.is-above]="row.difference > 0" [class.is-below]="row.difference < 0">
-            <strong>{{ row.difference > 0 ? '+' : '' }}{{ row.difference | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</strong>
-            <small>{{ row.differencePercent > 0 ? '+' : '' }}{{ row.differencePercent | number:'1.0-0':'de-DE' }}%</small>
-            <div class="difference-chart" aria-hidden="true">
-              <span class="difference-chart-bar" [style.width.%]="row.differenceBarWidth"></span>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <ng-template #emptyState>
+  @if (rows.length) {
+    <div class="table-responsive">
+      <table class="table comparison-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Destatis-Kategorie</th>
+            <th scope="col" class="text-end">Dein Monatsdurchschnitt</th>
+            <th scope="col" class="text-end">Haushaltsdurchschnitt</th>
+            <th scope="col" class="text-end">Abweichung</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track trackById($index, row)) {
+            <tr>
+              <th scope="row">
+                <span class="comparison-category">{{ row.label }}</span>
+                <div class="comparison-mapping">
+                  <span>Verwendete Kategorien</span>
+                  <ul class="comparison-category-tags" aria-label="Verwendete eigene Kategorien">
+                    @for (category of row.usedCategories; track category) {
+                      <li class="comparison-category-tag">{{ category }}</li>
+                    }
+                  </ul>
+                </div>
+              </th>
+              <td class="text-end amount-cell">{{ row.monthlySpending | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
+              <td class="text-end benchmark-cell">{{ row.benchmark | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</td>
+              <td class="text-end difference-cell" [class.is-above]="row.difference > 0" [class.is-below]="row.difference < 0">
+                <strong>{{ row.difference > 0 ? '+' : '' }}{{ row.difference | currency:'EUR':'symbol':'1.0-0':'de-DE' }}</strong>
+                <small>{{ row.differencePercent > 0 ? '+' : '' }}{{ row.differencePercent | number:'1.0-0':'de-DE' }}%</small>
+                <div class="difference-chart" aria-hidden="true">
+                  <span class="difference-chart-bar" [style.width.%]="row.differenceBarWidth"></span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
     <div class="comparison-empty" role="status">
       <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
       <strong>Keine vergleichbaren Ausgaben in diesem Zeitraum</strong>
       <span>Lade eine Datei mit Ausgaben in einer unterstützten Kategorie, um den Vergleich zu sehen.</span>
     </div>
-  </ng-template>
+  }
+
 
   <p class="comparison-footnote mb-0">
     Deine Ausgaben werden über den gewählten Zeitraum pro Monat gemittelt. Kategorien-, Buchungsart- und Suchfilter ändern diesen Vergleich nicht.
-    <span *ngIf="rows.length">
-      Mini-Charts: Mitte = Haushaltsdurchschnitt, grün links = weniger, rot rechts = mehr Ausgaben.
-      Gleiche Skala für alle Kategorien: −{{ differenceScalePercent | number:'1.0-0':'de-DE' }} % bis +{{ differenceScalePercent | number:'1.0-0':'de-DE' }} %.
-    </span>
+    @if (rows.length) {
+      <span>
+        Mini-Charts: Mitte = Haushaltsdurchschnitt, grün links = weniger, rot rechts = mehr Ausgaben.
+        Gleiche Skala für alle Kategorien: −{{ differenceScalePercent | number:'1.0-0':'de-DE' }} % bis +{{ differenceScalePercent | number:'1.0-0':'de-DE' }} %.
+      </span>
+    }
     <span>
       Quelle: Statistisches Bundesamt (Destatis), EVS 2023. Eigene Zuordnung und Berechnung;
       <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>.

@@ -3,9 +3,11 @@ import { Category } from '../models/category';
 import { DataState } from '../services/data-state';
 
 @Component({
-  selector: 'app-category-component',
-  templateUrl: './category-component.component.html',
-  styleUrls: ['./category-component.component.scss']
+    selector: 'app-category-component',
+    templateUrl: './category-component.component.html',
+    styleUrls: ['./category-component.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class CategoryComponentComponent {
   @Input() public categorySummary: Category = {} as any;

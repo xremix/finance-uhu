@@ -1,24 +1,35 @@
-<div *ngIf="calculatedTotal != 0" class="category-item" [class.is-open]="!collapsed">
+@if (calculatedTotal != 0) {
+  <div class="category-item" [class.is-open]="!collapsed">
     <button type="button" class="category-header" (click)="collapsed = !collapsed" [attr.aria-expanded]="!collapsed">
-        <span class="category-icon" *ngIf="categorySummary?.icon"><i [class]="categorySummary.icon" aria-hidden="true"></i></span>
-        <span class="category-name">{{ categorySummary.name }}</span>
-
-        <span class="category-total-hint" ngbTooltip="Gesamtbetrag" *ngIf="showAverage && amountMonths > 1">∑ {{ calculatedTotal | currency:'EUR' }}</span>
-        <span class="category-amount" [class.is-income]="calculatedTotal > 0">
-            {{ (showAverage ? calculatedTotal / amountMonths : calculatedTotal) | currency:'EUR' }}
-        </span>
-        <i class="fa-solid fa-chevron-right category-chevron" aria-hidden="true"></i>
+      @if (categorySummary?.icon) {
+        <span class="category-icon"><i [class]="categorySummary.icon" aria-hidden="true"></i></span>
+      }
+      <span class="category-name">{{ categorySummary.name }}</span>
+      @if (showAverage && amountMonths > 1) {
+        <span class="category-total-hint" ngbTooltip="Gesamtbetrag">∑ {{ calculatedTotal | currency:'EUR' }}</span>
+      }
+      <span class="category-amount" [class.is-income]="calculatedTotal > 0">
+        {{ (showAverage ? calculatedTotal / amountMonths : calculatedTotal) | currency:'EUR' }}
+      </span>
+      <i class="fa-solid fa-chevron-right category-chevron" aria-hidden="true"></i>
     </button>
-
-    <div *ngIf="categorySummary.subCategories?.length" class="category-children" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
-        <div *ngFor="let subCategory of categorySummary.subCategories | orderBy: 'total';">
-            <app-category-component [categorySummary]="subCategory" [amountMonths]="amountMonths" [showAverage]="showAverage" *ngIf="subCategory.total != 0"></app-category-component>
-        </div>
-    </div>
-
-    <div *ngIf="!categorySummary.subCategories?.length" class="category-transactions" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
-        <ng-container *ngFor="let transaction of activeTransactions | amountSort">
-            <app-transaction-component [transaction]="transaction"></app-transaction-component>
-        </ng-container>
-    </div>
-</div>
+    @if (categorySummary.subCategories?.length) {
+      <div class="category-children" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
+        @for (subCategory of categorySummary.subCategories | orderBy: 'total'; track subCategory) {
+          <div>
+            @if (subCategory.total != 0) {
+              <app-category-component [categorySummary]="subCategory" [amountMonths]="amountMonths" [showAverage]="showAverage"></app-category-component>
+            }
+          </div>
+        }
+      </div>
+    }
+    @if (!categorySummary.subCategories?.length) {
+      <div class="category-transactions" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
+        @for (transaction of activeTransactions | amountSort; track transaction) {
+          <app-transaction-component [transaction]="transaction"></app-transaction-component>
+        }
+      </div>
+    }
+  </div>
+}

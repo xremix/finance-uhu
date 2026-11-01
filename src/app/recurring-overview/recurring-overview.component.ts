@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DataState } from '../services/data-state';
 import { RecurringKind, RecurringSeries } from '../services/recurring-service';
 import { Transaction } from '../models/transaction';
@@ -22,9 +22,11 @@ interface SeriesGroup {
 }
 
 @Component({
-  selector: 'app-recurring-overview',
-  templateUrl: './recurring-overview.component.html',
-  styleUrl: './recurring-overview.component.scss',
+    selector: 'app-recurring-overview',
+    templateUrl: './recurring-overview.component.html',
+    styleUrl: './recurring-overview.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class RecurringOverviewComponent {
   public statusFilter: StatusFilter = 'active';

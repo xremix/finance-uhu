@@ -1,413 +1,430 @@
-<div class="welcome-shell" *ngIf="!dataState.hasLoadedData && !dataState.isLoading">
-  <section class="card welcome-hero" aria-labelledby="welcomeTitle">
-    <div class="card-body text-center">
-      <div class="welcome-brand">
-        <app-owl-loader class="welcome-logo" [size]="null" [loop]="false"></app-owl-loader>
-        <span class="welcome-brand-name">Finanz <span class="welcome-brand-accent">Uhu</span></span>
-      </div>
-      <h1 id="welcomeTitle" class="welcome-title">Bankumsätze analysieren – kostenlos und sicher im Browser</h1>
-      <p class="welcome-lead">Finanz Uhu macht aus deinem CSV-Umsatzexport von Sparkasse, ING, N26 oder DKB eine übersichtliche Finanzanalyse: Sieh, wofür du Geld ausgibst, welche Einnahmen eingehen und wie sich deine Finanzen entwickeln.</p>
-      <app-file-selector [big]="true"></app-file-selector>
-      <ul class="trust-list" aria-label="Datenschutz und Unterstützung">
-        <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Umsätze werden lokal im Browser verarbeitet</li>
-        <li><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Sparkasse, ING, N26 &amp; DKB</li>
-        <li><a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i>Open Source</a></li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="welcome-section" aria-labelledby="stepsTitle">
-    <h2 id="stepsTitle" class="section-title">So funktioniert's</h2>
-    <ol class="tutorial-grid">
-      <li class="tutorial-step">
-        <span class="step-badge">1</span>
-        <div>
-          <h3>Umsätze öffnen</h3>
-          <p>Im Online-Banking den gewünschten Zeitraum wählen.</p>
+@if (!dataState.hasLoadedData && !dataState.isLoading) {
+  <div class="welcome-shell">
+    <section class="card welcome-hero" aria-labelledby="welcomeTitle">
+      <div class="card-body text-center">
+        <div class="welcome-brand">
+          <app-owl-loader class="welcome-logo" [size]="null" [loop]="false"></app-owl-loader>
+          <span class="welcome-brand-name">Finanz <span class="welcome-brand-accent">Uhu</span></span>
         </div>
-      </li>
-      <li class="tutorial-step">
-        <span class="step-badge">2</span>
-        <div>
-          <h3>Als CSV exportieren</h3>
-          <p>Über Export oder Download das CSV-Format speichern.</p>
+        <h1 id="welcomeTitle" class="welcome-title">Bankumsätze analysieren – kostenlos und sicher im Browser</h1>
+        <p class="welcome-lead">Finanz Uhu macht aus deinem CSV-Umsatzexport von Sparkasse, ING, N26 oder DKB eine übersichtliche Finanzanalyse: Sieh, wofür du Geld ausgibst, welche Einnahmen eingehen und wie sich deine Finanzen entwickeln.</p>
+        <app-file-selector [big]="true"></app-file-selector>
+        <ul class="trust-list" aria-label="Datenschutz und Unterstützung">
+          <li><i class="fa-solid fa-lock" aria-hidden="true"></i>Umsätze werden lokal im Browser verarbeitet</li>
+          <li><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Sparkasse, ING, N26 &amp; DKB</li>
+          <li><a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i>Open Source</a></li>
+        </ul>
+      </div>
+    </section>
+    <section class="welcome-section" aria-labelledby="stepsTitle">
+      <h2 id="stepsTitle" class="section-title">So funktioniert's</h2>
+      <ol class="tutorial-grid">
+        <li class="tutorial-step">
+          <span class="step-badge">1</span>
+          <div>
+            <h3>Umsätze öffnen</h3>
+            <p>Im Online-Banking den gewünschten Zeitraum wählen.</p>
+          </div>
+        </li>
+        <li class="tutorial-step">
+          <span class="step-badge">2</span>
+          <div>
+            <h3>Als CSV exportieren</h3>
+            <p>Über Export oder Download das CSV-Format speichern.</p>
+          </div>
+        </li>
+        <li class="tutorial-step">
+          <span class="step-badge">3</span>
+          <div>
+            <h3>Hier hochladen</h3>
+            <p>Die Datei auswählen – die Auswertung startet sofort.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+    <section class="welcome-section" aria-labelledby="featuresTitle">
+      <h2 id="featuresTitle" class="section-title">Was du erhältst</h2>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <i class="fa-solid fa-tags" aria-hidden="true"></i>
+          <span>Automatische Kategorisierung</span>
         </div>
-      </li>
-      <li class="tutorial-step">
-        <span class="step-badge">3</span>
-        <div>
-          <h3>Hier hochladen</h3>
-          <p>Die Datei auswählen – die Auswertung startet sofort.</p>
+        <div class="feature-item">
+          <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+          <span>Flexible Filter und Suche</span>
         </div>
-      </li>
-    </ol>
-  </section>
-
-  <section class="welcome-section" aria-labelledby="featuresTitle">
-    <h2 id="featuresTitle" class="section-title">Was du erhältst</h2>
-    <div class="feature-grid">
-      <div class="feature-item">
-        <i class="fa-solid fa-tags" aria-hidden="true"></i>
-        <span>Automatische Kategorisierung</span>
+        <div class="feature-item">
+          <i class="fa-solid fa-repeat" aria-hidden="true"></i>
+          <span>Wiederkehrende Ausgaben erkennen</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          <span>Kontostand und Zahlungsfluss prognostizieren</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+          <span>Monatliche Bilanzen und Verlauf</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          <span>Schleichende Ausgaben-Trends erkennen</span>
+        </div>
       </div>
-      <div class="feature-item">
-        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-        <span>Flexible Filter und Suche</span>
-      </div>
-      <div class="feature-item">
-        <i class="fa-solid fa-repeat" aria-hidden="true"></i>
-        <span>Wiederkehrende Ausgaben erkennen</span>
-      </div>
-      <div class="feature-item">
-        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-        <span>Kontostand und Zahlungsfluss prognostizieren</span>
-      </div>
-      <div class="feature-item">
-        <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
-        <span>Monatliche Bilanzen und Verlauf</span>
-      </div>
-      <div class="feature-item">
-        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-        <span>Schleichende Ausgaben-Trends erkennen</span>
-      </div>
-    </div>
-  </section>
+    </section>
+    <section class="welcome-section" aria-labelledby="privacyTitle">
+      <h2 id="privacyTitle" class="section-title">Private Finanzanalyse – du entscheidest über die Speicherung</h2>
+      <p>Deine CSV-Datei wird direkt in deinem Browser verarbeitet und nicht auf einen Server hochgeladen. Standardmäßig bleibt sie nur bis zum Neuladen oder Schließen der Seite im Arbeitsspeicher. Über das Schloss neben „Dateien wählen“ kannst du sie auf Wunsch dauerhaft lokal im Browser speichern. Gespeicherte Dateien lassen sich in der Dateiverwaltung einzeln wieder aus dem Browserspeicher entfernen.</p>
+    </section>
+    <section class="welcome-section" aria-labelledby="faqTitle">
+      <h2 id="faqTitle" class="section-title">Häufige Fragen zur Finanzanalyse</h2>
+      <details class="mb-3">
+        <summary class="fw-semibold">Welche Bank-Exporte kann ich analysieren?</summary>
+        <p class="mt-2 mb-0">Aktuell kannst du CSV-Umsatzexporte der Sparkasse, der ING, von N26 und der DKB laden. Wähle den gewünschten Zeitraum im Online-Banking und exportiere die Umsätze als CSV-Datei.</p>
+      </details>
+      <details class="mb-3">
+        <summary class="fw-semibold">Werden meine Konto- oder Umsatzdaten hochgeladen?</summary>
+        <p class="mt-2 mb-0">Nein. Die Auswertung läuft lokal in deinem Browser. Deine Umsatzdaten werden nicht an einen Server gesendet.</p>
+      </details>
+      <details class="mb-3">
+        <summary class="fw-semibold">Wie sicher ist Finanz Uhu und wie werden meine Daten verarbeitet?</summary>
+        <p class="mt-2">Finanz Uhu hat kein Backend und kein Benutzerkonto. Deine CSV-Datei wird ausschließlich in deinem Browser eingelesen, kategorisiert und ausgewertet – es findet keine Übertragung deiner Umsätze an Server, Dritte oder Analyse-Dienste statt.</p>
+        <p class="mb-2">Umsatzdateien werden standardmäßig nicht dauerhaft gespeichert. Wenn du das Schloss-Symbol beim Import oder neben einer Datei aktivierst, wird diese Datei im Local Storage deines Browsers abgelegt und ist beim nächsten Besuch wieder verfügbar. Kategorien und einige Anzeigeeinstellungen können unabhängig davon lokal gespeichert sein. Weitere Details findest du in der <a routerLink="/datenschutz">Datenschutzerklärung</a>.</p>
+      </details>
+      <details class="mb-3">
+        <summary class="fw-semibold">Wie kann ich alle lokal gespeicherten Daten löschen?</summary>
+        <p class="mt-2 mb-0">Entferne einzelne gespeicherte Umsatzdateien direkt in der Dateiverwaltung. Für alle lokalen Daten öffne die <a routerLink="/settings">Einstellungen</a> und wähle unter <strong>Weitere Aktionen</strong> den Punkt <strong>Alle lokalen Daten löschen</strong>. Dadurch werden gespeicherte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung entfernt. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Beim nächsten Besuch musst du Umsatzdateien erneut importieren und eigene Kategorien neu einrichten.</p>
+      </details>
+      <details class="mb-3">
+        <summary class="fw-semibold">Wie kann ich Datenschutz und Sicherheit selbst prüfen?</summary>
+        <p class="mt-2">Der gesamte Quellcode ist öffentlich einsehbar. <a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> Überzeug dich selbst auf GitHub</a>.</p>
+        <p class="mt-2">Öffne die Entwickler-Tools deines Browsers (meist mit F12 oder per Rechtsklick und „Untersuchen“) und wechsle zum Tab „Netzwerk“ (Network). Während du eine Datei importierst und auswertest, kannst du dort prüfen: Deine Umsatzdaten werden an keinen Server übermittelt.</p>
+        <p class="mb-0">Im Tab „Speicher“ (Application/Storage) findest du unter „Local Storage“ die lokal auf deinem Computer gespeicherten Daten dieser Website. Diese Einträge werden nicht automatisch an den Browseranbieter oder andere Dritte übermittelt. Andere Websites können sie aufgrund der Same-Origin-Regel des Browsers nicht einfach auslesen. Finanz Uhu kann die Einträge auf seiner eigenen Website lesen, und Programme oder Browser-Erweiterungen mit Zugriff auf dein Browserprofil können je nach Berechtigungen ebenfalls Zugriff haben. Dort kannst du die Daten jederzeit ansehen und löschen.</p>
+      </details>
+      <details>
+        <summary class="fw-semibold">Was zeigt mir Finanz Uhu?</summary>
+        <p class="mt-2 mb-0">Du erhältst Kategorien für Einnahmen und Ausgaben, Filter und Suche, wiederkehrende Buchungen, schleichende Ausgabentrends sowie Monats- und Zeitverlaufsübersichten.</p>
+      </details>
+    </section>
+  </div>
+}
 
-  <section class="welcome-section" aria-labelledby="privacyTitle">
-    <h2 id="privacyTitle" class="section-title">Private Finanzanalyse – du entscheidest über die Speicherung</h2>
-    <p>Deine CSV-Datei wird direkt in deinem Browser verarbeitet und nicht auf einen Server hochgeladen. Standardmäßig bleibt sie nur bis zum Neuladen oder Schließen der Seite im Arbeitsspeicher. Über das Schloss neben „Dateien wählen“ kannst du sie auf Wunsch dauerhaft lokal im Browser speichern. Gespeicherte Dateien lassen sich in der Dateiverwaltung einzeln wieder aus dem Browserspeicher entfernen.</p>
-  </section>
-
-  <section class="welcome-section" aria-labelledby="faqTitle">
-    <h2 id="faqTitle" class="section-title">Häufige Fragen zur Finanzanalyse</h2>
-    <details class="mb-3">
-      <summary class="fw-semibold">Welche Bank-Exporte kann ich analysieren?</summary>
-      <p class="mt-2 mb-0">Aktuell kannst du CSV-Umsatzexporte der Sparkasse, der ING, von N26 und der DKB laden. Wähle den gewünschten Zeitraum im Online-Banking und exportiere die Umsätze als CSV-Datei.</p>
-    </details>
-    <details class="mb-3">
-      <summary class="fw-semibold">Werden meine Konto- oder Umsatzdaten hochgeladen?</summary>
-      <p class="mt-2 mb-0">Nein. Die Auswertung läuft lokal in deinem Browser. Deine Umsatzdaten werden nicht an einen Server gesendet.</p>
-    </details>
-    <details class="mb-3">
-      <summary class="fw-semibold">Wie sicher ist Finanz Uhu und wie werden meine Daten verarbeitet?</summary>
-      <p class="mt-2">Finanz Uhu hat kein Backend und kein Benutzerkonto. Deine CSV-Datei wird ausschließlich in deinem Browser eingelesen, kategorisiert und ausgewertet – es findet keine Übertragung deiner Umsätze an Server, Dritte oder Analyse-Dienste statt.</p>
-      <p class="mb-2">Umsatzdateien werden standardmäßig nicht dauerhaft gespeichert. Wenn du das Schloss-Symbol beim Import oder neben einer Datei aktivierst, wird diese Datei im Local Storage deines Browsers abgelegt und ist beim nächsten Besuch wieder verfügbar. Kategorien und einige Anzeigeeinstellungen können unabhängig davon lokal gespeichert sein. Weitere Details findest du in der <a routerLink="/datenschutz">Datenschutzerklärung</a>.</p>
-    </details>
-    <details class="mb-3">
-      <summary class="fw-semibold">Wie kann ich alle lokal gespeicherten Daten löschen?</summary>
-      <p class="mt-2 mb-0">Entferne einzelne gespeicherte Umsatzdateien direkt in der Dateiverwaltung. Für alle lokalen Daten öffne die <a routerLink="/settings">Einstellungen</a> und wähle unter <strong>Weitere Aktionen</strong> den Punkt <strong>Alle lokalen Daten löschen</strong>. Dadurch werden gespeicherte Umsatzdateien, eigene Kategorien, lokale Einstellungen und die gespeicherte Dateiverknüpfung entfernt. Die verknüpfte Einstellungsdatei selbst bleibt unverändert. Beim nächsten Besuch musst du Umsatzdateien erneut importieren und eigene Kategorien neu einrichten.</p>
-    </details>
-    <details class="mb-3">
-      <summary class="fw-semibold">Wie kann ich Datenschutz und Sicherheit selbst prüfen?</summary>
-      <p class="mt-2">Der gesamte Quellcode ist öffentlich einsehbar. <a href="https://github.com/xremix/finance-uhu" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> Überzeug dich selbst auf GitHub</a>.</p>
-      <p class="mt-2">Öffne die Entwickler-Tools deines Browsers (meist mit F12 oder per Rechtsklick und „Untersuchen“) und wechsle zum Tab „Netzwerk“ (Network). Während du eine Datei importierst und auswertest, kannst du dort prüfen: Deine Umsatzdaten werden an keinen Server übermittelt.</p>
-      <p class="mb-0">Im Tab „Speicher“ (Application/Storage) findest du unter „Local Storage“ die lokal auf deinem Computer gespeicherten Daten dieser Website. Diese Einträge werden nicht automatisch an den Browseranbieter oder andere Dritte übermittelt. Andere Websites können sie aufgrund der Same-Origin-Regel des Browsers nicht einfach auslesen. Finanz Uhu kann die Einträge auf seiner eigenen Website lesen, und Programme oder Browser-Erweiterungen mit Zugriff auf dein Browserprofil können je nach Berechtigungen ebenfalls Zugriff haben. Dort kannst du die Daten jederzeit ansehen und löschen.</p>
-    </details>
-    <details>
-      <summary class="fw-semibold">Was zeigt mir Finanz Uhu?</summary>
-      <p class="mt-2 mb-0">Du erhältst Kategorien für Einnahmen und Ausgaben, Filter und Suche, wiederkehrende Buchungen, schleichende Ausgabentrends sowie Monats- und Zeitverlaufsübersichten.</p>
-    </details>
-  </section>
-</div>
-
-<div *ngIf="dataState.hasLoadedData">
-
-  <section class="dashboard-header d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3" aria-labelledby="dashboardTitle">
-    <div>
-      <p class="eyebrow mb-1">Finanzübersicht</p>
-      <h1 id="dashboardTitle" class="dashboard-title mb-1">
-        {{ dataState.currentFilter.from | date:'dd.MM.yyyy' }} – {{ dataState.currentFilter.to | date:'dd.MM.yyyy' }}
-      </h1>
-      <p class="text-muted mb-0">
-        {{ dataState.currentFilter.category?.name || 'Alle Kategorien' }} · {{ typeFilterLabel }}
-      </p>
-    </div>
-  </section>
-
-  <section class="row g-3 mb-3 kpi-grid" aria-label="Kennzahlen">
-    <div class="col-12 col-md-6 col-xl-3">
-      <div class="card metric-card balance-kpi-card">
-        <button type="button" class="balance-kpi-trigger" [attr.aria-expanded]="expandedKpi === 'balance'"
-          aria-controls="balanceKpiDetailsPanel" (click)="toggleKpiDetails('balance')">
-          <span>
-            <span class="metric-label d-block">Saldo</span>
-            <span class="metric-value d-block" [class.text-success]="netTotal >= 0" [class.text-danger]="netTotal < 0">
-              {{ netTotal | currency:'EUR':'symbol':'1.0-0' }}
+@if (dataState.hasLoadedData) {
+  <div>
+    <section class="dashboard-header d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3" aria-labelledby="dashboardTitle">
+      <div>
+        <p class="eyebrow mb-1">Finanzübersicht</p>
+        <h1 id="dashboardTitle" class="dashboard-title mb-1">
+          {{ dataState.currentFilter.from | date:'dd.MM.yyyy' }} – {{ dataState.currentFilter.to | date:'dd.MM.yyyy' }}
+        </h1>
+        <p class="text-muted mb-0">
+          {{ dataState.currentFilter.category?.name || 'Alle Kategorien' }} · {{ typeFilterLabel }}
+        </p>
+      </div>
+    </section>
+    <section class="row g-3 mb-3 kpi-grid" aria-label="Kennzahlen">
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="card metric-card balance-kpi-card">
+          <button type="button" class="balance-kpi-trigger" [attr.aria-expanded]="expandedKpi === 'balance'"
+            aria-controls="balanceKpiDetailsPanel" (click)="toggleKpiDetails('balance')">
+            <span>
+              <span class="metric-label d-block">Saldo</span>
+              <span class="metric-value d-block" [class.text-success]="netTotal >= 0" [class.text-danger]="netTotal < 0">
+                {{ netTotal | currency:'EUR':'symbol':'1.0-0' }}
+              </span>
+              <span class="metric-hint">{{ amountLabel }} · ohne Sparen</span>
             </span>
-            <span class="metric-hint">{{ amountLabel }} · ohne Sparen</span>
-          </span>
-          <span class="balance-kpi-chevron" [class.is-expanded]="expandedKpi === 'balance'" aria-hidden="true">
-            <i class="fa-solid fa-chevron-down"></i>
-          </span>
-          <span class="visually-hidden">{{ expandedKpi === 'balance' ? 'Details ausblenden' : 'Einnahmen- und Ausgabendetails anzeigen' }}</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-      <div class="card metric-card booking-card">
-        <div class="card-body">
-          <div class="metric-label">Buchungen</div>
-          <div class="metric-value">{{ dataState.selectedTransactions.length }}</div>
-          <div class="metric-hint">Im Zeitraum</div>
+            <span class="balance-kpi-chevron" [class.is-expanded]="expandedKpi === 'balance'" aria-hidden="true">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+            <span class="visually-hidden">{{ expandedKpi === 'balance' ? 'Details ausblenden' : 'Einnahmen- und Ausgabendetails anzeigen' }}</span>
+          </button>
         </div>
       </div>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-      <app-spending-insight [expanded]="expandedKpi === 'spending'"
-        (toggleDetails)="toggleKpiDetails('spending')"
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="card metric-card booking-card">
+          <div class="card-body">
+            <div class="metric-label">Buchungen</div>
+            <div class="metric-value">{{ dataState.selectedTransactions.length }}</div>
+            <div class="metric-hint">Im Zeitraum</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <app-spending-insight [expanded]="expandedKpi === 'spending'"
+          (toggleDetails)="toggleKpiDetails('spending')"
         (openTransactions)="showInsightTransactions()"></app-spending-insight>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-      <app-balance-card [expanded]="expandedKpi === 'account'"
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <app-balance-card [expanded]="expandedKpi === 'account'"
         (toggleDetails)="toggleKpiDetails('account')"></app-balance-card>
-    </div>
-  </section>
-
-  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'balance'" aria-label="Saldo: Einnahmen und Ausgaben im gewählten Zeitraum">
-    <div class="col-12">
-      <section class="card balance-details-panel" id="balanceKpiDetailsPanel" aria-labelledby="balanceKpiDetailsTitle">
-        <div class="card-body">
-          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-            <div>
-              <h2 id="balanceKpiDetailsTitle" class="section-title mb-1">Einnahmen und Ausgaben</h2>
-              <p class="text-muted small mb-0">{{ amountLabel }} · Ausgaben ohne Sparbuchungen</p>
+      </div>
+    </section>
+    @if (expandedKpi === 'balance') {
+      <section class="row g-3 mb-3" aria-label="Saldo: Einnahmen und Ausgaben im gewählten Zeitraum">
+        <div class="col-12">
+          <section class="card balance-details-panel" id="balanceKpiDetailsPanel" aria-labelledby="balanceKpiDetailsTitle">
+            <div class="card-body">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                <div>
+                  <h2 id="balanceKpiDetailsTitle" class="section-title mb-1">Einnahmen und Ausgaben</h2>
+                  <p class="text-muted small mb-0">{{ amountLabel }} · Ausgaben ohne Sparbuchungen</p>
+                </div>
+              </div>
+              <div class="balance-details balance-details--full-width">
+                <div class="balance-detail balance-detail-income">
+                  <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-down"></i></span>
+                  <span class="balance-detail-copy">
+                    <span class="balance-detail-label">Einnahmen</span>
+                    <span class="balance-detail-hint">{{ amountLabel }}</span>
+                  </span>
+                  <strong class="balance-detail-value">{{ incomeTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
+                </div>
+                <div class="balance-detail balance-detail-expense">
+                  <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-up"></i></span>
+                  <span class="balance-detail-copy">
+                    <span class="balance-detail-label">Ausgaben</span>
+                    <span class="balance-detail-hint">{{ amountLabel }} · ohne Sparen</span>
+                  </span>
+                  <strong class="balance-detail-value">{{ expenseTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
+                </div>
+              </div>
+              <app-statistics-card
+                [transactions]="dataState.selectedTransactions"
+                [selectedCategory]="dataState.currentFilter.category"
+                [monthsCount]="dataState.selectedMonthAmountInDataRangeFilter">
+              </app-statistics-card>
             </div>
-          </div>
-          <div class="balance-details balance-details--full-width">
-            <div class="balance-detail balance-detail-income">
-              <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-down"></i></span>
-              <span class="balance-detail-copy">
-                <span class="balance-detail-label">Einnahmen</span>
-                <span class="balance-detail-hint">{{ amountLabel }}</span>
-              </span>
-              <strong class="balance-detail-value">{{ incomeTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
-            </div>
-            <div class="balance-detail balance-detail-expense">
-              <span class="balance-detail-icon" aria-hidden="true"><i class="fa-solid fa-arrow-up"></i></span>
-              <span class="balance-detail-copy">
-                <span class="balance-detail-label">Ausgaben</span>
-                <span class="balance-detail-hint">{{ amountLabel }} · ohne Sparen</span>
-              </span>
-              <strong class="balance-detail-value">{{ expenseTotal | currency:'EUR':'symbol':'1.0-0' }}</strong>
-            </div>
-          </div>
-          <app-statistics-card
-            [transactions]="dataState.selectedTransactions"
-            [selectedCategory]="dataState.currentFilter.category"
-            [monthsCount]="dataState.selectedMonthAmountInDataRangeFilter">
-          </app-statistics-card>
+          </section>
         </div>
       </section>
-    </div>
-  </section>
-
-  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'spending'" aria-label="Details zum Ausgabenvergleich">
-    <div class="col-12">
-      <app-spending-insight [detailsOnly]="true" (toggleDetails)="toggleKpiDetails('spending')"
-        (openTransactions)="showInsightTransactions()"></app-spending-insight>
-    </div>
-  </section>
-
-  <section class="row g-3 mb-3" *ngIf="expandedKpi === 'account'" aria-label="Kontostandverlauf und Details">
-    <div class="col-12">
-      <app-balance-card [detailsOnly]="true" (closeDetails)="expandedKpi = null"></app-balance-card>
-    </div>
-  </section>
-
-  <section class="card filter-panel mb-3" aria-labelledby="filterTitle">
-    <div class="card-body">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h2 id="filterTitle" class="section-title mb-0">Filter</h2>
-        <div class="form-check form-switch mb-0">
-          <input class="form-check-input" type="checkbox" role="switch" id="avgToggle" [(ngModel)]="dataState.showAverage">
-          <label class="form-check-label small" for="avgToggle">Monatsdurchschnitt anzeigen</label>
+    }
+    @if (expandedKpi === 'spending') {
+      <section class="row g-3 mb-3" aria-label="Details zum Ausgabenvergleich">
+        <div class="col-12">
+          <app-spending-insight [detailsOnly]="true" (toggleDetails)="toggleKpiDetails('spending')"
+          (openTransactions)="showInsightTransactions()"></app-spending-insight>
         </div>
-      </div>
-
-      <div class="filter-grid">
-        <div class="filter-search">
-          <label class="filter-label d-block" for="globalSearchInput">Suche</label>
-          <app-global-search></app-global-search>
+      </section>
+    }
+    @if (expandedKpi === 'account') {
+      <section class="row g-3 mb-3" aria-label="Kontostandverlauf und Details">
+        <div class="col-12">
+          <app-balance-card [detailsOnly]="true" (closeDetails)="expandedKpi = null"></app-balance-card>
         </div>
-        <div>
-          <span class="filter-label">Zeitraum</span>
-          <app-date-range-picker [from]="dataState.currentFilter.from" [to]="dataState.currentFilter.to"></app-date-range-picker>
-        </div>
-        <div>
-          <span class="filter-label" id="typeFilterLabel">Buchungsart</span>
-          <div class="btn-group" role="group" aria-labelledby="typeFilterLabel">
-            <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'all' ? 'btn-primary' : 'btn-outline-primary'"
-              [attr.aria-pressed]="dataState.currentFilter.type === 'all'" (click)="dataState.filterByType('all')">Alle</button>
-            <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'income' ? 'btn-primary' : 'btn-outline-primary'"
-              [attr.aria-pressed]="dataState.currentFilter.type === 'income'" (click)="dataState.filterByType('income')">Einnahmen</button>
-            <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'expense' ? 'btn-primary' : 'btn-outline-primary'"
-              [attr.aria-pressed]="dataState.currentFilter.type === 'expense'" (click)="dataState.filterByType('expense')">Ausgaben</button>
+      </section>
+    }
+    <section class="card filter-panel mb-3" aria-labelledby="filterTitle">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <h2 id="filterTitle" class="section-title mb-0">Filter</h2>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="avgToggle" [(ngModel)]="dataState.showAverage">
+            <label class="form-check-label small" for="avgToggle">Monatsdurchschnitt anzeigen</label>
           </div>
         </div>
-      </div>
-
-      <div class="filter-divider"></div>
-      <app-category-select></app-category-select>
-    </div>
-  </section>
-
-  <div class="row g-3 mb-3">
-    <div class="col-lg-8">
-      <app-history-chart [dates]="dataState.monthStarts" [transactions]="dataState.selectedTransactions" (triggerRefresh)="refreshPage()"></app-history-chart>
-    </div>
-    <div class="col-lg-4">
-      <app-category-chart [data]="dataState.categories" (triggerRefresh)="refreshPage()"></app-category-chart>
-    </div>
-  </div>
-
-  <div class="overflow-x-auto">
-  <ul class="nav nav-tabs detail-tabs" role="tablist" aria-label="Detailansichten" (keydown)="onTabKeydown($event)">
-    <li class="nav-item" role="presentation" *ngFor="let tab of tabs; let i = index">
-      <button type="button" class="nav-link" role="tab" [id]="'tab-' + i" [ngClass]="{'active': tab == activeTab}"
-        [attr.aria-selected]="tab == activeTab" aria-controls="detail-tabpanel" [attr.tabindex]="tab == activeTab ? 0 : -1"
-        (click)="activeTab = tab">{{tab}}</button>
-    </li>
-  </ul>
-</div>
-  <div class="tab-panel" id="detail-tabpanel" role="tabpanel" [attr.aria-labelledby]="'tab-' + tabs.indexOf(activeTab)">
-    <div class="alert misc-category-hint d-flex align-items-start gap-2 mb-3" *ngIf="isMiscCategorySelected" role="status">
-      <i class="fa-solid fa-circle-info mt-1" aria-hidden="true"></i>
-      <div>
-        Viele Buchungen in „Sonstiges“ lassen sich genauer zuordnen. Ergänze in den
-        <a routerLink="/settings">Einstellungen</a> passende Keywords bei den Kategorien und speichere die Änderungen.
-      </div>
-    </div>
-
-    <div *ngIf="activeTab == 'Kategorien'">
-      <h2 class="section-title mb-3">Kategorien</h2>
-      <app-category-overview-component *ngIf="!dataState.currentFilter.category" [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
-        [categorySummaries]="dataState.categories"></app-category-overview-component>
-      <app-category-component *ngIf="dataState.currentFilter.category" [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
-        [categorySummary]="dataState.currentFilter.category" [collapsed]="false"></app-category-component>
-    </div>
-
-    <app-spending-trends
-      *ngIf="activeTab === spendingTrendsTab"
-      [transactions]="dataState.allTransactions"
-      [categories]="dataState.categories"
-      (openTransactions)="showTrendTransactions($event.category, $event.from, $event.to)">
-    </app-spending-trends>
-
-    <div *ngIf="activeTab == 'Alle Buchungen'">
-      <h2 class="section-title mb-3">Alle Buchungen ({{dataState.selectedTransactions.length}})</h2>
-      <div class="row">
-        <div class="col">
-          <app-transaction-component *ngFor="let transaction of dataState.selectedTransactions | amountSort" [transaction]="transaction"></app-transaction-component>
+        <div class="filter-grid">
+          <div class="filter-search">
+            <label class="filter-label d-block" for="globalSearchInput">Suche</label>
+            <app-global-search></app-global-search>
+          </div>
+          <div>
+            <span class="filter-label">Zeitraum</span>
+            <app-date-range-picker [from]="dataState.currentFilter.from" [to]="dataState.currentFilter.to"></app-date-range-picker>
+          </div>
+          <div>
+            <span class="filter-label" id="typeFilterLabel">Buchungsart</span>
+            <div class="btn-group" role="group" aria-labelledby="typeFilterLabel">
+              <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'all' ? 'btn-primary' : 'btn-outline-primary'"
+              [attr.aria-pressed]="dataState.currentFilter.type === 'all'" (click)="dataState.filterByType('all')">Alle</button>
+              <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'income' ? 'btn-primary' : 'btn-outline-primary'"
+              [attr.aria-pressed]="dataState.currentFilter.type === 'income'" (click)="dataState.filterByType('income')">Einnahmen</button>
+              <button type="button" class="btn btn-sm" [ngClass]="dataState.currentFilter.type === 'expense' ? 'btn-primary' : 'btn-outline-primary'"
+              [attr.aria-pressed]="dataState.currentFilter.type === 'expense'" (click)="dataState.filterByType('expense')">Ausgaben</button>
+            </div>
+          </div>
         </div>
+        <div class="filter-divider"></div>
+        <app-category-select></app-category-select>
       </div>
-    </div>
-
-    <div *ngIf="activeTab == 'Wiederkehrende Buchungen'">
-      <app-recurring-overview></app-recurring-overview>
-    </div>
-
-    <app-forecast *ngIf="activeTab === 'Prognose'"></app-forecast>
-
-    <div *ngIf="activeTab == 'Ausgeglichene Buchungen'">
-      <h2 class="section-title mb-3">Ausgeglichene Buchungen ({{balancedTransactions.length}})</h2>
-      <div class="row">
-        <div class="col">
-          <app-transaction-component *ngFor="let transaction of balancedTransactions | amountSort" [transaction]="transaction">
-          </app-transaction-component>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="activeTab == 'Monatliche Bilanz'">
-      <h2 class="section-title mb-3">Monatliche Bilanz</h2>
-      <app-monthy-billance [dates]="dataState.monthStarts" [transactions]="dataState.selectedTransactions"></app-monthy-billance>
-    </div>
-
-    <app-daily-income-expense-chart
-      *ngIf="activeTab == 'Tägliche Ein- und Ausgaben'"
-      [transactions]="dataState.selectedTransactions"
-      (triggerRefresh)="refreshPage()">
-    </app-daily-income-expense-chart>
-
-    <div *ngIf="activeTab == 'Ausgaben-Fluss'">
-      <h2 class="section-title mb-3">Ausgaben-Fluss (Sankey Diagramm) <small class="text-muted fs-6" *ngIf="dataState.showAverage">Ø pro Monat</small></h2>
-      <div class="mb-3">
-        <div class="btn-group" role="group">
-          <button type="button" class="btn" [ngClass]="{'btn-danger': sankeyType === 'expense', 'btn-outline-danger': sankeyType !== 'expense'}" (click)="sankeyType = 'expense'">
-            Ausgaben
-          </button>
-          <button type="button" class="btn" [ngClass]="{'btn-success': sankeyType === 'income', 'btn-outline-success': sankeyType !== 'income'}" (click)="sankeyType = 'income'">
-            Einnahmen
-          </button>
-        </div>
-      </div>
-      <app-sankey-chart 
-        [transactions]="dataState.selectedTransactions"
-        [categories]="dataState.categories" 
-        [type]="sankeyType"
-        [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
-        [showAverage]="dataState.showAverage"
-        height="1200px">
-      </app-sankey-chart>
-    </div>
-
-    <app-destatis-comparison
-      *ngIf="activeTab == 'Deutschlandvergleich'"
-      [transactions]="dataState.allTransactions"
-      [categories]="dataState.categories"
-      [from]="dataState.currentFilter.from"
-      [to]="dataState.currentFilter.to"
-      [months]="dataState.selectedMonthAmountInDataRangeFilter">
-    </app-destatis-comparison>
-
-    <section *ngIf="activeTab === negativeBalanceTab" aria-labelledby="negativeBalanceTitle">
-      <ng-container *ngIf="negativeBalanceDays as days">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-          <h2 id="negativeBalanceTitle" class="section-title mb-0">Tage mit negativem Kontostand</h2>
-          <span class="small text-muted">{{ days.length }} {{ days.length === 1 ? 'Tag' : 'Tage' }} im Zeitraum</span>
-        </div>
-        <p class="small text-muted mb-3">
-          Kontosaldo am Tagesende im gewählten Zeitraum, berechnet aus dem erfassten Kontostand und allen geladenen Buchungen.
-          Kategorien-, Buchungsart- und Suchfilter beeinflussen den Kontosaldo nicht.
-        </p>
-
-        <div class="table-responsive" *ngIf="days.length; else noNegativeBalances">
-          <table class="table align-middle negative-balance-table mb-0">
-            <caption class="visually-hidden">Alle Tage mit negativem Kontosaldo im gewählten Zeitraum, nach Monaten gruppiert, neueste zuerst.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Tag</th>
-                <th scope="col" class="text-end">Kontosaldo am Tagesende</th>
-              </tr>
-            </thead>
-            <tbody *ngFor="let group of negativeBalanceMonths; trackBy: trackByBalanceMonth">
-              <tr class="negative-balance-month">
-                <th colspan="2" scope="rowgroup">
-                  <div class="d-flex justify-content-between align-items-center gap-3">
-                    <span>{{ group.month | date:'MMMM yyyy':'':'de-DE' }}</span>
-                    <span class="small text-muted fw-normal">{{ group.days.length }} {{ group.days.length === 1 ? 'Tag' : 'Tage' }} im Minus</span>
-                  </div>
-                </th>
-              </tr>
-              <tr *ngFor="let day of group.days; trackBy: trackByBalanceDate">
-                <th scope="row">{{ day.date | date:'EEE, dd.MM.yyyy':'':'de-DE' }}</th>
-                <td class="text-end">{{ day.balance | currency:'EUR':'symbol':'1.2-2':'de-DE' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <ng-template #noNegativeBalances>
-          <p class="negative-balance-empty mb-0" role="status">
-            <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i>
-            Im gewählten Zeitraum gab es keine Tage mit negativem Kontosaldo.
-          </p>
-        </ng-template>
-      </ng-container>
     </section>
-
+    <div class="row g-3 mb-3">
+      <div class="col-lg-8">
+        <app-history-chart [dates]="dataState.monthStarts" [transactions]="dataState.selectedTransactions" (triggerRefresh)="refreshPage()"></app-history-chart>
+      </div>
+      <div class="col-lg-4">
+        <app-category-chart [data]="dataState.categories" (triggerRefresh)="refreshPage()"></app-category-chart>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <ul class="nav nav-tabs detail-tabs" role="tablist" aria-label="Detailansichten" (keydown)="onTabKeydown($event)">
+        @for (tab of tabs; track tab; let i = $index) {
+          <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link" role="tab" [id]="'tab-' + i" [ngClass]="{'active': tab == activeTab}"
+              [attr.aria-selected]="tab == activeTab" aria-controls="detail-tabpanel" [attr.tabindex]="tab == activeTab ? 0 : -1"
+            (click)="activeTab = tab">{{tab}}</button>
+          </li>
+        }
+      </ul>
+    </div>
+    <div class="tab-panel" id="detail-tabpanel" role="tabpanel" [attr.aria-labelledby]="'tab-' + tabs.indexOf(activeTab)">
+      @if (isMiscCategorySelected) {
+        <div class="alert misc-category-hint d-flex align-items-start gap-2 mb-3" role="status">
+          <i class="fa-solid fa-circle-info mt-1" aria-hidden="true"></i>
+          <div>
+            Viele Buchungen in „Sonstiges“ lassen sich genauer zuordnen. Ergänze in den
+            <a routerLink="/settings">Einstellungen</a> passende Keywords bei den Kategorien und speichere die Änderungen.
+          </div>
+        </div>
+      }
+      @if (activeTab == 'Kategorien') {
+        <div>
+          <h2 class="section-title mb-3">Kategorien</h2>
+          @if (!dataState.currentFilter.category) {
+            <app-category-overview-component [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
+            [categorySummaries]="dataState.categories"></app-category-overview-component>
+          }
+          @if (dataState.currentFilter.category) {
+            <app-category-component [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
+            [categorySummary]="dataState.currentFilter.category" [collapsed]="false"></app-category-component>
+          }
+        </div>
+      }
+      @if (activeTab === spendingTrendsTab) {
+        <app-spending-trends
+          [transactions]="dataState.allTransactions"
+          [categories]="dataState.categories"
+          (openTransactions)="showTrendTransactions($event.category, $event.from, $event.to)">
+        </app-spending-trends>
+      }
+      @if (activeTab == 'Alle Buchungen') {
+        <div>
+          <h2 class="section-title mb-3">Alle Buchungen ({{dataState.selectedTransactions.length}})</h2>
+          <div class="row">
+            <div class="col">
+              @for (transaction of dataState.selectedTransactions | amountSort; track transaction) {
+                <app-transaction-component [transaction]="transaction"></app-transaction-component>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (activeTab == 'Wiederkehrende Buchungen') {
+        <div>
+          <app-recurring-overview></app-recurring-overview>
+        </div>
+      }
+      @if (activeTab === 'Prognose') {
+        <app-forecast></app-forecast>
+      }
+      @if (activeTab == 'Ausgeglichene Buchungen') {
+        <div>
+          <h2 class="section-title mb-3">Ausgeglichene Buchungen ({{balancedTransactions.length}})</h2>
+          <div class="row">
+            <div class="col">
+              @for (transaction of balancedTransactions | amountSort; track transaction) {
+                <app-transaction-component [transaction]="transaction">
+                </app-transaction-component>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (activeTab == 'Monatliche Bilanz') {
+        <div>
+          <h2 class="section-title mb-3">Monatliche Bilanz</h2>
+          <app-monthy-billance [dates]="dataState.monthStarts" [transactions]="dataState.selectedTransactions"></app-monthy-billance>
+        </div>
+      }
+      @if (activeTab == 'Tägliche Ein- und Ausgaben') {
+        <app-daily-income-expense-chart
+          [transactions]="dataState.selectedTransactions"
+          (triggerRefresh)="refreshPage()">
+        </app-daily-income-expense-chart>
+      }
+      @if (activeTab == 'Ausgaben-Fluss') {
+        <div>
+          <h2 class="section-title mb-3">Ausgaben-Fluss (Sankey Diagramm) @if (dataState.showAverage) {
+            <small class="text-muted fs-6">Ø pro Monat</small>
+          }</h2>
+          <div class="mb-3">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn" [ngClass]="{'btn-danger': sankeyType === 'expense', 'btn-outline-danger': sankeyType !== 'expense'}" (click)="sankeyType = 'expense'">
+                Ausgaben
+              </button>
+              <button type="button" class="btn" [ngClass]="{'btn-success': sankeyType === 'income', 'btn-outline-success': sankeyType !== 'income'}" (click)="sankeyType = 'income'">
+                Einnahmen
+              </button>
+            </div>
+          </div>
+          <app-sankey-chart
+            [transactions]="dataState.selectedTransactions"
+            [categories]="dataState.categories"
+            [type]="sankeyType"
+            [amountMonths]="dataState.selectedMonthAmountInDataRangeFilter"
+            [showAverage]="dataState.showAverage"
+            height="1200px">
+          </app-sankey-chart>
+        </div>
+      }
+      @if (activeTab == 'Deutschlandvergleich') {
+        <app-destatis-comparison
+          [transactions]="dataState.allTransactions"
+          [categories]="dataState.categories"
+          [from]="dataState.currentFilter.from"
+          [to]="dataState.currentFilter.to"
+          [months]="dataState.selectedMonthAmountInDataRangeFilter">
+        </app-destatis-comparison>
+      }
+      @if (activeTab === negativeBalanceTab) {
+        <section aria-labelledby="negativeBalanceTitle">
+          @if (negativeBalanceDays; as days) {
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+              <h2 id="negativeBalanceTitle" class="section-title mb-0">Tage mit negativem Kontostand</h2>
+              <span class="small text-muted">{{ days.length }} {{ days.length === 1 ? 'Tag' : 'Tage' }} im Zeitraum</span>
+            </div>
+            <p class="small text-muted mb-3">
+              Kontosaldo am Tagesende im gewählten Zeitraum, berechnet aus dem erfassten Kontostand und allen geladenen Buchungen.
+              Kategorien-, Buchungsart- und Suchfilter beeinflussen den Kontosaldo nicht.
+            </p>
+            @if (days.length) {
+              <div class="table-responsive">
+                <table class="table align-middle negative-balance-table mb-0">
+                  <caption class="visually-hidden">Alle Tage mit negativem Kontosaldo im gewählten Zeitraum, nach Monaten gruppiert, neueste zuerst.</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Tag</th>
+                      <th scope="col" class="text-end">Kontosaldo am Tagesende</th>
+                    </tr>
+                  </thead>
+                  @for (group of negativeBalanceMonths; track trackByBalanceMonth($index, group)) {
+                    <tbody>
+                      <tr class="negative-balance-month">
+                        <th colspan="2" scope="rowgroup">
+                          <div class="d-flex justify-content-between align-items-center gap-3">
+                            <span>{{ group.month | date:'MMMM yyyy':'':'de-DE' }}</span>
+                            <span class="small text-muted fw-normal">{{ group.days.length }} {{ group.days.length === 1 ? 'Tag' : 'Tage' }} im Minus</span>
+                          </div>
+                        </th>
+                      </tr>
+                      @for (day of group.days; track trackByBalanceDate($index, day)) {
+                        <tr>
+                          <th scope="row">{{ day.date | date:'EEE, dd.MM.yyyy':'':'de-DE' }}</th>
+                          <td class="text-end">{{ day.balance | currency:'EUR':'symbol':'1.2-2':'de-DE' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  }
+                </table>
+              </div>
+            } @else {
+              <p class="negative-balance-empty mb-0" role="status">
+                <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i>
+                Im gewählten Zeitraum gab es keine Tage mit negativem Kontosaldo.
+              </p>
+            }
+          }
+        </section>
+      }
+    </div>
   </div>
-</div>
+}

@@ -1,84 +1,114 @@
-<ng-container *ngIf="insight">
-  <section *ngIf="!detailsOnly" class="card spending-insight"
-    [class.spending-insight--higher]="insight.status === 'higher'"
-    [class.spending-insight--lower]="insight.status === 'lower'">
-    <button type="button" class="insight-summary" [attr.aria-label]="summaryLabel"
-      [attr.aria-expanded]="expanded" aria-controls="spendingInsightDetailsPanel"
-      (click)="toggleDetails.emit()">
-      <i class="insight-icon fa-solid" aria-hidden="true"
-        [class.fa-arrow-trend-up]="insight.status === 'higher'"
-        [class.fa-arrow-trend-down]="insight.status === 'lower'"
-        [class.fa-scale-balanced]="insight.status === 'steady'"
+@if (insight) {
+  @if (!detailsOnly) {
+    <section class="card spending-insight"
+      [class.spending-insight--higher]="insight.status === 'higher'"
+      [class.spending-insight--lower]="insight.status === 'lower'">
+      <button type="button" class="insight-summary" [attr.aria-label]="summaryLabel"
+        [attr.aria-expanded]="expanded" aria-controls="spendingInsightDetailsPanel"
+        (click)="toggleDetails.emit()">
+        <i class="insight-icon fa-solid" aria-hidden="true"
+          [class.fa-arrow-trend-up]="insight.status === 'higher'"
+          [class.fa-arrow-trend-down]="insight.status === 'lower'"
+          [class.fa-scale-balanced]="insight.status === 'steady'"
         [class.fa-chart-line]="insight.status === 'insufficient'"></i>
-      <span class="insight-copy">
-        <span class="insight-text">
-          <ng-container [ngSwitch]="insight.status">
-            <ng-container *ngSwitchCase="'higher'">Mehr als üblich</ng-container>
-            <ng-container *ngSwitchCase="'lower'">Weniger als üblich</ng-container>
-            <ng-container *ngSwitchCase="'steady'">Im üblichen Rahmen</ng-container>
-            <ng-container *ngSwitchCase="'insufficient'">Zu wenig Verlauf für Vergleich</ng-container>
-          </ng-container>
-        </span>
-        <strong *ngIf="insight.status !== 'insufficient'; else insufficientChange" class="insight-change">
-          {{ insight.change > 0 ? '+' : '' }}{{ insight.change | currency:'EUR':'symbol':'1.0-0' }}
-        </strong>
-        <ng-template #insufficientChange><span class="insight-change insight-change--empty">Noch kein Vergleich</span></ng-template>
-      </span>
-      <i class="insight-chevron fa-solid fa-chevron-down" [class.is-expanded]="expanded" aria-hidden="true"></i>
-      <span class="visually-hidden">{{ expanded ? 'Details ausblenden' : 'Vergleichsdetails anzeigen' }}</span>
-    </button>
-  </section>
-
-  <section *ngIf="detailsOnly" class="card insight-details-panel"
-    [class.spending-insight--higher]="insight.status === 'higher'"
-    [class.spending-insight--lower]="insight.status === 'lower'"
-    id="spendingInsightDetailsPanel" aria-labelledby="spendingInsightDetailsTitle">
-    <div class="card-body">
-      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-        <div>
-          <h2 id="spendingInsightDetailsTitle" class="section-title mb-1">Ausgabenvergleich</h2>
-          <p class="text-muted small mb-0">
-            <ng-container [ngSwitch]="insight.status">
-              <ng-container *ngSwitchCase="'higher'">Mehr Ausgaben als üblich</ng-container>
-              <ng-container *ngSwitchCase="'lower'">Weniger Ausgaben als üblich</ng-container>
-              <ng-container *ngSwitchCase="'steady'">Im üblichen Rahmen</ng-container>
-              <ng-container *ngSwitchCase="'insufficient'">Noch kein Vergleich möglich</ng-container>
-            </ng-container>
-          </p>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleDetails.emit()" aria-label="Ausgabenvergleich schließen">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-
-      <p class="insight-meta mb-3" *ngIf="insight.status !== 'insufficient'">
-        Ausgaben {{ insight.periodStart | date:'d.' }}–{{ insight.periodEnd | date:'d. MMM' }}:
-        <strong>{{ insight.current | currency:'EUR':'symbol':'1.0-0' }}</strong>
-        statt Ø {{ insight.baseline | currency:'EUR':'symbol':'1.0-0' }}
-        ({{ insight.comparisonMonthCount }} Vormonate, gleiche Tage, ohne Sparen)
-      </p>
-      <p class="insight-meta mb-3" *ngIf="insight.status === 'insufficient'">
-        Für einen Vergleich braucht es Buchungen aus mindestens einem früheren Monat.
-      </p>
-
-      <ul *ngIf="insight.contributors.length" class="insight-drivers">
-        <li class="insight-driver" *ngFor="let driver of insight.contributors">
-          <span class="driver-name">{{ driver.label }}</span>
-          <span class="driver-change"
-            [class.text-danger]="driver.change > 0"
-            [class.text-success]="driver.change < 0">
-            {{ driver.change > 0 ? '+' : '' }}{{ driver.change | currency:'EUR':'symbol':'1.0-0' }}
+        <span class="insight-copy">
+          <span class="insight-text">
+            @switch (insight.status) {
+              @case ('higher') {
+                Mehr als üblich
+              }
+              @case ('lower') {
+                Weniger als üblich
+              }
+              @case ('steady') {
+                Im üblichen Rahmen
+              }
+              @case ('insufficient') {
+                Zu wenig Verlauf für Vergleich
+              }
+            }
           </span>
-          <button type="button" class="btn btn-link btn-sm driver-action"
-            (click)="showTransactions(driver.category)"
-            [attr.aria-label]="'Buchungen aus ' + driver.label + ' ansehen'">
-            Ansehen
+          @if (insight.status !== 'insufficient') {
+            <strong class="insight-change">
+              {{ insight.change > 0 ? '+' : '' }}{{ insight.change | currency:'EUR':'symbol':'1.0-0' }}
+            </strong>
+          } @else {
+            <span class="insight-change insight-change--empty">Noch kein Vergleich</span>
+          }
+        </span>
+        <i class="insight-chevron fa-solid fa-chevron-down" [class.is-expanded]="expanded" aria-hidden="true"></i>
+        <span class="visually-hidden">{{ expanded ? 'Details ausblenden' : 'Vergleichsdetails anzeigen' }}</span>
+      </button>
+    </section>
+  }
+  @if (detailsOnly) {
+    <section class="card insight-details-panel"
+      [class.spending-insight--higher]="insight.status === 'higher'"
+      [class.spending-insight--lower]="insight.status === 'lower'"
+      id="spendingInsightDetailsPanel" aria-labelledby="spendingInsightDetailsTitle">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+          <div>
+            <h2 id="spendingInsightDetailsTitle" class="section-title mb-1">Ausgabenvergleich</h2>
+            <p class="text-muted small mb-0">
+              @switch (insight.status) {
+                @case ('higher') {
+                  Mehr Ausgaben als üblich
+                }
+                @case ('lower') {
+                  Weniger Ausgaben als üblich
+                }
+                @case ('steady') {
+                  Im üblichen Rahmen
+                }
+                @case ('insufficient') {
+                  Noch kein Vergleich möglich
+                }
+              }
+            </p>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleDetails.emit()" aria-label="Ausgabenvergleich schließen">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
-        </li>
-      </ul>
-      <p *ngIf="insight.status === 'steady' && !insight.contributors.length" class="insight-meta mb-0">
-        Keine Kategorie weicht auffällig ab.
-      </p>
-    </div>
-  </section>
-</ng-container>
+        </div>
+        @if (insight.status !== 'insufficient') {
+          <p class="insight-meta mb-3">
+            Ausgaben {{ insight.periodStart | date:'d.' }}–{{ insight.periodEnd | date:'d. MMM' }}:
+            <strong>{{ insight.current | currency:'EUR':'symbol':'1.0-0' }}</strong>
+            statt Ø {{ insight.baseline | currency:'EUR':'symbol':'1.0-0' }}
+            ({{ insight.comparisonMonthCount }} Vormonate, gleiche Tage, ohne Sparen)
+          </p>
+        }
+        @if (insight.status === 'insufficient') {
+          <p class="insight-meta mb-3">
+            Für einen Vergleich braucht es Buchungen aus mindestens einem früheren Monat.
+          </p>
+        }
+        @if (insight.contributors.length) {
+          <ul class="insight-drivers">
+            @for (driver of insight.contributors; track driver) {
+              <li class="insight-driver">
+                <span class="driver-name">{{ driver.label }}</span>
+                <span class="driver-change"
+                  [class.text-danger]="driver.change > 0"
+                  [class.text-success]="driver.change < 0">
+                  {{ driver.change > 0 ? '+' : '' }}{{ driver.change | currency:'EUR':'symbol':'1.0-0' }}
+                </span>
+                <button type="button" class="btn btn-link btn-sm driver-action"
+                  (click)="showTransactions(driver.category)"
+                  [attr.aria-label]="'Buchungen aus ' + driver.label + ' ansehen'">
+                  Ansehen
+                </button>
+              </li>
+            }
+          </ul>
+        }
+        @if (insight.status === 'steady' && !insight.contributors.length) {
+          <p class="insight-meta mb-0">
+            Keine Kategorie weicht auffällig ab.
+          </p>
+        }
+      </div>
+    </section>
+  }
+}

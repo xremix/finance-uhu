@@ -17,17 +17,16 @@ import {
   ApexStates,
 } from 'ng-apexcharts';
 import { Transaction } from '../models/transaction';
-import { CommonModule } from '@angular/common';
+
 import { DataState } from '../services/data-state';
 import { chartColors, chartFontFamily, formatCompactCurrency, formatCurrency } from '../chart-theme';
 
 @Component({
-  selector: 'app-history-chart',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgApexchartsModule, CommonModule],
-  templateUrl: './history-income-chart.component.html',
-  styleUrl: './history-income-chart.component.scss',
+    selector: 'app-history-chart',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [NgApexchartsModule],
+    templateUrl: './history-income-chart.component.html',
+    styleUrl: './history-income-chart.component.scss'
 })
 export class HistoryIncomeChartComponent implements OnInit, OnChanges {
   @Input() dates: Date[] = [];
@@ -126,6 +125,7 @@ export class HistoryIncomeChartComponent implements OnInit, OnChanges {
         toolbar: { show: false },
         events: {
           dataPointSelection: function (event, chartContext, config) {
+            if (!config || config.dataPointIndex < 0) return;
             var ix = config.dataPointIndex;
             self.dataState.filterByDay(self.dates[ix]);
             self.triggerRefresh.emit();
@@ -156,7 +156,7 @@ export class HistoryIncomeChartComponent implements OnInit, OnChanges {
       },
       tooltip: {
         y: {
-          formatter: (val) => formatCurrency(val),
+          formatter: (val) => val == null ? '' : formatCurrency(val),
         },
       },
       grid: {

@@ -13,16 +13,15 @@ import {
   ApexMarkers,
 } from 'ng-apexcharts';
 import { Transaction } from '../models/transaction';
-import { CommonModule } from '@angular/common';
+
 import { chartColors, chartFontFamily, formatCompactCurrency, formatCurrency } from '../chart-theme';
 
 @Component({
-  selector: 'app-daily-income-expense-chart',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgApexchartsModule, CommonModule],
-  templateUrl: './daily-income-expense-chart.component.html',
-  styleUrl: './daily-income-expense-chart.component.scss',
+    selector: 'app-daily-income-expense-chart',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [NgApexchartsModule],
+    templateUrl: './daily-income-expense-chart.component.html',
+    styleUrl: './daily-income-expense-chart.component.scss'
 })
 export class DailyIncomeExpenseChartComponent implements OnChanges {
   @Input() transactions: Transaction[] = [];
@@ -149,7 +148,7 @@ export class DailyIncomeExpenseChartComponent implements OnChanges {
       },
       tooltip: {
         y: {
-          formatter: (val) => formatCurrency(val),
+          formatter: (val) => val == null ? '' : formatCurrency(val),
         },
         x: {
           show: true,

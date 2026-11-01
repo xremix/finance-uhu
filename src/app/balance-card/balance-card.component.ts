@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexFill, ApexGrid, ApexMarkers, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
@@ -22,11 +22,11 @@ interface BalanceChart {
 }
 
 @Component({
-  selector: 'app-balance-card',
-  standalone: true,
-  imports: [CommonModule, FormsModule, NgApexchartsModule],
-  templateUrl: './balance-card.component.html',
-  styleUrl: './balance-card.component.scss',
+    selector: 'app-balance-card',
+    imports: [CommonModule, FormsModule, NgApexchartsModule],
+    templateUrl: './balance-card.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './balance-card.component.scss'
 })
 export class BalanceCardComponent {
   readonly sparklineDays = 30;
@@ -153,7 +153,7 @@ export class BalanceCardComponent {
       grid: { borderColor: chartColors.grid },
       tooltip: {
         x: { format: 'dd.MM.yyyy' },
-        y: { formatter: (value) => formatCurrency(value) },
+        y: { formatter: (value) => value == null ? '' : formatCurrency(value) },
       },
     };
   }

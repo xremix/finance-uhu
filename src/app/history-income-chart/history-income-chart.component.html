@@ -1,25 +1,27 @@
 <div class="card chart-card">
-    <div class="card-body">
-        <div class="chart-card-header">
-            <div>
-                <h2 class="section-title mb-0">Einnahmen &amp; Ausgaben</h2>
-                <p class="chart-subtitle mb-0">Pro Monat · Balken anklicken, um den Monat zu filtern</p>
-            </div>
-        </div>
-        <div role="img" aria-label="Balkendiagramm: Einnahmen und Ausgaben pro Monat. Die Werte stehen auch in den Kennzahlen und im Tab Monatliche Bilanz.">
-        <apx-chart *ngIf="series && categories"
-            [series]="series"
-            [chart]="chartOptions.chart"
-            [xaxis]="categories"
-            [yaxis]="chartOptions.yaxis"
-            [plotOptions]="chartOptions.plotOptions"
-            [legend]="chartOptions.legend"
-            [tooltip]="chartOptions.tooltip"
-            [grid]="chartOptions.grid"
-            [states]="chartOptions.states"
-            [fill]="chartOptions.fill"
-            [dataLabels]="chartOptions.dataLabels"
-        ></apx-chart>
-        </div>
+  <div class="card-body">
+    <div class="chart-card-header">
+      <div>
+        <h2 class="section-title mb-0">Einnahmen &amp; Ausgaben</h2>
+        <p class="chart-subtitle mb-0">Pro Monat · Balken anklicken, um den Monat zu filtern</p>
+      </div>
     </div>
+    <div role="img" aria-label="Balkendiagramm: Einnahmen und Ausgaben pro Monat. Die Werte stehen auch in den Kennzahlen und im Tab Monatliche Bilanz.">
+      @if (series && categories) {
+        <apx-chart
+          [series]="series"
+          [chart]="chartOptions.chart"
+          [xaxis]="categories"
+          [yaxis]="chartOptions.yaxis"
+          [plotOptions]="chartOptions.plotOptions"
+          [legend]="chartOptions.legend"
+          [tooltip]="chartOptions.tooltip"
+          [grid]="chartOptions.grid"
+          [states]="chartOptions.states"
+          [fill]="chartOptions.fill"
+          [dataLabels]="chartOptions.dataLabels"
+        ></apx-chart>
+      }
+    </div>
+  </div>
 </div>

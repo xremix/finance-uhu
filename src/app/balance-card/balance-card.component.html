@@ -1,5 +1,5 @@
-<ng-container *ngIf="!detailsOnly; else fullWidthDetails">
-  <ng-container *ngIf="anchor && latest as current; else noBalance">
+@if (!detailsOnly) {
+  @if (anchor && latest; as current) {
     <section class="card balance-card" aria-labelledby="balanceTitle">
       <div class="card-body">
         <button type="button" class="balance-summary" (click)="toggleDetails.emit()"
@@ -17,29 +17,45 @@
               in {{ sparklineDays }} Tagen
             </div>
           </div>
-          <div class="balance-sparkline" *ngIf="sparkline" aria-hidden="true">
-            <apx-chart
-              [series]="sparkline.series"
-              [chart]="sparkline.chart"
-              [colors]="sparkline.colors"
-              [stroke]="sparkline.stroke"
-              [fill]="sparkline.fill"
-              [markers]="sparkline.markers"
-              [xaxis]="sparkline.xaxis"
-              [yaxis]="sparkline.yaxis"
-              [tooltip]="sparkline.tooltip">
-            </apx-chart>
-          </div>
+          @if (sparkline) {
+            <div class="balance-sparkline" aria-hidden="true">
+              <apx-chart
+                [series]="sparkline.series"
+                [chart]="sparkline.chart"
+                [colors]="sparkline.colors"
+                [stroke]="sparkline.stroke"
+                [fill]="sparkline.fill"
+                [markers]="sparkline.markers"
+                [xaxis]="sparkline.xaxis"
+                [yaxis]="sparkline.yaxis"
+                [tooltip]="sparkline.tooltip">
+              </apx-chart>
+            </div>
+          }
           <i class="fa-solid balance-chevron" [class.fa-chevron-down]="!expanded" [class.fa-chevron-up]="expanded"
-            [class.is-expanded]="expanded" aria-hidden="true"></i>
+          [class.is-expanded]="expanded" aria-hidden="true"></i>
         </button>
       </div>
     </section>
-  </ng-container>
-</ng-container>
-
-<ng-template #fullWidthDetails>
-  <ng-container *ngIf="anchor && latest">
+  } @else {
+    <section class="card balance-card balance-card--empty" aria-labelledby="balanceEmptyTitle">
+      <div class="card-body">
+        <div class="balance-empty-content">
+          <span class="balance-empty-icon" aria-hidden="true"><i class="fa-solid fa-wallet"></i></span>
+          <div class="balance-empty-copy">
+            <div class="metric-label" id="balanceEmptyTitle">Kontostand</div>
+            <div class="metric-hint">Deine Datei enthält keinen Kontostand.</div>
+            @if (!showForm) {
+              <button type="button" class="btn btn-link btn-sm p-0 mt-1" (click)="openForm()">Kontostand eingeben</button>
+            }
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="manualForm"></ng-container>
+      </div>
+    </section>
+  }
+} @else {
+  @if (anchor && latest) {
     <section class="card balance-history-panel" id="accountBalanceDetailsPanel" aria-labelledby="accountBalanceDetailsTitle">
       <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
@@ -47,8 +63,12 @@
             <h2 id="accountBalanceDetailsTitle" class="section-title mb-1">Kontostandsverlauf</h2>
             <p class="small text-muted mb-0">
               Kontostand jeweils am Ende des Tages, berechnet aus
-              <ng-container *ngIf="anchor.source === 'file'">dem Saldo in {{ anchor.sourceName || 'der Datei' }}</ng-container>
-              <ng-container *ngIf="anchor.source === 'manual'">deiner Eingabe</ng-container>
+              @if (anchor.source === 'file') {
+                dem Saldo in {{ anchor.sourceName || 'der Datei' }}
+              }
+              @if (anchor.source === 'manual') {
+                deiner Eingabe
+              }
               ({{ anchor.amount | currency:'EUR':'symbol':'1.2-2' }} am {{ anchor.date | date:'dd.MM.yyyy' }}) und den Buchungen.
             </p>
           </div>
@@ -56,30 +76,30 @@
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </div>
-
-        <p class="small mb-3" *ngIf="anchor.source === 'manual'">
-          <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="openForm()">Eingabe ändern</button> ·
-          <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-danger" (click)="removeManualBalance()">Eingabe entfernen</button>
-        </p>
-
+        @if (anchor.source === 'manual') {
+          <p class="small mb-3">
+            <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="openForm()">Eingabe ändern</button> ·
+            <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-danger" (click)="removeManualBalance()">Eingabe entfernen</button>
+          </p>
+        }
         <ng-container *ngTemplateOutlet="manualForm"></ng-container>
-
-        <div *ngIf="detailChart" role="img" aria-label="Verlauf des Kontostands. Die Werte stehen in der Tabelle darunter.">
-          <apx-chart
-            [series]="detailChart.series"
-            [chart]="detailChart.chart"
-            [colors]="detailChart.colors"
-            [stroke]="detailChart.stroke"
-            [fill]="detailChart.fill"
-            [markers]="detailChart.markers"
-            [dataLabels]="detailChart.dataLabels"
-            [xaxis]="detailChart.xaxis"
-            [yaxis]="detailChart.yaxis"
-            [grid]="detailChart.grid"
-            [tooltip]="detailChart.tooltip">
-          </apx-chart>
-        </div>
-
+        @if (detailChart) {
+          <div role="img" aria-label="Verlauf des Kontostands. Die Werte stehen in der Tabelle darunter.">
+            <apx-chart
+              [series]="detailChart.series"
+              [chart]="detailChart.chart"
+              [colors]="detailChart.colors"
+              [stroke]="detailChart.stroke"
+              [fill]="detailChart.fill"
+              [markers]="detailChart.markers"
+              [dataLabels]="detailChart.dataLabels"
+              [xaxis]="detailChart.xaxis"
+              [yaxis]="detailChart.yaxis"
+              [grid]="detailChart.grid"
+              [tooltip]="detailChart.tooltip">
+            </apx-chart>
+          </div>
+        }
         <div class="balance-table-wrapper">
           <table class="table table-sm mb-0 balance-table">
             <thead>
@@ -90,51 +110,44 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let day of daysDescending" [class.no-change]="day.change === 0">
-                <td>{{ day.date | date:'EEE, dd.MM.yyyy' }}</td>
-                <td class="text-end" [class.text-success]="day.change > 0" [class.text-danger]="day.change < 0">
-                  <ng-container *ngIf="day.change !== 0; else noChange">{{ day.change > 0 ? '+' : '' }}{{ day.change | currency:'EUR':'symbol':'1.2-2' }}</ng-container>
-                  <ng-template #noChange>–</ng-template>
-                </td>
-                <td class="text-end fw-semibold" [class.text-danger]="day.balance < 0">{{ day.balance | currency:'EUR':'symbol':'1.2-2' }}</td>
-              </tr>
+              @for (day of daysDescending; track day) {
+                <tr [class.no-change]="day.change === 0">
+                  <td>{{ day.date | date:'EEE, dd.MM.yyyy' }}</td>
+                  <td class="text-end" [class.text-success]="day.change > 0" [class.text-danger]="day.change < 0">
+                    @if (day.change !== 0) {
+                      {{ day.change > 0 ? '+' : '' }}{{ day.change | currency:'EUR':'symbol':'1.2-2' }}
+                    } @else {
+                      –
+                    }
+                  </td>
+                  <td class="text-end fw-semibold" [class.text-danger]="day.balance < 0">{{ day.balance | currency:'EUR':'symbol':'1.2-2' }}</td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
       </div>
     </section>
-  </ng-container>
-</ng-template>
+  }
+}
 
-<ng-template #noBalance>
-  <section class="card balance-card balance-card--empty" aria-labelledby="balanceEmptyTitle">
-    <div class="card-body">
-      <div class="balance-empty-content">
-        <span class="balance-empty-icon" aria-hidden="true"><i class="fa-solid fa-wallet"></i></span>
-        <div class="balance-empty-copy">
-          <div class="metric-label" id="balanceEmptyTitle">Kontostand</div>
-          <div class="metric-hint">Deine Datei enthält keinen Kontostand.</div>
-          <button *ngIf="!showForm" type="button" class="btn btn-link btn-sm p-0 mt-1" (click)="openForm()">Kontostand eingeben</button>
-        </div>
-      </div>
-      <ng-container *ngTemplateOutlet="manualForm"></ng-container>
-    </div>
-  </section>
-</ng-template>
+
 
 <ng-template #manualForm>
-  <form *ngIf="showForm" class="balance-form" (ngSubmit)="saveManualBalance()">
-    <div>
-      <label class="form-label small mb-1" for="balanceDate">Tag (Stand am Tagesende)</label>
-      <input id="balanceDate" name="balanceDate" type="date" class="form-control form-control-sm" [(ngModel)]="formDate" required>
-    </div>
-    <div>
-      <label class="form-label small mb-1" for="balanceAmount">Kontostand in €</label>
-      <input id="balanceAmount" name="balanceAmount" type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="formAmount" required>
-    </div>
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-sm btn-primary" [disabled]="!formDate || formAmount === null">Speichern</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showForm = false">Abbrechen</button>
-    </div>
-  </form>
+  @if (showForm) {
+    <form class="balance-form" (ngSubmit)="saveManualBalance()">
+      <div>
+        <label class="form-label small mb-1" for="balanceDate">Tag (Stand am Tagesende)</label>
+        <input id="balanceDate" name="balanceDate" type="date" class="form-control form-control-sm" [(ngModel)]="formDate" required>
+      </div>
+      <div>
+        <label class="form-label small mb-1" for="balanceAmount">Kontostand in €</label>
+        <input id="balanceAmount" name="balanceAmount" type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="formAmount" required>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary" [disabled]="!formDate || formAmount === null">Speichern</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showForm = false">Abbrechen</button>
+      </div>
+    </form>
+  }
 </ng-template>

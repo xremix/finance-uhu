@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
 
@@ -33,11 +33,11 @@ interface TrendTransactionRequest {
 }
 
 @Component({
-  selector: 'app-spending-trends',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './spending-trends.component.html',
-  styleUrl: './spending-trends.component.scss',
+    selector: 'app-spending-trends',
+    imports: [CommonModule],
+    templateUrl: './spending-trends.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './spending-trends.component.scss'
 })
 export class SpendingTrendsComponent implements OnChanges {
   @Input() transactions: readonly Transaction[] = [];

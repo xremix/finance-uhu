@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Transaction } from '../models/transaction';
 
 @Pipe({
-  name: 'amountSort',
+    name: 'amountSort',
+    standalone: false
 })
 export class AmountSortPipe implements PipeTransform {
   transform(transactions: Transaction[]): Transaction[] {

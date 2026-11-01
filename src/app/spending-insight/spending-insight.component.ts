@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Category } from '../models/category';
 import { Transaction } from '../models/transaction';
@@ -24,9 +24,11 @@ interface SpendingInsight {
 }
 
 @Component({
-  selector: 'app-spending-insight',
-  templateUrl: './spending-insight.component.html',
-  styleUrl: './spending-insight.component.scss',
+    selector: 'app-spending-insight',
+    templateUrl: './spending-insight.component.html',
+    styleUrl: './spending-insight.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class SpendingInsightComponent implements OnInit {
   @Output() openTransactions = new EventEmitter<void>();

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Transaction } from '../models/transaction';
 import { RecurringSeries } from '../services/recurring-service';
 import { DataState } from '../services/data-state';
@@ -6,9 +6,11 @@ import { CategoryService } from '../services/category-service';
 import { UiFeedbackService } from '../services/ui-feedback.service';
 
 @Component({
-  selector: 'app-transaction-component',
-  templateUrl: './transaction-component.component.html',
-  styleUrl: './transaction-component.component.scss'
+    selector: 'app-transaction-component',
+    templateUrl: './transaction-component.component.html',
+    styleUrl: './transaction-component.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class TransactionComponentComponent implements OnInit {
   @Input() transaction: Transaction = {} as Transaction;

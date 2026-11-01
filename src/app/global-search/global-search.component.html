@@ -1,33 +1,35 @@
 <div class="input-group mb-3">
-  <input 
-    type="search" 
+  <input
+    type="search"
     id="globalSearchInput"
-    class="form-control" 
+    class="form-control"
     placeholder="Suche... (z.B. 'miete wohnung' oder 'sparkasse -gebühr')"
     [(ngModel)]="searchTerm"
     (input)="onSearchChange()"
     aria-describedby="globalSearchHelp"
-  >
-  <button 
-    class="btn btn-outline-secondary" 
-    type="button" 
+    >
+  <button
+    class="btn btn-outline-secondary"
+    type="button"
     (click)="clearSearch()"
     [disabled]="!searchTerm"
     title="Suche löschen"
     aria-label="Suche löschen"
-  >
+    >
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 
 <div class="text-center mb-3" aria-live="polite">
-  <small class="text-muted" *ngIf="searchTerm">
-    <strong>{{dataState.selectedTransactions.length}}</strong> Buchung(en) gefunden
-  </small>
+  @if (searchTerm) {
+    <small class="text-muted">
+      <strong>{{dataState.selectedTransactions.length}}</strong> Buchung(en) gefunden
+    </small>
+  }
 </div>
 <div id="globalSearchHelp" [class.visually-hidden]="!searchTerm" class="text-center mb-3">
   <small class="text-muted">
-    <strong>Tipp:</strong> Mehrere Begriffe werden ODER-verknüpft (z.B. "miete wohnung"). 
+    <strong>Tipp:</strong> Mehrere Begriffe werden ODER-verknüpft (z.B. "miete wohnung").
     Verwende "-" um Begriffe auszuschließen (z.B. "sparkasse -gebühr")
   </small>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CategoryService } from './services/category-service';
 import { DataState } from './services/data-state';
 import { DateService } from './services/date-service';
@@ -7,10 +7,11 @@ import { Router } from '@angular/router';
 import { legalContact } from './legal-contact';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AppComponent implements OnInit {
   title = 'Finanz Uhu';

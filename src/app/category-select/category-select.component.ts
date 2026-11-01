@@ -1,4 +1,4 @@
-import { Component, DoCheck, ElementRef, ViewChild } from '@angular/core';
+import { Component, DoCheck, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataState } from '../services/data-state';
@@ -21,11 +21,11 @@ const DEFAULT_ICON = 'fa-solid fa-tag';
 const MAX_SEARCH_RESULTS = 8;
 
 @Component({
-  selector: 'app-category-select',
-  standalone: true,
-  imports: [FormsModule, CommonModule],
-  templateUrl: './category-select.component.html',
-  styleUrl: './category-select.component.scss',
+    selector: 'app-category-select',
+    imports: [FormsModule, CommonModule],
+    templateUrl: './category-select.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './category-select.component.scss'
 })
 export class CategorySelectComponent implements DoCheck {
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;

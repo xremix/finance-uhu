@@ -4,16 +4,17 @@
   <p class="text-muted">Stand: 1. November 2026</p>
 
   <h2 class="section-title mt-4">1. Verantwortlicher</h2>
-  <address *ngIf="contact.name; else deploymentConfigNotice">
-    {{contact.name}}<br>
-    {{contact.street}}<br>
-    {{contact.postalCode}} {{contact.city}}<br>
-    {{contact.country}}<br>
-    E-Mail: <a [href]="'mailto:' + contact.email">{{contact.email}}</a>
-  </address>
-  <ng-template #deploymentConfigNotice>
+  @if (contact.name) {
+    <address>
+      {{contact.name}}<br>
+      {{contact.street}}<br>
+      {{contact.postalCode}} {{contact.city}}<br>
+      {{contact.country}}<br>
+      E-Mail: <a [href]="'mailto:' + contact.email">{{contact.email}}</a>
+    </address>
+  } @else {
     <p class="alert alert-warning">Die Datenschutz-Kontaktdaten sind in dieser Entwicklungsumgebung nicht konfiguriert.</p>
-  </ng-template>
+  }
 
   <h2 class="section-title mt-4">2. Grundsätzliches zur Verarbeitung</h2>
   <p>Finanz Uhu verarbeitet hochgeladene Umsatzdateien im Browser auf deinem Gerät. Die Anwendung sendet den Inhalt der CSV-Dateien nicht an mich und verwendet nach aktuellem Stand keine Nutzerkonten, Analyse- oder Werbetracker. Umsatzdateien werden standardmäßig nur vorübergehend im Arbeitsspeicher gehalten und nicht dauerhaft im Browser abgelegt.</p>
