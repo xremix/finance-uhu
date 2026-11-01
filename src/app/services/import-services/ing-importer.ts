@@ -93,7 +93,7 @@ export class IngImporter implements Importer {
     };
   }
 
-  private parseLine(columns: string[], map: IngColumnMap): Transaction | undefined {
+  private parseLine(columns: string[], map: IngColumnMap, rowNumber: number): Transaction | undefined {
     const col = (index: number) => (index >= 0 ? columns[index] ?? '' : '');
     const bookingDate = this.parseDate(col(map.bookingDate));
     const valueDate = this.parseDate(col(map.valueDate));
@@ -101,7 +101,7 @@ export class IngImporter implements Importer {
     const hasValidValueDate = this.isValidDate(valueDate);
 
     if (!hasValidBookingDate && !hasValidValueDate) {
-      console.warn('Invalid transaction date:', columns);
+      console.warn(`ING row ${rowNumber}: invalid dates`);
       return undefined;
     }
 
@@ -126,7 +126,7 @@ export class IngImporter implements Importer {
     };
 
     if (Number.isNaN(transaction.amount)) {
-      console.warn('Invalid transaction amount:', columns);
+      console.warn(`ING row ${rowNumber}: invalid amount`);
       return undefined;
     }
 
@@ -172,7 +172,8 @@ export class IngImporter implements Importer {
     const transactions: Transaction[] = [];
     let columnMap: IngColumnMap | undefined;
 
-    for (const line of lines) {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex];
       if (line.trim() === '') continue;
 
       const columns = line.split(';').map((column) => column.replace(/"/g, ''));
@@ -188,7 +189,7 @@ export class IngImporter implements Importer {
 
       if (columns.length <= columnMap.amount) continue;
 
-      const transaction = this.parseLine(columns, columnMap);
+      const transaction = this.parseLine(columns, columnMap, lineIndex + 1);
       if (transaction) {
         transactions.push(transaction);
       }
