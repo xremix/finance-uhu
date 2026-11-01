@@ -1,0 +1,194 @@
+:host {
+  display: block;
+}
+
+.forecast-header,
+.forecast-chart-heading,
+.forecast-detail-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.forecast-header {
+  margin-bottom: 1rem;
+}
+
+.forecast-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  color: var(--app-primary);
+  background: #edf3f0;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.forecast-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.forecast-summary-tile,
+.forecast-detail-card,
+.forecast-chart-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  background: var(--app-surface);
+}
+
+.forecast-summary-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: var(--app-surface-muted);
+}
+
+.forecast-summary-label {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.forecast-summary-value {
+  color: var(--app-ink-strong);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.forecast-summary-hint {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
+.forecast-chart-card {
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.forecast-chart-heading {
+  align-items: baseline;
+}
+
+.forecast-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.forecast-payment-list,
+.forecast-category-list {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.6rem;
+}
+
+.forecast-payment-row,
+.forecast-category-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: 0.875rem;
+}
+
+.forecast-payment-row:last-of-type,
+.forecast-category-row:last-child {
+  border-bottom: 0;
+}
+
+.forecast-payment-date {
+  flex: 0 0 3rem;
+  color: var(--app-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.forecast-payment-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+
+  strong,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--app-muted);
+    font-size: 0.75rem;
+  }
+}
+
+.forecast-payment-amount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.forecast-category-row {
+  justify-content: space-between;
+}
+
+.forecast-category-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.forecast-category-row strong {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.forecast-empty,
+.forecast-method-note {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.forecast-empty {
+  margin-top: 0.75rem;
+}
+
+.forecast-method-note {
+  padding: 0 0.15rem;
+}
+
+@media (max-width: 991px) {
+  .forecast-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .forecast-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 479px) {
+  .forecast-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .forecast-chart-heading {
+    display: block;
+  }
+}

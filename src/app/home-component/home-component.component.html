@@ -59,6 +59,10 @@
         <span>Wiederkehrende Ausgaben erkennen</span>
       </div>
       <div class="feature-item">
+        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+        <span>Kontostand und Zahlungsfluss prognostizieren</span>
+      </div>
+      <div class="feature-item">
         <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
         <span>Monatliche Bilanzen und Verlauf</span>
       </div>
@@ -304,6 +308,8 @@
     <div *ngIf="activeTab == 'Wiederkehrende Buchungen'">
       <app-recurring-overview></app-recurring-overview>
     </div>
+
+    <app-forecast *ngIf="activeTab === 'Prognose'"></app-forecast>
 
     <div *ngIf="activeTab == 'Ausgeglichene Buchungen'">
       <h2 class="section-title mb-3">Ausgeglichene Buchungen ({{balancedTransactions.length}})</h2>

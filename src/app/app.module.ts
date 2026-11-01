@@ -35,6 +35,7 @@ import { BalanceCardComponent } from './balance-card/balance-card.component';
 import { DestatisComparisonComponent } from './destatis-comparison/destatis-comparison.component';
 import { SpendingTrendsComponent } from './spending-trends/spending-trends.component';
 import { UiNotificationsComponent } from './ui-notifications/ui-notifications.component';
+import { ForecastComponent } from './forecast/forecast.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { UiNotificationsComponent } from './ui-notifications/ui-notifications.co
     SankeyChartComponent,
     BalanceCardComponent,
     DestatisComparisonComponent,
+    ForecastComponent,
     SpendingTrendsComponent,
     UiNotificationsComponent,
     OwlLoaderComponent

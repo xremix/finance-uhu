@@ -8,6 +8,7 @@ export const DASHBOARD_TABS = [
   { id: 'categories', label: 'Kategorien' },
   { id: 'transactions', label: 'Alle Buchungen' },
   { id: 'recurring', label: 'Wiederkehrende Buchungen' },
+  { id: 'forecast', label: 'Prognose' },
   { id: 'trends', label: 'Ausgaben-Trends' },
   { id: 'balanced', label: 'Ausgeglichene Buchungen' },
   { id: 'monthly', label: 'Monatliche Bilanz' },

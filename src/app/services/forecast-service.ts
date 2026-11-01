@@ -5,7 +5,7 @@ import { RecurringSeries } from './recurring-service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HISTORY_WINDOW_DAYS = 90;
-const VARIABLE_AMOUNT_WINDOW_DAYS = 365;
+const MIN_HISTORY_DAYS = 30;
 
 export interface ForecastPoint {
   date: Date;
@@ -32,6 +32,7 @@ export interface ForecastProjection {
   endValue: number;
   change: number;
   historyDays: number;
+  usesHistoryAverage: boolean;
   baselineTransactionCount: number;
   weeklyIncome: number;
   weeklyExpenses: number;
@@ -67,7 +68,7 @@ export class ForecastService {
 
     const recurringTransactions = new Set(recurringSeries.flatMap((series) => series.transactions));
     const earliestTransaction = datedTransactions
-      .filter((transaction) => transaction.bookingDate <= asOf)
+      .filter((transaction) => this.startOfDay(transaction.bookingDate) <= asOf)
       .reduce<Date | undefined>(
         (earliest, transaction) => !earliest || transaction.bookingDate < earliest ? transaction.bookingDate : earliest,
         undefined,
@@ -79,13 +80,14 @@ export class ForecastService {
     const historyDays = earliestTransaction
       ? Math.max(1, Math.min(HISTORY_WINDOW_DAYS, this.daysBetween(effectiveHistoryStart, asOf) + 1))
       : 0;
+    const usesHistoryAverage = historyDays >= MIN_HISTORY_DAYS;
 
     const categoryTotals = new Map<string, number>();
     let historicalIncome = 0;
     let historicalExpenses = 0;
     let baselineTransactionCount = 0;
 
-    if (historyDays > 0) {
+    if (usesHistoryAverage) {
       for (const transaction of datedTransactions) {
         const date = this.startOfDay(transaction.bookingDate);
         if (date < effectiveHistoryStart || date > asOf || recurringTransactions.has(transaction)) continue;
@@ -98,11 +100,11 @@ export class ForecastService {
       }
     }
 
-    const dailyBaseline = historyDays > 0
+    const dailyBaseline = usesHistoryAverage
       ? [...categoryTotals.values()].reduce((sum, amount) => sum + amount, 0) / historyDays
       : 0;
-    const weeklyIncome = historyDays > 0 ? historicalIncome * 7 / historyDays : 0;
-    const weeklyExpenses = historyDays > 0 ? Math.abs(historicalExpenses) * 7 / historyDays : 0;
+    const weeklyIncome = usesHistoryAverage ? historicalIncome * 7 / historyDays : 0;
+    const weeklyExpenses = usesHistoryAverage ? Math.abs(historicalExpenses) * 7 / historyDays : 0;
     const categoryAverages = [...categoryTotals.entries()]
       .map(([name, amount]) => ({ name, weeklyAmount: amount * 7 / Math.max(1, historyDays) }))
       .sort((a, b) => Math.abs(b.weeklyAmount) - Math.abs(a.weeklyAmount));
@@ -131,6 +133,7 @@ export class ForecastService {
       endValue,
       change: this.round(endValue - startValue),
       historyDays,
+      usesHistoryAverage,
       baselineTransactionCount,
       weeklyIncome: this.round(weeklyIncome),
       weeklyExpenses: this.round(weeklyExpenses),
@@ -152,13 +155,19 @@ export class ForecastService {
       if (!series.isActive || !Number.isFinite(series.intervalDays) || series.intervalDays <= 0) continue;
 
       const intervalDays = Math.max(1, Math.round(series.intervalDays));
-      const amount = this.estimateAmount(series, asOf);
+      const amount = this.estimateAmount(series);
       if (!Number.isFinite(amount) || amount === 0) continue;
 
       let date = this.startOfDay(series.nextExpectedDate);
       if (date <= asOf) {
-        const periodsToSkip = Math.floor((asOf.getTime() - date.getTime()) / (intervalDays * DAY_MS)) + 1;
-        date = this.addDays(date, periodsToSkip * intervalDays);
+        const daysLate = this.daysBetween(date, asOf);
+        const graceDays = Math.max(7, intervalDays * 0.35);
+        if (daysLate <= graceDays) {
+          date = this.addDays(asOf, 1);
+        } else {
+          const periodsToSkip = Math.floor((asOf.getTime() - date.getTime()) / (intervalDays * DAY_MS)) + 1;
+          date = this.addDays(date, periodsToSkip * intervalDays);
+        }
       }
 
       while (date <= endDate) {
@@ -170,15 +179,10 @@ export class ForecastService {
     return payments.sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  private estimateAmount(series: RecurringSeries, asOf: Date): number {
+  private estimateAmount(series: RecurringSeries): number {
     if (series.amountType === 'fixed') return series.currentAmount;
-
-    const cutoff = this.addDays(asOf, -VARIABLE_AMOUNT_WINDOW_DAYS);
-    const recent = series.transactions.filter((transaction) =>
-      transaction.bookingDate <= asOf && transaction.bookingDate >= cutoff && Number.isFinite(transaction.amount),
-    );
-    if (recent.length === 0) return series.averageAmount;
-    return recent.reduce((sum, transaction) => sum + transaction.amount, 0) / recent.length;
+    // The recurring detector derives this from occurrence-level amounts in the last year.
+    return series.monthlyAmount * series.intervalDays / 30.44;
   }
 
   private startOfDay(date: Date): Date {
