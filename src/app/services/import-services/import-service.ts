@@ -11,6 +11,12 @@ import { defaultCategories } from 'src/app/default-categories';
 import { BaseCategory, mapBaseCategoryToCategory, mapCategoryToBaseCategory } from 'src/app/models/category';
 import { BalanceAnchor } from 'src/app/models/balance';
 import { BalanceService } from '../balance-service';
+import {
+  APP_DATA_STORE,
+  FILE_HANDLES_STORE,
+  IndexedDbStorageService,
+  PERSISTED_FILES_STORE,
+} from '../indexed-db-storage.service';
 
 export interface UmsatzFile {
   fileName: string;
@@ -25,13 +31,10 @@ export interface UmsatzFile {
 export class ImportService {
   private importServices: Importer[] = [new SpkImporter(), new IngImporter(), new N26Importer(), new DkbImporter()];
   private readonly minLoadingDurationMs = 2800;
-  private readonly categoriesFileDbName = 'FinanceAnalyser';
-  private readonly categoriesFileStoreName = 'fileHandles';
   private readonly categoriesFileHandleKey = 'categoriesFileHandle';
-  private readonly filesStorageKey = 'files';
   private activeFiles: UmsatzFile[] = [];
-  private activeFilesInitialized = false;
-  private readonly localStorageKeys = [
+  private categoriesLastSaved: string | null = null;
+  private readonly legacyLocalStorageKeys = [
     'categories',
     'categoriesLastSaved',
     'files',
@@ -41,6 +44,13 @@ export class ImportService {
     'searchTerm',
     'showAverage',
   ];
+
+  constructor(
+    private categoryService: CategoryService,
+    private dataState: DataState,
+    private balanceService: BalanceService,
+    private storage: IndexedDbStorageService
+  ) {}
 
   private typeStoredFile(fileName: string, content: string): Omit<UmsatzFile, 'persisted'> {
     return {
@@ -224,15 +234,15 @@ export class ImportService {
         }
       }
       if (shouldWritePersistedFiles) {
-        this.writePersistedFiles(nextFiles);
+        await this.writePersistedFiles(nextFiles);
       }
       this.activeFiles = nextFiles;
-      this.balanceService.clearManualBalance();
+      await this.balanceService.clearManualBalance();
       this.loadActiveFiles();
     });
   }
 
-  public setFilePersisted(fileName: string, persisted: boolean): void {
+  public async setFilePersisted(fileName: string, persisted: boolean): Promise<void> {
     const currentFiles = this.getActiveFiles();
     const file = currentFiles.find((item) => item.fileName === fileName);
     if (!file || file.persisted === persisted) return;
@@ -240,16 +250,16 @@ export class ImportService {
     const nextFiles = currentFiles.map((item) =>
       item.fileName === fileName ? { ...item, persisted } : item
     );
-    this.writePersistedFiles(nextFiles);
+    await this.writePersistedFiles(nextFiles);
     this.activeFiles = nextFiles;
   }
 
   public async removeFile(fileName: string): Promise<void> {
     await this.runWithLoading('Daten werden aktualisiert…', async () => {
       const files = this.getActiveFiles().filter((file) => file.fileName !== fileName);
-      this.writePersistedFiles(files);
+      await this.writePersistedFiles(files);
       this.activeFiles = files;
-      this.balanceService.clearManualBalance();
+      await this.balanceService.clearManualBalance();
       this.loadActiveFiles();
     });
   }
@@ -273,129 +283,89 @@ export class ImportService {
     }
   }
 
-  public clearFiles(): void {
-    localStorage.removeItem(this.filesStorageKey);
-    localStorage.removeItem('fileContent');
-    localStorage.removeItem('additionalFiles');
+  public async clearFiles(): Promise<void> {
+    await this.writePersistedFiles([]);
     this.activeFiles = [];
-    this.activeFilesInitialized = true;
-    this.balanceService.clearManualBalance();
+    await this.balanceService.clearManualBalance();
     this.dataState.resetState();
   }
 
   public async clearAllLocalData(): Promise<void> {
-    await this.deleteCategoriesFileDatabase();
-
-    for (const key of this.localStorageKeys) {
-      localStorage.removeItem(key);
-    }
+    await this.balanceService.clearManualBalance();
+    await this.storage.deleteDatabase();
+    this.clearLegacyLocalStorage();
 
     this.activeFiles = [];
-    this.activeFilesInitialized = true;
-    this.balanceService.clearManualBalance();
+    this.categoriesLastSaved = null;
     this.dataState.resetState();
     this.dataState.categories = defaultCategories.map(mapBaseCategoryToCategory);
     this.dataState.resetViewState();
-
-    // Ensure a subsequent visit starts with a clean local state.
-    for (const key of this.localStorageKeys) {
-      localStorage.removeItem(key);
-    }
-  }
-
-  public getFilesFromLocalStorage(): UmsatzFile[] {
-    const stored = localStorage.getItem(this.filesStorageKey);
-    const files: Array<Omit<UmsatzFile, 'persisted'> & { persisted?: boolean }> = stored ? JSON.parse(stored) : [];
-    return files.map((file) => ({ ...file, persisted: true }));
   }
 
   public getActiveFiles(): UmsatzFile[] {
-    if (!this.activeFilesInitialized) {
-      this.activeFiles = this.getFilesFromLocalStorage();
-      this.activeFilesInitialized = true;
-    }
     return this.activeFiles;
   }
 
-  private writePersistedFiles(files: UmsatzFile[]): void {
+  private async writePersistedFiles(files: UmsatzFile[]): Promise<void> {
     const persistedFiles = files.filter((file) => file.persisted);
-    if (persistedFiles.length === 0) {
-      localStorage.removeItem(this.filesStorageKey);
-      return;
-    }
-    localStorage.setItem(this.filesStorageKey, JSON.stringify(persistedFiles));
+    await this.storage.replaceAll(
+      PERSISTED_FILES_STORE,
+      persistedFiles.map((file) => ({
+        key: file.fileName,
+        value: { fileName: file.fileName, content: file.content, uploadedAt: file.uploadedAt },
+      }))
+    );
   }
 
-  constructor(private categoryService: CategoryService, private dataState: DataState, private balanceService: BalanceService) {}
+  public async loadFromIndexedDb(): Promise<void> {
+    this.activeFiles = (await this.storage.getAll<Omit<UmsatzFile, 'persisted'>>(PERSISTED_FILES_STORE))
+      .map((file) => ({ ...file, persisted: true }));
+    this.categoriesLastSaved = await this.storage.get<string>(APP_DATA_STORE, 'categoriesLastSaved') ?? null;
+    await this.balanceService.loadManualBalanceFromIndexedDb();
 
-
-  public async loadFromLocalStorage(){
     const load = async () => {
-      this.migrateLegacyFilesToUnifiedFiles();
-      this.activeFiles = this.getFilesFromLocalStorage();
-      this.activeFilesInitialized = true;
-
       const loadedFromFile = await this.loadCategoriesFromLinkedFile();
       if (!loadedFromFile) {
-        this.loadCategoriesFromLocalStorage();
+        await this.loadCategoriesFromIndexedDb();
       }
       this.loadActiveFiles();
     };
 
-    const hasStoredFiles = this.getFilesFromLocalStorage().length > 0 || !!localStorage.getItem('fileContent');
-    if (hasStoredFiles) {
+    if (this.activeFiles.length > 0) {
       await this.runWithLoading('Gespeicherte Daten werden geladen…', load);
     } else {
       await load();
     }
+    this.clearLegacyLocalStorage();
   }
 
-  private migrateLegacyFilesToUnifiedFiles(): void {
-    const existingFiles = this.getFilesFromLocalStorage();
-    if (existingFiles.length > 0) {
-      return;
-    }
-
-    const migratedFiles: Array<{ fileName: string; content: string; uploadedAt: string }> = [];
-
-    const legacyMainFileContent = localStorage.getItem('fileContent');
-    if (legacyMainFileContent) {
-      migratedFiles.push(this.typeStoredFile('Hauptdatei', legacyMainFileContent));
-    }
-
-    const legacyAdditionalFiles = localStorage.getItem('additionalFiles');
-    if (legacyAdditionalFiles) {
-      try {
-        const parsedLegacyFiles: Array<{ fileName: string; content: string; uploadedAt?: string }> = JSON.parse(legacyAdditionalFiles);
-        parsedLegacyFiles.forEach((legacyFile) => {
-          migratedFiles.push({
-            fileName: legacyFile.fileName,
-            content: legacyFile.content,
-            uploadedAt: legacyFile.uploadedAt ?? new Date().toISOString(),
-          });
-        });
-      } catch (error) {
-        console.error('Could not migrate legacy additional files:', error);
+  private clearLegacyLocalStorage(): void {
+    try {
+      for (const key of this.legacyLocalStorageKeys) {
+        localStorage.removeItem(key);
       }
+    } catch (error) {
+      console.warn('Could not clear legacy browser storage:', error);
     }
-
-    if (migratedFiles.length > 0) {
-      localStorage.setItem(this.filesStorageKey, JSON.stringify(migratedFiles));
-    }
-
-    localStorage.removeItem('fileContent');
-    localStorage.removeItem('additionalFiles');
   }
 
-  private loadCategoriesFromLocalStorage() {
-    let baseCategories: BaseCategory[] = localStorage.getItem('categories') ? JSON.parse(localStorage.getItem('categories')!) : defaultCategories;
-    this.dataState.categories = baseCategories.map((c) => mapBaseCategoryToCategory(c));
+  private async loadCategoriesFromIndexedDb(): Promise<void> {
+    const stored = await this.storage.get<string>(APP_DATA_STORE, 'categories');
+    const baseCategories: BaseCategory[] = stored ? JSON.parse(stored) : defaultCategories;
+    this.dataState.categories = baseCategories.map((category) => mapBaseCategoryToCategory(category));
   }
 
-  public saveCategoriesToLocalStorage(json: string) {
-    
-    localStorage.setItem('categories', json);
-    localStorage.setItem('categoriesLastSaved', new Date().toISOString());
+  public async saveCategoriesToIndexedDb(json: string): Promise<void> {
+    const lastSaved = new Date().toISOString();
+    await this.storage.putMany(APP_DATA_STORE, [
+      { key: 'categories', value: json },
+      { key: 'categoriesLastSaved', value: lastSaved },
+    ]);
+    this.categoriesLastSaved = lastSaved;
+  }
+
+  public getCategoriesLastSaved(): string | null {
+    return this.categoriesLastSaved;
   }
 
   public supportsCategoriesFileSync(): boolean {
@@ -463,12 +433,12 @@ export class ImportService {
       return false;
     }
 
-    this.saveCategoriesToLocalStorage(json);
+    await this.saveCategoriesToIndexedDb(json);
     return true;
   }
 
-  public async saveCategoriesToLocalStorageAndLinkedFile(json: string): Promise<boolean> {
-    this.saveCategoriesToLocalStorage(json);
+  public async saveCategoriesToIndexedDbAndLinkedFile(json: string): Promise<boolean> {
+    await this.saveCategoriesToIndexedDb(json);
     const handle = await this.getStoredCategoriesFileHandle();
     if (!handle) {
       return true;
@@ -489,7 +459,7 @@ export class ImportService {
     }
 
     const categoriesJson = this.categorisAsJson();
-    this.saveCategoriesToLocalStorage(categoriesJson);
+    await this.saveCategoriesToIndexedDb(categoriesJson);
     return true;
   }
 
@@ -570,63 +540,17 @@ export class ImportService {
     return requestedPermission === 'granted';
   }
 
-  private async openCategoriesFileDb(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.categoriesFileDbName, 1);
-
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(this.categoriesFileStoreName)) {
-          db.createObjectStore(this.categoriesFileStoreName);
-        }
-      };
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
   private async storeCategoriesFileHandle(handle: any): Promise<void> {
-    const db = await this.openCategoriesFileDb();
-
-    await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(this.categoriesFileStoreName, 'readwrite');
-      tx.objectStore(this.categoriesFileStoreName).put(handle, this.categoriesFileHandleKey);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-
-    db.close();
+    await this.storage.put(FILE_HANDLES_STORE, this.categoriesFileHandleKey, handle);
   }
 
   private async getStoredCategoriesFileHandle(): Promise<any | null> {
     try {
-      const db = await this.openCategoriesFileDb();
-
-      const handle = await new Promise<any | null>((resolve, reject) => {
-        const tx = db.transaction(this.categoriesFileStoreName, 'readonly');
-        const request = tx.objectStore(this.categoriesFileStoreName).get(this.categoriesFileHandleKey);
-        request.onsuccess = () => resolve(request.result ?? null);
-        request.onerror = () => reject(request.error);
-      });
-
-      db.close();
-      return handle;
+      return await this.storage.get(FILE_HANDLES_STORE, this.categoriesFileHandleKey) ?? null;
     } catch (error) {
       console.error('Error while reading stored categories file handle:', error);
       return null;
     }
-  }
-
-  private async deleteCategoriesFileDatabase(): Promise<void> {
-    if (typeof indexedDB === 'undefined') return;
-
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(this.categoriesFileDbName);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error ?? new Error('Could not delete the linked file handle.'));
-      request.onblocked = () => reject(new Error('The linked file handle database is still open in another tab.'));
-    });
   }
 
   public categorisAsJson(): string {

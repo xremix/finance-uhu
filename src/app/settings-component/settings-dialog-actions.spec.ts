@@ -16,7 +16,7 @@ describe('Settings dialog actions', () => {
 
   beforeEach(() => {
     state = { categories: [category()] } as DataState;
-    importer = jasmine.createSpyObj<ImportService>('ImportService', ['categorisAsJson', 'saveCategoriesToLocalStorageAndLinkedFile', 'clearAllLocalData']);
+    importer = jasmine.createSpyObj<ImportService>('ImportService', ['categorisAsJson', 'saveCategoriesToIndexedDbAndLinkedFile', 'clearAllLocalData']);
     importer.categorisAsJson.and.callFake(() => JSON.stringify(state.categories));
     feedback = jasmine.createSpyObj<UiFeedbackService>('UiFeedbackService', ['requestText', 'requestIcon', 'requestConfirmation', 'notify']);
     feedback.requestText.and.resolveTo(null);
@@ -72,7 +72,7 @@ describe('Settings dialog actions', () => {
   it('keeps unsaved edits and shows an error if saving fails', async () => {
     spyOn(console, 'error');
     component.hasUnsavedChanges = true;
-    importer.saveCategoriesToLocalStorageAndLinkedFile.and.rejectWith(new Error('Storage full'));
+    importer.saveCategoriesToIndexedDbAndLinkedFile.and.rejectWith(new Error('Storage full'));
 
     await component.saveState();
 
@@ -83,7 +83,7 @@ describe('Settings dialog actions', () => {
   });
 
   it('distinguishes local success from a failed linked file update', async () => {
-    importer.saveCategoriesToLocalStorageAndLinkedFile.and.resolveTo(false);
+    importer.saveCategoriesToIndexedDbAndLinkedFile.and.resolveTo(false);
 
     await component.saveState();
 
@@ -93,7 +93,7 @@ describe('Settings dialog actions', () => {
 
   it('keeps changes made while an earlier snapshot is being saved marked as unsaved', async () => {
     let finishSaving!: (value: boolean) => void;
-    importer.saveCategoriesToLocalStorageAndLinkedFile.and.returnValue(new Promise<boolean>((resolve) => finishSaving = resolve));
+    importer.saveCategoriesToIndexedDbAndLinkedFile.and.returnValue(new Promise<boolean>((resolve) => finishSaving = resolve));
     const saving = component.saveState();
     state.categories[0].name = 'Neue Änderung';
     finishSaving(true);

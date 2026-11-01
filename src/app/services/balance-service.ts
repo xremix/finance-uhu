@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { BalanceAnchor, DailyBalance } from '../models/balance';
 import { Transaction } from '../models/transaction';
 import { DataState } from './data-state';
+import { APP_DATA_STORE, IndexedDbStorageService } from './indexed-db-storage.service';
 
 /**
  * Simulates the end-of-day account balance for every day of the loaded data,
@@ -11,14 +12,13 @@ import { DataState } from './data-state';
   providedIn: 'root',
 })
 export class BalanceService {
-  private readonly manualBalanceStorageKey = 'manualBalance';
-  private manualAnchor: BalanceAnchor | undefined = this.loadManualAnchor();
+  private manualAnchor: BalanceAnchor | undefined;
 
   private cacheTransactions: readonly Transaction[] | undefined;
   private cacheAnchor: BalanceAnchor | undefined;
   private cacheResult: DailyBalance[] = [];
 
-  constructor(private dataState: DataState) {}
+  constructor(private dataState: DataState, @Optional() private storage?: IndexedDbStorageService) {}
 
   get anchor(): BalanceAnchor | undefined {
     return this.dataState.fileBalanceAnchor ?? this.manualAnchor;
@@ -74,18 +74,22 @@ export class BalanceService {
     return result;
   }
 
-  setManualBalance(date: Date, amount: number): void {
+  async setManualBalance(date: Date, amount: number): Promise<void> {
     this.manualAnchor = { date: this.startOfDay(date), amount, source: 'manual' };
     try {
-      localStorage.setItem(this.manualBalanceStorageKey, JSON.stringify({ date: this.toKey(date), amount }));
-    } catch {
-      // Ignore storage errors
+      await this.storage?.put(APP_DATA_STORE, 'manualBalance', { date: this.toKey(date), amount });
+    } catch (error) {
+      console.error('Could not save manual balance in browser storage:', error);
     }
   }
 
-  clearManualBalance(): void {
+  async clearManualBalance(): Promise<void> {
     this.manualAnchor = undefined;
-    localStorage.removeItem(this.manualBalanceStorageKey);
+    try {
+      await this.storage?.delete(APP_DATA_STORE, 'manualBalance');
+    } catch (error) {
+      console.error('Could not clear manual balance from browser storage:', error);
+    }
   }
 
   toKey(date: Date): string {
@@ -100,14 +104,19 @@ export class BalanceService {
     return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
   }
 
-  private loadManualAnchor(): BalanceAnchor | undefined {
+  async loadManualBalanceFromIndexedDb(): Promise<void> {
+    if (!this.storage) return;
+
     try {
-      const stored = JSON.parse(localStorage.getItem(this.manualBalanceStorageKey) ?? 'null');
-      const date = this.fromKey(stored?.date);
-      if (!date || typeof stored.amount !== 'number' || Number.isNaN(stored.amount)) return undefined;
-      return { date, amount: stored.amount, source: 'manual' };
+      const stored = await this.storage.get<{ date: string; amount: number }>(APP_DATA_STORE, 'manualBalance');
+      const date = this.fromKey(stored?.date ?? '');
+      if (!date || typeof stored?.amount !== 'number' || Number.isNaN(stored.amount)) {
+        this.manualAnchor = undefined;
+        return;
+      }
+      this.manualAnchor = { date, amount: stored.amount, source: 'manual' };
     } catch {
-      return undefined;
+      this.manualAnchor = undefined;
     }
   }
 

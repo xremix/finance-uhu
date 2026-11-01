@@ -78,7 +78,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
     try {
       await this.performSettingsAction(async () => {
         const json = this.importService.categorisAsJson();
-        const linkedFileSynced = await this.importService.saveCategoriesToLocalStorageAndLinkedFile(json);
+        const linkedFileSynced = await this.importService.saveCategoriesToIndexedDbAndLinkedFile(json);
         this.markSaved(json);
         this.feedback.notify(
           linkedFileSynced
@@ -124,7 +124,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
         return;
       }
       const loadedJson = this.importService.categorisAsJson();
-      this.importService.saveCategoriesToLocalStorage(loadedJson);
+      await this.importService.saveCategoriesToIndexedDb(loadedJson);
       this.json = loadedJson;
       this.markSaved(loadedJson);
       await this.refreshLinkedFileInfo();
@@ -398,7 +398,7 @@ export class SettingsComponentComponent implements OnInit, OnDestroy {
   }
 
   public getLastSavedDate(): string | null {
-    const lastSaved = localStorage.getItem('categoriesLastSaved');
+    const lastSaved = this.importService.getCategoriesLastSaved();
     if (lastSaved) {
       return new Date(lastSaved).toLocaleString('de-DE');
     }

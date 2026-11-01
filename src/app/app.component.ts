@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.importService.loadFromLocalStorage();
+    await this.importService.loadFromIndexedDb();
   }
 
   get showToolbar(): boolean {

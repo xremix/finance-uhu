@@ -153,7 +153,7 @@ export class FileSelectorComponent {
 
   async toggleFilePersistence(file: UmsatzFile): Promise<void> {
     try {
-      this.importService.setFilePersisted(file.fileName, !file.persisted);
+      await this.importService.setFilePersisted(file.fileName, !file.persisted);
     } catch (error) {
       console.error('Error changing local file storage:', error);
       this.feedback.notify('Die Speicheroption konnte nicht geändert werden. Bitte prüfe den verfügbaren Browserspeicher.', 'error');

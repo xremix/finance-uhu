@@ -78,15 +78,15 @@ export class BalanceCardComponent {
     this.showForm = true;
   }
 
-  saveManualBalance(): void {
+  async saveManualBalance(): Promise<void> {
     const date = this.balanceService.fromKey(this.formDate);
     if (!date || this.formAmount === null || Number.isNaN(Number(this.formAmount))) return;
-    this.balanceService.setManualBalance(date, Number(this.formAmount));
+    await this.balanceService.setManualBalance(date, Number(this.formAmount));
     this.showForm = false;
   }
 
-  removeManualBalance(): void {
-    this.balanceService.clearManualBalance();
+  async removeManualBalance(): Promise<void> {
+    await this.balanceService.clearManualBalance();
     this.closeDetails.emit();
   }
 
